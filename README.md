@@ -1,5 +1,5 @@
 # Edulution Technical Support
-- Requires Python >= 3.6
+- Requires Python 3.6
 
 ## Local Development Set up
 
@@ -42,7 +42,6 @@ EMAIL_HOST_USER=<your-value>
 EMAIL_HOST_PASSWORD=<your-value>
 GOOGLE_CLIENT_ID=<your-value>
 GOOGLE_CLIENT_SECRET=<your-value>
-GOOGLE_API_KEY=<your-value>
 ```
 
 
