@@ -1,3 +1,4 @@
+from datetime import datetime
 import uuid
 from django.db import models
 
@@ -56,3 +57,8 @@ class SupportTicket(BaseModel):
         SubCategory, on_delete=models.CASCADE, related_name="support_issues"
     )
     description = models.TextField(max_length=100, help_text="Describe the issue")
+
+    def ticket_age(self):
+        now = datetime.now()
+        age = now - self.date_submitted
+        return age
