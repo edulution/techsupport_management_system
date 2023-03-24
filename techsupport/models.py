@@ -46,11 +46,16 @@ class SupportTicket(BaseModel):
         ("in_progress", "In Progress"),
         ("resolved", "Resolved"),
     )
+    PRIORITY_CHOICES = (
+        ("low", "Low"),
+        ("medium", "Medium"),
+        ("high", "High"),
+    )
 
     date_submitted = models.DateTimeField(auto_now_add=True)
     date_resolved = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
-    priority = models.CharField(max_length=10)
+    priority = models.CharField(max_length=20, choices=PRIORITY_CHOICES)
     centre = models.ForeignKey(
         Centre, on_delete=models.CASCADE, related_name="support_issues"
     )
