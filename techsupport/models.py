@@ -41,9 +41,15 @@ class SubCategory(BaseModel):
 
 
 class SupportTicket(BaseModel):
+    STATUS_CHOICES = (
+        ("open", "Open"),
+        ("in_progress", "In Progress"),
+        ("resolved", "Resolved"),
+    )
+
     date_submitted = models.DateTimeField(auto_now_add=True)
     date_resolved = models.DateTimeField(null=True, blank=True)
-    status = models.CharField(max_length=10)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
     priority = models.CharField(max_length=10)
     centre = models.ForeignKey(
         Centre, on_delete=models.CASCADE, related_name="support_issues"
