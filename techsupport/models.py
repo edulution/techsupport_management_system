@@ -1,6 +1,7 @@
 from datetime import datetime
 import uuid
 from django.db import models
+from allauth.socialaccount.models import SocialAccount
 
 
 class BaseModel(models.Model):
@@ -59,8 +60,16 @@ class SupportTicket(BaseModel):
     centre = models.ForeignKey(
         Centre, on_delete=models.CASCADE, related_name="support_issues"
     )
-    # submitted_by = models.ForeignKey(auth, on_delete=models.CASCADE, related_name='submitted_issues')
-    # resolved_by = models.ForeignKey(auth, on_delete=models.CASCADE, null=True, blank=True, related_name='resolved_issues')
+    submitted_by = models.ForeignKey(
+        SocialAccount, on_delete=models.CASCADE, related_name="submitted_issues"
+    )
+    resolved_by = models.ForeignKey(
+        SocialAccount,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="resolved_issues",
+    )
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="support_issues"
     )
