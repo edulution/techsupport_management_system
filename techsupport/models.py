@@ -121,7 +121,6 @@ class SupportTicket(BaseModel):
     )
     description = models.TextField(
         verbose_name=_("description"),
-        max_length=100,
         help_text="Describe the issue",
     )
 
