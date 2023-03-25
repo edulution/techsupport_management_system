@@ -13,32 +13,43 @@ class BaseModel(models.Model):
 
 
 class Country(BaseModel):
-    name = models.CharField(max_length=30)
-    code = models.CharField(max_length=2)
+    name = models.CharField(max_length=30, verbose_name=_("name"))
+    code = models.CharField(max_length=2, verbose_name=_("code"))
 
 
 class Region(BaseModel):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30, verbose_name=_("name"))
     country = models.ForeignKey(
-        Country, on_delete=models.PROTECT, related_name="regions"
+        Country,
+        on_delete=models.PROTECT,
+        related_name="regions",
+        verbose_name=_("country"),
     )
 
 
 class Centre(BaseModel):
-    name = models.CharField(max_length=30)
-    acronym = models.CharField(max_length=5)
-    region = models.ForeignKey(Region, on_delete=models.PROTECT, related_name="centres")
+    name = models.CharField(max_length=30, verbose_name=_("name"))
+    acronym = models.CharField(max_length=5, verbose_name=_("acronym"))
+    region = models.ForeignKey(
+        Region,
+        on_delete=models.PROTECT,
+        related_name="centres",
+        verbose_name=_("region"),
+    )
 
 
 class Category(BaseModel):
-    name = models.CharField(max_length=30)
-    code = models.CharField(max_length=5)
+    name = models.CharField(max_length=30, verbose_name=_("name"))
+    code = models.CharField(max_length=5, verbose_name=_("code"))
 
 
 class SubCategory(BaseModel):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=30, verbose_name=_("name"))
     category = models.ForeignKey(
-        Category, on_delete=models.PROTECT, related_name="subcategories"
+        Category,
+        on_delete=models.PROTECT,
+        related_name="subcategories",
+        verbose_name=_("category"),
     )
 
 
