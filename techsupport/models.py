@@ -17,6 +17,9 @@ class Country(BaseModel):
     name = models.CharField(max_length=30, verbose_name=_("name"))
     code = models.CharField(max_length=2, verbose_name=_("code"))
 
+    def __str__(self):
+        return self.name
+
 
 class Region(BaseModel):
     name = models.CharField(max_length=30, verbose_name=_("name"))
@@ -26,6 +29,9 @@ class Region(BaseModel):
         related_name="regions",
         verbose_name=_("country"),
     )
+
+    def __str__(self):
+        return self.name
 
 
 class Centre(BaseModel):
@@ -38,10 +44,16 @@ class Centre(BaseModel):
         verbose_name=_("region"),
     )
 
+    def __str__(self):
+        return self.name
+
 
 class Category(BaseModel):
     name = models.CharField(max_length=30, verbose_name=_("name"))
     code = models.CharField(max_length=5, verbose_name=_("code"))
+
+    def __str__(self):
+        return self.name
 
 
 class SubCategory(BaseModel):
@@ -52,6 +64,9 @@ class SubCategory(BaseModel):
         related_name="subcategories",
         verbose_name=_("category"),
     )
+
+    def __str__(self):
+        return self.name
 
 
 class SupportTicket(BaseModel):
