@@ -7,7 +7,7 @@ from smart_selects.db_fields import ChainedForeignKey
 
 
 class BaseModel(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 
     class Meta:
         abstract = True
