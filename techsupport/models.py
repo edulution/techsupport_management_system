@@ -53,30 +53,57 @@ class SupportTicket(BaseModel):
         MEDIUM = "medium", _("Medium")
         HIGH = "high", _("High")
 
-    date_submitted = models.DateTimeField(auto_now_add=True)
-    date_resolved = models.DateTimeField(null=True, blank=True)
-    status = models.CharField(choices=SupportTicket.Status.choices)
-    priority = models.CharField(choices=SupportTicket.Priority.choices)
+    date_submitted = models.DateTimeField(
+        verbose_name=_("date submitted"), auto_now_add=True
+    )
+    date_resolved = models.DateTimeField(
+        verbose_name=_("date resolved"), null=True, blank=True
+    )
+    status = models.CharField(
+        verbose_name=_("status"), choices=SupportTicket.Status.choices, max_length=20
+    )
+    priority = models.CharField(
+        verbose_name=_("priority"),
+        choices=SupportTicket.Priority.choices,
+        max_length=20,
+    )
     centre = models.ForeignKey(
-        Centre, on_delete=models.CASCADE, related_name="support_issues"
+        Centre,
+        verbose_name=_("centre"),
+        on_delete=models.CASCADE,
+        related_name="support_issues",
     )
     submitted_by = models.ForeignKey(
-        SocialAccount, on_delete=models.CASCADE, related_name="submitted_issues"
+        SocialAccount,
+        verbose_name=_("submitted by"),
+        on_delete=models.CASCADE,
+        related_name="submitted_issues",
     )
     resolved_by = models.ForeignKey(
         SocialAccount,
+        verbose_name=_("resolved by"),
         on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name="resolved_issues",
     )
     category = models.ForeignKey(
-        Category, on_delete=models.CASCADE, related_name="support_issues"
+        Category,
+        verbose_name=_("category"),
+        on_delete=models.CASCADE,
+        related_name="support_issues",
     )
     subcategory = models.ForeignKey(
-        SubCategory, on_delete=models.CASCADE, related_name="support_issues"
+        SubCategory,
+        verbose_name=_("subcategory"),
+        on_delete=models.CASCADE,
+        related_name="support_issues",
     )
-    description = models.TextField(max_length=100, help_text="Describe the issue")
+    description = models.TextField(
+        verbose_name=_("description"),
+        max_length=100,
+        help_text="Describe the issue",
+    )
 
     def ticket_age(self):
         now = timezone.now()
