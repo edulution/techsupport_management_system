@@ -7,6 +7,8 @@ import uuid
 
 
 class BaseModel(models.Model):
+    """Abstract base model with UUID primary key."""
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 
     class Meta:
@@ -14,6 +16,8 @@ class BaseModel(models.Model):
 
 
 class Country(BaseModel):
+    """Model representing a country."""
+
     name = models.CharField(max_length=30, verbose_name=_("name"))
     code = models.CharField(max_length=2, verbose_name=_("code"))
 
@@ -22,6 +26,8 @@ class Country(BaseModel):
 
 
 class Region(BaseModel):
+    """Model representing a region within a country."""
+
     name = models.CharField(max_length=30, verbose_name=_("name"))
     country = models.ForeignKey(
         Country,
@@ -35,6 +41,8 @@ class Region(BaseModel):
 
 
 class Centre(BaseModel):
+    """Model representing a support centre within a region."""
+
     name = models.CharField(max_length=30, verbose_name=_("name"))
     acronym = models.CharField(max_length=5, verbose_name=_("acronym"))
     region = models.ForeignKey(
@@ -49,6 +57,8 @@ class Centre(BaseModel):
 
 
 class Category(BaseModel):
+    """Model representing a category of support issues."""
+
     name = models.CharField(max_length=30, verbose_name=_("name"))
     code = models.CharField(max_length=5, verbose_name=_("code"))
 
@@ -57,6 +67,8 @@ class Category(BaseModel):
 
 
 class SubCategory(BaseModel):
+    """Model representing a subcategory of support issues within a category."""
+
     name = models.CharField(max_length=30, verbose_name=_("name"))
     category = models.ForeignKey(
         Category,
@@ -70,6 +82,8 @@ class SubCategory(BaseModel):
 
 
 class SupportTicket(BaseModel):
+    """Model representing a support ticket submitted by a coach."""
+
     class Status(models.TextChoices):
         OPEN = "open", _("Open")
         IN_PROGRESS = "in_progress", _("In Progress")
