@@ -1,6 +1,7 @@
 from datetime import datetime
 import uuid
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from allauth.socialaccount.models import SocialAccount
 
 
@@ -42,16 +43,15 @@ class SubCategory(BaseModel):
 
 
 class SupportTicket(BaseModel):
-    STATUS_CHOICES = (
-        ("open", "Open"),
-        ("in_progress", "In Progress"),
-        ("resolved", "Resolved"),
-    )
-    PRIORITY_CHOICES = (
-        ("low", "Low"),
-        ("medium", "Medium"),
-        ("high", "High"),
-    )
+    class Status(models.TextChoices):
+        OPEN = "open", _("Open")
+        IN_PROGRESS = "in_progress", _("In Progress")
+        RESOLVED = "resolved", _("Resolved")
+
+    class Priority(models.TextChoices):
+        LOW = "low", _("Low")
+        MEDIUM = "medium", _("Medium")
+        HIGH = "high", _("High")
 
     date_submitted = models.DateTimeField(auto_now_add=True)
     date_resolved = models.DateTimeField(null=True, blank=True)
