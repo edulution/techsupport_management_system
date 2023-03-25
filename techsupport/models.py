@@ -55,8 +55,8 @@ class SupportTicket(BaseModel):
 
     date_submitted = models.DateTimeField(auto_now_add=True)
     date_resolved = models.DateTimeField(null=True, blank=True)
-    status = models.CharField(max_length=20, choices=SupportTicket.Status.choices)
-    priority = models.CharField(max_length=20, choices=SupportTicket.Priority.choices)
+    status = models.CharField(choices=SupportTicket.Status.choices)
+    priority = models.CharField(choices=SupportTicket.Priority.choices)
     centre = models.ForeignKey(
         Centre, on_delete=models.CASCADE, related_name="support_issues"
     )
