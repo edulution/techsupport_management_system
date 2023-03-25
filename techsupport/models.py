@@ -3,6 +3,7 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from allauth.socialaccount.models import SocialAccount
+from smart_selects.db_fields import ChainedForeignKey
 
 
 class BaseModel(models.Model):
@@ -78,8 +79,12 @@ class SupportTicket(BaseModel):
         choices=SupportTicket.Priority.choices,
         max_length=20,
     )
-    centre = models.ForeignKey(
+    centre = ChainedForeignKey(
         Centre,
+        chained_field="region",
+        chained_model_field="region",
+        show_all=False,
+        auto_choose=True,
         verbose_name=_("centre"),
         on_delete=models.CASCADE,
         related_name="support_issues",
@@ -104,8 +109,12 @@ class SupportTicket(BaseModel):
         on_delete=models.CASCADE,
         related_name="support_issues",
     )
-    subcategory = models.ForeignKey(
+    subcategory = ChainedForeignKey(
         SubCategory,
+        chained_field="category",
+        chained_model_field="category",
+        show_all=False,
+        auto_choose=True,
         verbose_name=_("subcategory"),
         on_delete=models.CASCADE,
         related_name="support_issues",
