@@ -1,9 +1,9 @@
 from django.utils import timezone
-import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from allauth.socialaccount.models import SocialAccount
 from smart_selects.db_fields import ChainedForeignKey
+import uuid
 
 
 class BaseModel(models.Model):
