@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -79,6 +79,6 @@ class SupportTicket(BaseModel):
     description = models.TextField(max_length=100, help_text="Describe the issue")
 
     def ticket_age(self):
-        now = datetime.now()
+        now = timezone.now()
         age = now - self.date_submitted
         return age
