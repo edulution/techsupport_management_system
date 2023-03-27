@@ -101,11 +101,11 @@ class SupportTicket(BaseModel):
         verbose_name=_("date resolved"), null=True, blank=True
     )
     status = models.CharField(
-        verbose_name=_("status"), choices=SupportTicket.Status.choices, max_length=20
+        verbose_name=_("status"), choices=Status.choices, max_length=20
     )
     priority = models.CharField(
         verbose_name=_("priority"),
-        choices=SupportTicket.Priority.choices,
+        choices=Priority.choices,
         max_length=20,
     )
     centre = ChainedForeignKey(
@@ -152,6 +152,8 @@ class SupportTicket(BaseModel):
         verbose_name=_("description"),
         help_text="Describe the issue",
     )
+
+    """Model representing difference in current time and date submitted of support ticket."""
 
     def ticket_age(self):
         now = timezone.now()
