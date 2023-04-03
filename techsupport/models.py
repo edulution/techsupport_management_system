@@ -110,14 +110,8 @@ class SupportTicket(BaseModel):
     date_resolved = models.DateTimeField(
         verbose_name=_("date resolved"), null=True, blank=True
     )
-    status = models.CharField(
-        verbose_name=_("status"), choices=Status.choices, max_length=20
-    )
-    priority = models.CharField(
-        verbose_name=_("priority"),
-        choices=Priority.choices,
-        max_length=20,
-    )
+    status = models.CharField(verbose_name=_("status"), choices=Status.choices)
+    priority = models.CharField(verbose_name=_("priority"), choices=Priority.choices)
     centre = ChainedForeignKey(
         Centre,
         chained_field="region",
