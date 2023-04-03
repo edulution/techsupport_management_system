@@ -31,7 +31,7 @@ class Country(BaseModel):
     code = models.CharField(max_length=2, verbose_name=_("code"))
 
     def __str__(self):
-        return self.name
+        return f"{self.code}:{self.name}"
 
 
 class Region(BaseModel):
