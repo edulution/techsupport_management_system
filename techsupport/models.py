@@ -94,9 +94,7 @@ class SupportTicket(BaseModel):
         MEDIUM = "medium", _("Medium")
         HIGH = "high", _("High")
 
-    ticket_number = models.IntegerField(
-        verbose_name=_("ticket number"), auto_created=True
-    )
+    ticket_number = models.AutoField(primary_key=False, verbose_name=_("ticket number"))
     date_submitted = models.DateTimeField(
         verbose_name=_("date submitted"), auto_now_add=True
     )
