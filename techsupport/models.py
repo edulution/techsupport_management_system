@@ -10,6 +10,7 @@ class BaseModel(models.Model):
     """Abstract base model with UUID primary key."""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("date created"))
 
     class Meta:
         abstract = True
