@@ -163,9 +163,11 @@ class SupportTicket(BaseModel):
         help_text="Describe the issue",
     )
 
-    """Model representing difference in current time and date submitted of support ticket."""
-
     def ticket_age(self):
+        """
+        Method that returns the difference between the current time and the time
+        the support ticket was submitted.
+        """
         now = timezone.now()
         age = now - self.date_submitted
         return age
