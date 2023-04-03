@@ -13,7 +13,11 @@ class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("date created"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date modified"))
     modified_by = models.ForeignKey(
-        SocialAccount, verbose_name=_("modified by"), on_delete=models.CASCADE
+        SocialAccount,
+        verbose_name=_("modified by"),
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
     class Meta:
