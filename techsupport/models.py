@@ -12,7 +12,9 @@ class BaseModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("date created"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date modified"))
-    modified_by = models.ForeignKey(SocialAccount, verbose_name=_("modified by"))
+    modified_by = models.ForeignKey(
+        SocialAccount, verbose_name=_("modified by"), on_delete=models.CASCADE
+    )
 
     class Meta:
         abstract = True
