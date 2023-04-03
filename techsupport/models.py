@@ -46,7 +46,7 @@ class Region(BaseModel):
     )
 
     def __str__(self):
-        return self.name
+        return f"{self.country.code}:{self.name}"
 
 
 class Centre(BaseModel):
