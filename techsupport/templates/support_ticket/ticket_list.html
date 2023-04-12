@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Support Tickets</h3>
+          <div class="card-tools">
+            <a href="{% url 'create_ticket' %}" class="btn btn-primary btn-sm">Create Ticket</a>
+          </div>
+        </div>
+        <div class="card-body">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Subcategory</th>
+                <th>Status</th>
+                <th>Created By</th>
+                <th>Created At</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ticket in tickets %}
+              <tr>
+                <td>{{ ticket.id }}</td>
+                <td>{{ ticket.title }}</td>
+                <td>{{ ticket.category }}</td>
+                <td>{{ ticket.sub_category }}</td>
+                <td>{{ ticket.status }}</td>
+                <td>{{ ticket.user }}</td>
+                <td>{{ ticket.created_at|date:"F d, Y h:i A" }}</td>
+                <td>
+                  <a href="{% url 'ticket_detail' ticket_id=ticket.id %}" class="btn btn-success btn-sm">View</a>
+                  {% if user.is_superuser or user == ticket.user %}
+                  <a href="{% url 'edit_ticket' ticket_id=ticket.id %}" class="btn btn-warning btn-sm">Edit</a>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="8" class="text-center">No tickets found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

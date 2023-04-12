@@ -1,0 +1,42 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Support Ticket Detail{% endblock %}
+
+{% block content %}
+  <div class="row mt-4">
+    <div class="col-md-8 mx-auto">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="card-title mb-0">Support Ticket #{{ ticket.id }}</h4>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <p><strong>Category:</strong> {{ ticket.category }}</p>
+              <p><strong>Subcategory:</strong> {{ ticket.sub_category }}</p>
+              <p><strong>Priority:</strong> {{ ticket.get_priority_display }}</p>
+              <p><strong>Created:</strong> {{ ticket.created_at|date:'M d, Y H:i' }}</p>
+              {% if ticket.updated_at %}
+                <p><strong>Updated:</strong> {{ ticket.updated_at|date:'M d, Y H:i' }}</p>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              <p><strong>Centre:</strong> {{ ticket.centre }}</p>
+              <p><strong>Country:</strong> {{ ticket.country }}</p>
+              <p><strong>Region:</strong> {{ ticket.region }}</p>
+              <p><strong>Status:</strong> {{ ticket.get_status_display }}</p>
+            </div>
+          </div>
+          <hr>
+          <h5 class="card-title">Description</h5>
+          <p>{{ ticket.description }}</p>
+        </div>
+      </div>
+      {% if user == ticket.user or user.region == ticket.region or user.groups.filter(name='manager').exists %}
+        <div class="text-center mt-4">
+          <a href="{% url 'edit_ticket' ticket.id %}" class="btn btn-primary">Edit Ticket</a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
