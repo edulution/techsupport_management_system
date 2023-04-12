@@ -103,7 +103,14 @@ class SupportTicket(BaseModel):
         MEDIUM = "medium", _("Medium")
         HIGH = "high", _("High")
 
-    ticket_number = models.AutoField(primary_key=False, verbose_name=_("ticket number"))
+    PRIORITY_CHOICES = [
+        (Priority.LOW, _("Low")),
+        (Priority.MEDIUM, _("Medium")),
+        (Priority.HIGH, _("High")),
+    ]
+
+    ticket_number = models.AutoField(
+        primary_key=False, verbose_name=_("ticket number"))
     date_submitted = models.DateTimeField(
         verbose_name=_("date submitted"), auto_now_add=True
     )
@@ -111,7 +118,8 @@ class SupportTicket(BaseModel):
         verbose_name=_("date resolved"), null=True, blank=True
     )
     status = models.CharField(verbose_name=_("status"), choices=Status.choices)
-    priority = models.CharField(verbose_name=_("priority"), choices=Priority.choices)
+    priority = models.CharField(verbose_name=_(
+        "priority"), choices=PRIORITY_CHOICES)
     centre = ChainedForeignKey(
         Centre,
         chained_field="region",
