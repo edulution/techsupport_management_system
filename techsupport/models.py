@@ -24,6 +24,14 @@ class BaseModel(models.Model):
         abstract = True
 
 
+class Role(BaseModel):
+    class Roles(models.TextChoices):
+        ADMIN = "admin", _("Admin")
+        MANAGER = "manager", _("Manager")
+        TECHNICIAN = "technician", _("Technician")
+        USER = "user", _("User")
+
+
 class Country(BaseModel):
     """Model representing a country."""
 
