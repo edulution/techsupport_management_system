@@ -166,6 +166,12 @@ class SupportTicket(BaseModel):
         verbose_name=_("description"),
         help_text="Describe the issue",
     )
+    support_description = models.CharField(
+        verbose_name=_("support description"),
+        max_length=20,
+        null=True,
+        blank=True,
+    )
 
     def ticket_age(self):
         """
