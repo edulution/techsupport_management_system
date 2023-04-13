@@ -175,9 +175,7 @@ class SupportTicket(BaseModel):
 
     def save(self, *args, **kwargs):
         # Update the support description based on the category, subcategory, and description fields
-        self.support_description = (
-            f"{self.category.code}-{self.subcategory.code}-{self.description[:20]}"
-        )
+        self.support_description = f"{self.ticket_number}-{self.category.code}-{self.subcategory.code}-{self.description[:20]}"
         super().save(*args, **kwargs)
 
     def ticket_age(self):
