@@ -31,6 +31,8 @@ class Role(BaseModel):
         TECHNICIAN = "technician", _("Technician")
         USER = "user", _("User")
 
+    kind = models.CharField(verbose_name=_("kind"), choices=Roles.choices)
+
 
 class Country(BaseModel):
     """Model representing a country."""
