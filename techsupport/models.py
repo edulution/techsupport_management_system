@@ -182,6 +182,13 @@ class SupportTicket(BaseModel):
     )
 
     def save(self, *args, **kwargs):
+        """
+        Override the save method to set the ticket number and support description.
+
+        Args:
+            *args: Arguments passed to the superclass method.
+            **kwargs: Keyword arguments passed to the superclass method.
+        """
         if not self.ticket_number:
             max_ticket_number = SupportTicket.objects.aggregate(
                 max_ticket_number=models.Max("ticket_number")
