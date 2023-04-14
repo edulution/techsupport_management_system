@@ -31,7 +31,9 @@ class Role(BaseModel):
         TECHNICIAN = "technician", _("Technician")
         USER = "user", _("User")
 
-    kind = models.CharField(verbose_name=_("kind"), choices=Roles.choices)
+    kind = models.CharField(
+        max_length=30, verbose_name=_("kind"), choices=Roles.choices
+    )
 
 
 class Country(BaseModel):
@@ -131,8 +133,12 @@ class SupportTicket(BaseModel):
     date_resolved = models.DateTimeField(
         verbose_name=_("date resolved"), null=True, blank=True
     )
-    status = models.CharField(verbose_name=_("status"), choices=Status.choices)
-    priority = models.CharField(verbose_name=_("priority"), choices=Priority.choices)
+    status = models.CharField(
+        max_length=30, verbose_name=_("status"), choices=Status.choices
+    )
+    priority = models.CharField(
+        max_length=30, verbose_name=_("priority"), choices=Priority.choices
+    )
     centre = ChainedForeignKey(
         Centre,
         chained_field="region",
