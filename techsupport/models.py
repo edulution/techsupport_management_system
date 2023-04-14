@@ -118,15 +118,6 @@ class SupportTicket(BaseModel):
     ticket_number = models.PositiveIntegerField(
         verbose_name=_("ticket number"), unique=True, editable=False
     )
-
-    def save(self, *args, **kwargs):
-        if not self.ticket_number:
-            max_ticket_number = SupportTicket.objects.aggregate(
-                max_ticket_number=models.Max("ticket_number")
-            )["max_ticket_number"]
-            self.ticket_number = (max_ticket_number or 0) + 1
-        super().save(*args, **kwargs)
-
     date_submitted = models.DateTimeField(
         verbose_name=_("date submitted"), auto_now_add=True
     )
@@ -191,8 +182,14 @@ class SupportTicket(BaseModel):
     )
 
     def save(self, *args, **kwargs):
-        # Update the support description based on the category, subcategory, and description fields
-        self.support_description = f"{self.ticket_number}-{self.category.code}-{self.subcategory.code}-{self.description[:20]}"
+        if not self.ticket_number:
+            max_ticket_number = SupportTicket.objects.aggregate(
+                max_ticket_number=models.Max("ticket_number")
+            )["max_ticket_number"]
+            self.ticket_number = (max_ticket_number or 0) + 1
+
+        if not self.support_description:
+            self.support_description = f"{self.ticket_number}-{self.category.code}-{self.subcategory.code}-{self.description[:20]}"
         super().save(*args, **kwargs)
 
     def ticket_age(self):
