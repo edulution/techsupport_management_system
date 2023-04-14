@@ -113,7 +113,18 @@ class SupportTicket(BaseModel):
         MEDIUM = "medium", _("Medium")
         HIGH = "high", _("High")
 
-    ticket_number = models.AutoField(primary_key=False, verbose_name=_("ticket number"))
+    ticket_number = models.PositiveIntegerField(
+        verbose_name=_("ticket number"), unique=True, editable=False
+    )
+
+    def save(self, *args, **kwargs):
+        if not self.ticket_number:
+            max_ticket_number = SupportTicket.objects.aggregate(
+                max_ticket_number=models.Max("ticket_number")
+            )["max_ticket_number"]
+            self.ticket_number = (max_ticket_number or 0) + 1
+        super().save(*args, **kwargs)
+
     date_submitted = models.DateTimeField(
         verbose_name=_("date submitted"), auto_now_add=True
     )
