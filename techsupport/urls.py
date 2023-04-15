@@ -1,20 +1,42 @@
-from django.urls import path, include
-from . import views
-
-# URL routing for various pages of the tech support management system.
+from django.urls import path
+from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.views import LoginView
+from .views import (
+    UserHomePageView,
+    ManagerHomePageView,
+    TechnicianHomePageView,
+    AdminHomePageView,
+    CustomLoginView,
+    profile,
+    base,
+    create_ticket,
+    ticket_detail_user,
+    ticket_detail_technician,
+    manager_dashboard,
+    admin_dashboard,
+    ticket_list,
+    update_ticket,
+    edit_ticket,
+    KnowledgeBaseListView,
+)
 
 urlpatterns = [
-    path("", views.HomePageView.as_view(), name="home"),
-    path("accounts/profile/", views.profile, name="profile"),
-    path("accounts/base/", views.base, name="base"),
-    path("accounts/login/", views.CustomLoginView.as_view(), name="account_login"),
-    path("support_ticket/create/", views.create_ticket, name="create_ticket"),
-    path("support_ticket/<int:ticket_id>/", views.ticket_detail, name="ticket_detail"),
-    path("support_ticket/<int:pk>/update/", views.update_ticket, name="update_ticket"),
-    path("support_ticket/", views.ticket_list, name="ticket_list"),
-    path("support_ticket/<int:ticket_id>/edit/", views.edit_ticket, name="edit_ticket"),
-    path("support_ticket/admin_dashboard/", views.admin_dashboard, name="admin_dashboard"),
-    path("support_ticket/coach_ticket_detail/<int:pk>/", views.CoachTicketDetailView.as_view(), name="coach_ticket_detail"),
-    path("support_ticket/manager_dashboard/", views.manager_dashboard, name="manager_dashboard"),
-    path("support_ticket/coach_ticket_list/", views.CoachTicketListView.as_view(), name="coach_ticket_list"),
+    path("", LoginView.as_view(), name="account_login"),
+    path("home/user/", UserHomePageView.as_view(), name="home_user"),
+    path("home/manager/", ManagerHomePageView.as_view(), name="home_manager"),
+    path("home/technician/", TechnicianHomePageView.as_view(), name="home_technician"),
+    path("home/admin/", AdminHomePageView.as_view(), name="home_admin"),
+    path("login/", CustomLoginView.as_view(), name="account_login"),
+    path("profile/", profile, name="profile"),
+    path("base/", base, name="base"),
+    path("create-ticket/", create_ticket, name="create_ticket"),
+    path("ticket/<int:ticket_id>/", ticket_detail_user, name="ticket_detail"),
+    path("ticket/<int:ticket_id>/technician/", ticket_detail_technician, name="ticket_detail_technician"),
+    path("manager-dashboard/", manager_dashboard, name="manager_dashboard"),
+    path("admin-dashboard/", admin_dashboard, name="admin_dashboard"),
+    path("ticket-list/", ticket_list, name="ticket_list"),
+    path("update-ticket/<int:ticket_id>/", update_ticket, name="update_ticket"),
+    path("edit-ticket/<int:ticket_id>/", edit_ticket, name="edit_ticket"),
+    path("knowledge_base/", KnowledgeBaseListView.as_view(), name="knowledge_base"),
 ]

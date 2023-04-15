@@ -18,12 +18,12 @@ class TicketCreateForm(forms.Form):
 
 # Form for updating a support ticket
 
-class TicketForm(forms.ModelForm):
+class SupportTicketForm(forms.ModelForm):
     class Meta:
         model = SupportTicket
         # Fields to be updated
-        fields = ('category', 'sub_category', 'title', 'description',
-                  'priority', 'centre', 'region')
+        fields = ("category", "sub_category", "title", "description",
+                  "priority", "centre", "region", "country")
 
 # Form for updating the description of a support ticket
 
@@ -32,6 +32,6 @@ class TicketUpdateForm(forms.ModelForm):
     class Meta:
         model = SupportTicket
         # Fields to be updated
-        fields = ('description',)
+        fields = ("description",)
         # Field widget to display description with 5 rows
-        widgets = {'description': forms.Textarea(attrs={'rows': 5})}
+        widgets = {"description": forms.Textarea(attrs={"rows": 5})}
