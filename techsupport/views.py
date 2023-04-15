@@ -103,7 +103,7 @@ class ManagerHomePageView(LoginRequiredMixin, ListView):
         search_query = self.request.GET.get("q")
         if search_query:
             queryset = queryset.filter(Q(ticket_number__icontains=search_query) |
-                                       Q(customer_name__icontains=search_query))
+                                       Q(user_name__icontains=search_query))
 
         # Filtering
         filter_by = self.request.GET.get("filter_by")
@@ -163,7 +163,7 @@ class TechnicianHomePageView(LoginRequiredMixin, TemplateView):
         if search_query:
             tickets = tickets.filter(
                 Q(ticket_number__icontains=search_query) |
-                Q(customer__name__icontains=search_query)
+                Q(user__name__icontains=search_query)
             )
         context["search_query"] = search_query
 
