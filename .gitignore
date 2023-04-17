@@ -15,3 +15,7 @@ logs/
 
 # Ignore Visual Studio Code settings
 .vscode/
+
+# virtual environment
+Lib
+Scripts
