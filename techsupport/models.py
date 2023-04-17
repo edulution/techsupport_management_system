@@ -27,7 +27,7 @@ class BaseModel(models.Model):
 class Role(BaseModel):
     """Model representing user role."""
 
-    class Roles(models.TextChoices):
+    class RoleType(models.TextChoices):
         ADMIN = "admin", _("Admin")
         MANAGER = "manager", _("Manager")
         TECHNICIAN = "technician", _("Technician")
