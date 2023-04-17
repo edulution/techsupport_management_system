@@ -25,6 +25,8 @@ class BaseModel(models.Model):
 
 
 class Role(BaseModel):
+    """Model representing user role."""
+
     class Roles(models.TextChoices):
         ADMIN = "admin", _("Admin")
         MANAGER = "manager", _("Manager")
@@ -35,6 +37,10 @@ class Role(BaseModel):
         max_length=30, verbose_name=_("kind"), choices=Roles.choices
     )
 
+    class Meta:
+        verbose_name = "role"
+        verbose_name_plural = "roles"
+
 
 class Country(BaseModel):
     """Model representing a country."""
@@ -44,6 +50,9 @@ class Country(BaseModel):
 
     def __str__(self):
         return f"{self.code}:{self.name}"
+
+    class Meta:
+        verbose_name_plural = "countries"
 
 
 class Region(BaseModel):
@@ -59,6 +68,9 @@ class Region(BaseModel):
 
     def __str__(self):
         return f"{self.country.code}:{self.name}"
+
+    class Meta:
+        verbose_name_plural = "regions"
 
 
 class Centre(BaseModel):
@@ -76,6 +88,9 @@ class Centre(BaseModel):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = "centres"
+
 
 class Category(BaseModel):
     """Model representing a category of support issues."""
@@ -85,6 +100,9 @@ class Category(BaseModel):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name_plural = "categories"
 
 
 class SubCategory(BaseModel):
@@ -100,6 +118,9 @@ class SubCategory(BaseModel):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name_plural = "subcategories"
 
 
 class SupportTicket(BaseModel):
