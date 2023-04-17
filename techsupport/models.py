@@ -195,8 +195,8 @@ class SupportTicket(BaseModel):
         verbose_name=_("description"),
         help_text="Describe the issue",
     )
-    support_description = models.CharField(
-        verbose_name=_("support description"),
+    title = models.CharField(
+        verbose_name=_("title"),
         max_length=20,
         null=True,
         blank=True,
@@ -216,8 +216,8 @@ class SupportTicket(BaseModel):
             )["max_ticket_number"]
             self.ticket_number = (max_ticket_number or 0) + 1
 
-        if not self.support_description:
-            self.support_description = f"{self.ticket_number}-{self.category.code}-{self.subcategory.code}-{self.description[:20]}"
+        if not self.title:
+            self.title = f"{self.ticket_number}-{self.category.code}-{self.subcategory.code}-{self.description[:20]}"
         super().save(*args, **kwargs)
 
     def ticket_age(self):
