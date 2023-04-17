@@ -34,7 +34,7 @@ class Role(BaseModel):
         USER = "user", _("User")
 
     kind = models.CharField(
-        max_length=30, verbose_name=_("kind"), choices=Roles.choices
+        max_length=30, verbose_name=_("kind"), choices=RoleType.choices
     )
 
     class Meta:
