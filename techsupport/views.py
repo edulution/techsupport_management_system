@@ -17,11 +17,11 @@ from django import forms
 
 
 from .forms import TicketCreateForm, SupportTicketForm, TicketUpdateForm
-from .models import Country, Region, Centre, Category, SubCategory, SupportTicket, KnowledgeBase
-
+from .models import Country, Region, Centre, Category, SubCategory, SupportTicket
 
 
 # Login view
+
 
 class CustomLoginView(LoginView):
     template_name = "accounts/login.html"
@@ -35,8 +35,6 @@ def profile(request):
 
 def base(request):
     return render(request, "accounts/base.html")
-
-
 
 
 # user"s home page that inherits from the TemplateView class and adds the list of support tickets related to the logged-in user to the context data of the template.
@@ -64,20 +62,19 @@ class UserHomePageView(LoginRequiredMixin, View):
 
     def get_context_data(self, **kwargs):
         context = {}
-        context["tickets"] = SupportTicket.objects.filter(
-            user=self.request.user)
+        context["tickets"] = SupportTicket.objects.filter(user=self.request.user)
         context["form"] = SupportTicketForm()
         context["knowledge_base"] = KnowledgeBase.objects.all()
         return context
-    
+
 
 # KnowledgeBaseListView
-class KnowledgeBaseListView(ListView):
-    model = KnowledgeBase
-    template_name = "knowledge_base.html"
-    context_object_name = "knowledge_base_list"
-    
-    
+# class KnowledgeBaseListView(ListView):
+#     model = KnowledgeBase
+#     template_name = "knowledge_base.html"
+#     context_object_name = "knowledge_base_list"
+
+
 # contains all the support tickets that are assigned to the manager's region.
 
 
@@ -102,8 +99,10 @@ class ManagerHomePageView(LoginRequiredMixin, ListView):
         # Searching
         search_query = self.request.GET.get("q")
         if search_query:
-            queryset = queryset.filter(Q(ticket_number__icontains=search_query) |
-                                       Q(user_name__icontains=search_query))
+            queryset = queryset.filter(
+                Q(ticket_number__icontains=search_query)
+                | Q(user_name__icontains=search_query)
+            )
 
         # Filtering
         filter_by = self.request.GET.get("filter_by")
@@ -131,6 +130,7 @@ class ManagerHomePageView(LoginRequiredMixin, ListView):
         context["ticket_details_url"] = "ticket_details"
 
         return context
+
 
 # This view for the technician homepage that retrieves and renders a list of support tickets assigned to the current logged-in technician.
 
@@ -162,8 +162,8 @@ class TechnicianHomePageView(LoginRequiredMixin, TemplateView):
         search_query = self.request.GET.get("q")
         if search_query:
             tickets = tickets.filter(
-                Q(ticket_number__icontains=search_query) |
-                Q(user__name__icontains=search_query)
+                Q(ticket_number__icontains=search_query)
+                | Q(user__name__icontains=search_query)
             )
         context["search_query"] = search_query
 
@@ -182,8 +182,7 @@ class TechnicianHomePageView(LoginRequiredMixin, TemplateView):
 
         # Notifications
         new_tickets_count = SupportTicket.objects.filter(
-            technician=self.request.user,
-            status="new"
+            technician=self.request.user, status="new"
         ).count()
         context["new_tickets_count"] = new_tickets_count
 
@@ -206,12 +205,11 @@ class AdminHomePageView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Feature 1: Dashboard summary
-        open_tickets_count = SupportTicket.objects.filter(
-            status="Open").count()
-        closed_tickets_count = SupportTicket.objects.filter(
-            status="Closed").count()
-        avg_response_time = SupportTicket.objects.filter(
-            status="Closed").aggregate(avg_response_time=Avg("response_time"))
+        open_tickets_count = SupportTicket.objects.filter(status="Open").count()
+        closed_tickets_count = SupportTicket.objects.filter(status="Closed").count()
+        avg_response_time = SupportTicket.objects.filter(status="Closed").aggregate(
+            avg_response_time=Avg("response_time")
+        )
         ticket_categories = Category.objects.all()
         context["dashboard_summary"] = {
             "open_tickets_count": open_tickets_count,
@@ -222,15 +220,16 @@ class AdminHomePageView(LoginRequiredMixin, TemplateView):
         # Feature 2: List of recent/high-priority tickets
         recent_tickets = SupportTicket.objects.order_by("-created_at")[:10]
         high_priority_tickets = SupportTicket.objects.filter(
-            priority__in=["High", "Urgent"])
+            priority__in=["High", "Urgent"]
+        )
         context["recent_tickets"] = recent_tickets
         context["high_priority_tickets"] = high_priority_tickets
         # Feature 3: Search bar
         search_query = self.request.GET.get("search_query")
         if search_query:
             tickets = SupportTicket.objects.filter(
-                Q(title__icontains=search_query) | Q(
-                    user__email__icontains=search_query)
+                Q(title__icontains=search_query)
+                | Q(user__email__icontains=search_query)
             )
         else:
             tickets = SupportTicket.objects.all()
@@ -255,8 +254,8 @@ class AdminHomePageView(LoginRequiredMixin, TemplateView):
         return context
 
 
+# Create support ticket view
 
-# Create support ticket view 
 
 @login_required
 def create_ticket(request):
@@ -285,8 +284,8 @@ def create_ticket(request):
     return render(request, "support_ticket/create_ticket.html", {"form": form})
 
 
-
 # Support ticket detail view for user/coach
+
 
 @login_required(login_url="account_login")
 def ticket_detail_user(request, ticket_id):
@@ -295,14 +294,16 @@ def ticket_detail_user(request, ticket_id):
 
     # Check if the user/coach has permission to view the ticket
     if request.user == ticket.user:
-        return render(request, "support_ticket/ticket_detail_user.html", {"ticket": ticket})
+        return render(
+            request, "support_ticket/ticket_detail_user.html", {"ticket": ticket}
+        )
     else:
-        messages.error(
-            request, "You do not have permission to view this ticket.")
+        messages.error(request, "You do not have permission to view this ticket.")
         return redirect("home_user")
 
 
-#Technician ticket detail view
+# Technician ticket detail view
+
 
 @login_required(login_url="account_login")
 def ticket_detail_technician(request, ticket_id):
@@ -311,28 +312,32 @@ def ticket_detail_technician(request, ticket_id):
 
     # Check if the technician has permission to view the ticket
     if request.user == ticket.technician:
-        return render(request, "support_ticket/ticket_detail_technician.html", {"ticket": ticket})
+        return render(
+            request, "support_ticket/ticket_detail_technician.html", {"ticket": ticket}
+        )
     else:
-        messages.error(
-            request, "You do not have permission to view this ticket.")
+        messages.error(request, "You do not have permission to view this ticket.")
         return redirect("home_technician")
-
 
 
 # A function to check if the coach belongs to the manager group
 
+
 def is_manager(user):
     return user.is_authenticated and user.is_manager
 
+
 # A view that displays the dashboard for managers only
 # It gets all support tickets that belong to the manager"s assigned region/cluster and passes them to the template
+
 
 @user_passes_test(is_manager)
 def manager_dashboard(request):
     manager = request.user.manager_profile
     tickets = SupportTicket.objects.filter(cluster=manager.cluster)
-    return render(request, "support_ticket/manager_dashboard.html", {"tickets": tickets})
-
+    return render(
+        request, "support_ticket/manager_dashboard.html", {"tickets": tickets}
+    )
 
 
 # Edit support ticket view for technician and admin
@@ -343,7 +348,11 @@ def edit_ticket(request, ticket_id):
 
     if request.method == "GET":
         # Render the ticket form with the existing ticket data
-        return render(request, "support_ticket/edit_ticket.html", {"form": TicketCreateForm(instance=ticket)})
+        return render(
+            request,
+            "support_ticket/edit_ticket.html",
+            {"form": TicketCreateForm(instance=ticket)},
+        )
 
     # If this is a POST request, validate the submitted form data and update the ticket
     form = TicketCreateForm(request.POST, instance=ticket)
@@ -356,15 +365,19 @@ def edit_ticket(request, ticket_id):
     return render(request, "support_ticket/edit_ticket.html", {"form": form})
 
 
-#Update a support ticket
+# Update a support ticket
+
 
 @login_required(login_url="account_login")
 def update_ticket(request, pk):
     ticket = get_object_or_404(SupportTicket, pk=pk)
 
     # Check if the user/coach is authorized to update the ticket
-    if request.user.groups.filter(name="technician").exists() or request.user.is_superuser:
-    # If it is a POST request, update the ticket with the new data
+    if (
+        request.user.groups.filter(name="technician").exists()
+        or request.user.is_superuser
+    ):
+        # If it is a POST request, update the ticket with the new data
         if request.method == "POST":
             if TicketUpdateForm(request.POST, instance=ticket).is_valid():
                 ticket.save()
@@ -373,24 +386,30 @@ def update_ticket(request, pk):
         else:
             # If it is a GET request, display the ticket update form
             form = TicketUpdateForm(instance=ticket)
-            return render(request, "support_ticket/update_ticket.html", {"form": form, "ticket": ticket})
+            return render(
+                request,
+                "support_ticket/update_ticket.html",
+                {"form": form, "ticket": ticket},
+            )
     else:
         messages.error(request, "You are not authorized to update this ticket.")
         return redirect("home")
 
 
-
-#Support ticket list view for technician and admin
+# Support ticket list view for technician and admin
 
 
 @login_required(login_url="account_login")
-@user_passes_test(lambda user: user.groups.filter(name="technician").exists() or user.is_superuser)
+@user_passes_test(
+    lambda user: user.groups.filter(name="technician").exists() or user.is_superuser
+)
 def ticket_list(request):
     tickets = SupportTicket.objects.all()
     return render(request, "support_ticket/ticket_list.html", {"tickets": tickets})
 
 
-#Support ticket detail view for technician and superuser
+# Support ticket detail view for technician and superuser
+
 
 @login_required(login_url="account_login")
 def ticket_detail(request, ticket_id):
@@ -400,7 +419,11 @@ def ticket_detail(request, ticket_id):
         raise Http404("Ticket does not exist")
 
     # check if user is authorized to view this ticket
-    if not (request.user.groups.filter(name="technician").exists() or request.user.is_superuser or request.user == ticket.user):
+    if not (
+        request.user.groups.filter(name="technician").exists()
+        or request.user.is_superuser
+        or request.user == ticket.user
+    ):
         messages.error(request, "You are not authorized to view this ticket")
         return redirect("ticket_list")
 
@@ -411,8 +434,9 @@ def ticket_detail(request, ticket_id):
             return redirect("ticket_detail", ticket_id=ticket.id)
     else:
         form = TicketUpdateForm(instance=ticket)
-    return render(request, "support_ticket/ticket_detail.html", {"ticket": ticket, "form": form})
-
+    return render(
+        request, "support_ticket/ticket_detail.html", {"ticket": ticket, "form": form}
+    )
 
 
 # Support ticket list view for field coordinators/managers and admin
@@ -425,7 +449,8 @@ def coach_ticket_list(request):
     return render(request, "support_ticket/ticket_list.html", {"tickets": tickets})
 
 
-#Admin dashboard view
+# Admin dashboard view
+
 
 @login_required(login_url="account_login")
 @user_passes_test(lambda u: u.is_superuser)
@@ -435,9 +460,13 @@ def admin_dashboard(request):
     open_tickets = SupportTicket.objects.filter(status="Open").count()
     closed_tickets = SupportTicket.objects.filter(status="Closed").count()
     tech_users = User.objects.filter(groups__name="technician").count()
-    return render(request, "support_ticket/admin_dashboard.html", {
-        "total_tickets": total_tickets,
-        "open_tickets": open_tickets,
-        "closed_tickets": closed_tickets,
-        "tech_users": tech_users
-    })
+    return render(
+        request,
+        "support_ticket/admin_dashboard.html",
+        {
+            "total_tickets": total_tickets,
+            "open_tickets": open_tickets,
+            "closed_tickets": closed_tickets,
+            "tech_users": tech_users,
+        },
+    )

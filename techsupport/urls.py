@@ -18,7 +18,7 @@ from .views import (
     ticket_list,
     update_ticket,
     edit_ticket,
-    KnowledgeBaseListView,
+    # KnowledgeBaseListView,
 )
 
 urlpatterns = [
@@ -32,11 +32,15 @@ urlpatterns = [
     path("base/", base, name="base"),
     path("create-ticket/", create_ticket, name="create_ticket"),
     path("ticket/<int:ticket_id>/", ticket_detail_user, name="ticket_detail"),
-    path("ticket/<int:ticket_id>/technician/", ticket_detail_technician, name="ticket_detail_technician"),
+    path(
+        "ticket/<int:ticket_id>/technician/",
+        ticket_detail_technician,
+        name="ticket_detail_technician",
+    ),
     path("manager-dashboard/", manager_dashboard, name="manager_dashboard"),
     path("admin-dashboard/", admin_dashboard, name="admin_dashboard"),
     path("ticket-list/", ticket_list, name="ticket_list"),
     path("update-ticket/<int:ticket_id>/", update_ticket, name="update_ticket"),
     path("edit-ticket/<int:ticket_id>/", edit_ticket, name="edit_ticket"),
-    path("knowledge_base/", KnowledgeBaseListView.as_view(), name="knowledge_base"),
+    # path("knowledge_base/", KnowledgeBaseListView.as_view(), name="knowledge_base"),
 ]
