@@ -24,17 +24,21 @@ from .models import Country, Region, Centre, Category, SubCategory, SupportTicke
 
 
 class CustomLoginView(LoginView):
-    template_name = "accounts/login.html"
+    template_name = "registration/login.html"
     redirect_authenticated_user = True
 
 
 @login_required
 def profile(request):
-    return render(request, "accounts/profile.html")
+    return render(request, "registration/profile.html")
 
 
 def base(request):
-    return render(request, "accounts/base.html")
+    return render(request, "registration/base.html")
+
+
+class HomeView(TemplateView):
+    template_name = "home.html"
 
 
 # user"s home page that inherits from the TemplateView class and adds the list of support tickets related to the logged-in user to the context data of the template.
@@ -64,7 +68,7 @@ class UserHomePageView(LoginRequiredMixin, View):
         context = {}
         context["tickets"] = SupportTicket.objects.filter(user=self.request.user)
         context["form"] = SupportTicketForm()
-        context["knowledge_base"] = KnowledgeBase.objects.all()
+        # context["knowledge_base"] = KnowledgeBase.objects.all()
         return context
 
 

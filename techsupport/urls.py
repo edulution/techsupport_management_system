@@ -3,6 +3,7 @@ from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import LoginView
 from .views import (
+    HomeView,
     UserHomePageView,
     ManagerHomePageView,
     TechnicianHomePageView,
@@ -22,6 +23,7 @@ from .views import (
 )
 
 urlpatterns = [
+    path("", HomeView.as_view(), name="home"),
     path("", LoginView.as_view(), name="account_login"),
     path("home/user/", UserHomePageView.as_view(), name="home_user"),
     path("home/manager/", ManagerHomePageView.as_view(), name="home_manager"),
