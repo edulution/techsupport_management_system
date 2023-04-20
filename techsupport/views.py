@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from allauth.account.views import LoginView
+from allauth.account.views import LoginView, PasswordResetView
 from django.contrib import messages
 from django.utils import timezone
 from django.http import Http404
@@ -14,31 +14,88 @@ from django.views.generic import ListView
 from django.views import View
 from django.urls import reverse_lazy
 from django import forms
+from django.contrib.auth.views import LoginView
+from allauth.socialaccount.models import SocialAccount
+from django.contrib.auth.models import Group
+from django.contrib.auth.forms import UserCreationForm
 
-
-from .forms import TicketCreateForm, SupportTicketForm, TicketUpdateForm
+from .forms import TicketCreateForm, SupportTicketForm, TicketUpdateForm, UserTicketUpdateForm
 from .models import Country, Region, Centre, Category, SubCategory, SupportTicket
 
 
-# Login view
+# Custom Login view
 
+@method_decorator(login_required, name='dispatch')
+class CustomLoginView(LoginView):
+    pass
 
 class CustomLoginView(LoginView):
-    template_name = "registration/login.html"
-    redirect_authenticated_user = True
+    template_name = "account/login.html"
+
+    def get_success_url(self):
+        if self.request.user.is_superuser:
+            return reverse_lazy("home_admin")
+        elif self.request.user.groups.filter(name="manager").exists():
+            return reverse_lazy('home_manager')
+        elif self.request.user.groups.filter(name="technician").exists():
+            return reverse_lazy("home_technician")
+        else:
+            return reverse_lazy('home_user')
 
 
-@login_required
-def profile(request):
-    return render(request, "registration/profile.html")
+# Password reset view
 
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'account/password_reset.html'
+    email_template_name = 'email/password_reset_email.html'
+    subject_template_name = 'email/password_reset_subject.txt'
+    success_url = 'account_reset_sent'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['google_login'] = 'google'
+        return context
 
 def base(request):
-    return render(request, "registration/base.html")
+    return render(request, "base.html")
 
 
-class HomeView(TemplateView):
-    template_name = "home.html"
+# sign up view
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Account created for {username}!')
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'signup.html', {'form_title': 'Sign up', 'form': form})
+
+# class HomeView(TemplateView):
+#     template_name = "home.html"
+    
+    
+
+# iew function that checks the user's group and returns the appropriate template
+
+@login_required
+def home(request):
+    user = request.user
+    if user.groups.filter(name='admin').exists():
+        template_name = 'home_admin.html'
+    elif user.groups.filter(name='manager').exists():
+        template_name = 'home_manager.html'
+    elif user.groups.filter(name='technician').exists():
+        template_name = 'home_technician.html'
+    else:
+        template_name = 'home_user.html'
+    return render(request, template_name)
+
+
+
 
 
 # user"s home page that inherits from the TemplateView class and adds the list of support tickets related to the logged-in user to the context data of the template.
@@ -49,13 +106,14 @@ class UserHomePageView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
+        context['tickets'] = SupportTicket.objects.filter(user=request.user)
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         form = SupportTicketForm(request.POST)
         if form.is_valid():
             ticket = form.save(commit=False)
-            ticket.user = request.user
+            ticket.submitted_by = request.user  # set submitted_by field
             ticket.save()
             messages.success(request, "Ticket successfully created.")
             return redirect("home_user")
@@ -66,10 +124,23 @@ class UserHomePageView(LoginRequiredMixin, View):
 
     def get_context_data(self, **kwargs):
         context = {}
-        context["tickets"] = SupportTicket.objects.filter(user=self.request.user)
+        if self.request.user.is_authenticated:
+            context["tickets"] = SupportTicket.objects.filter(submitted_by=self.request.user)
+        else:
+            context["tickets"] = []
         context["form"] = SupportTicketForm()
-        # context["knowledge_base"] = KnowledgeBase.objects.all()
         return context
+
+
+
+class HomeView(TemplateView):
+    template_name = "home.html"
+
+
+
+
+        # context["knowledge_base"] = KnowledgeBase.objects.all()
+        
 
 
 # KnowledgeBaseListView
@@ -308,7 +379,7 @@ def ticket_detail_user(request, ticket_id):
 
 # Technician ticket detail view
 
-
+@user_passes_test(lambda u: u.groups.filter(name__in=['technician', 'admin']).exists())
 @login_required(login_url="account_login")
 def ticket_detail_technician(request, ticket_id):
     # Get the support ticket object with the given ticket_id or return a 404 error if not found
@@ -316,12 +387,20 @@ def ticket_detail_technician(request, ticket_id):
 
     # Check if the technician has permission to view the ticket
     if request.user == ticket.technician:
+        # If it is a POST request and the "resolved" checkbox is checked, mark the ticket as resolved
+        if request.method == "POST" and "resolved" in request.POST:
+            ticket.status = "Resolved"
+            ticket.resolution_date = timezone.now()
+            ticket.save()
+            messages.success(request, "Ticket marked as resolved.")
+
         return render(
             request, "support_ticket/ticket_detail_technician.html", {"ticket": ticket}
         )
     else:
         messages.error(request, "You do not have permission to view this ticket.")
         return redirect("home_technician")
+
 
 
 # A function to check if the coach belongs to the manager group
@@ -386,7 +465,7 @@ def update_ticket(request, pk):
             if TicketUpdateForm(request.POST, instance=ticket).is_valid():
                 ticket.save()
                 messages.success(request, "Ticket updated successfully!")
-                return redirect("ticket_detail", pk=pk)
+                return redirect("ticket_detail_user", pk=pk)
         else:
             # If it is a GET request, display the ticket update form
             form = TicketUpdateForm(instance=ticket)
@@ -416,41 +495,39 @@ def ticket_list(request):
 
 
 @login_required(login_url="account_login")
-def ticket_detail(request, ticket_id):
+def ticket_detail_user(request, ticket_id):
     try:
         ticket = SupportTicket.objects.get(id=ticket_id)
     except SupportTicket.DoesNotExist:
         raise Http404("Ticket does not exist")
 
     # check if user is authorized to view this ticket
-    if not (
-        request.user.groups.filter(name="technician").exists()
-        or request.user.is_superuser
-        or request.user == ticket.user
-    ):
+    if not request.user == ticket.submitted_by.user:
         messages.error(request, "You are not authorized to view this ticket")
-        return redirect("ticket_list")
+        return redirect("ticket_list_user")
 
     if request.method == "POST":
-        if TicketUpdateForm(request.POST, instance=ticket).is_valid():
-            TicketUpdateForm(request.POST, instance=ticket).save()
+        form = UserTicketUpdateForm(request.POST, instance=ticket)
+        if form.is_valid():
+            form.save()
             messages.success(request, "Ticket has been updated")
-            return redirect("ticket_detail", ticket_id=ticket.id)
+            return redirect("ticket_detail_user", ticket_id=ticket.id)
     else:
-        form = TicketUpdateForm(instance=ticket)
-    return render(
-        request, "support_ticket/ticket_detail.html", {"ticket": ticket, "form": form}
-    )
+        form = UserTicketUpdateForm(instance=ticket)
+    return render(request, "support_ticket/ticket_detail_user.html", {"ticket": ticket, "form": form})
 
 
 # Support ticket list view for field coordinators/managers and admin
 @login_required(login_url="account_login")
-def coach_ticket_list(request):
+def ticket_list(request):
     if request.user.groups.filter(name="manager").exists() or request.user.is_superuser:
-        tickets = SupportTicket.objects.all()
+        tickets = SupportTicket.objects.all().order_by('-created_at')
     else:
-        tickets = SupportTicket.objects.filter(user=request.user)
-    return render(request, "support_ticket/ticket_list.html", {"tickets": tickets})
+        tickets = SupportTicket.objects.filter(user=request.user).order_by('-created_at')
+    paginator = Paginator(tickets, 10) # Added pagination with 10 items per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, "support_ticket/ticket_list.html", {"page_obj": page_obj})
 
 
 # Admin dashboard view

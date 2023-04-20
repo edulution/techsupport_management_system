@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load socialaccount %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="text-center mb-5" style="font-family: 'Montserrat', sans-serif;">Edulution Technical Support</h2>
+          <h3 class="card-title text-center mb-4">{{ form_title }}</h3>
+          <form method="post" action="{% url 'account_login' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-block" style="font-family: 'Montserrat', sans-serif;">Login</button>
+            </div>
+          </form>
+          <hr>
+          <div class="text-center">
+            <a href="{% provider_login_url 'google' %}" class="btn btn-outline-dark mt-2" style="font-family: 'Montserrat', sans-serif;">
+              <i class="fab fa-google mr-2"></i> Sign in with Google
+            </a>
+          </div>
+          <hr>
+          <div class="text-center" style="font-family: 'Montserrat', sans-serif;">
+            <a href="{% url 'account_reset_password' %}">Forgot Password?</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

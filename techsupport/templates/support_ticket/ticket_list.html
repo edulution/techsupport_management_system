@@ -1,55 +1,56 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-  <div class="row justify-content-center">
-    <div class="col-md-12">
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Support Tickets</h3>
-          <div class="card-tools">
-            <a href="{% url 'create_ticket' %}" class="btn btn-primary btn-sm">Create Ticket</a>
-          </div>
-        </div>
-        <div class="card-body">
-          <table class="table table-hover">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Category</th>
-                <th>Subcategory</th>
-                <th>Status</th>
-                <th>Created By</th>
-                <th>Created At</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for ticket in tickets %}
-              <tr>
-                <td>{{ ticket.id }}</td>
-                <td>{{ ticket.title }}</td>
-                <td>{{ ticket.category }}</td>
-                <td>{{ ticket.sub_category }}</td>
-                <td>{{ ticket.status }}</td>
-                <td>{{ ticket.user }}</td>
-                <td>{{ ticket.created_at|date:"F d, Y h:i A" }}</td>
-                <td>
-                  <a href="{% url 'ticket_detail' ticket_id=ticket.id %}" class="btn btn-success btn-sm">View</a>
-                  {% if user.is_superuser or user == ticket.user %}
-                  <a href="{% url 'edit_ticket' ticket_id=ticket.id %}" class="btn btn-warning btn-sm">Edit</a>
-                  {% endif %}
-                </td>
-              </tr>
-              {% empty %}
-              <tr>
-                <td colspan="8" class="text-center">No tickets found.</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+  <h1>Ticket List</h1>
+  {% if request.user.groups.filter(name="manager").exists() or request.user.is_superuser %}
+    <p>You have access and can view all support tickets:</p>
+  {% else %}
+    <p>Here are your support tickets:</p>
+  {% endif %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Subject</th>
+        <th scope="col">Created at</th>
+        <th scope="col">Status</th>
+        <th scope="col">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ticket in page_obj %}
+        <tr>
+          <th scope="row">{{ ticket.id }}</th>
+          <td>{{ ticket.subject }}</td>
+          <td>{{ ticket.created_at }}</td>
+          <td>{{ ticket.status }}</td>
+          <td>
+            <a href="{% url 'ticket_detail_user' ticket.id %}">View</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="5">No support tickets found.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="pagination">
+    <span class="step-links">
+      {% if page_obj.has_previous %}
+        <a href="?page=1">&laquo; first</a>
+        <a href="?page={{ page_obj.previous_page_number }}">&lsaquo; prev</a>
+      {% endif %}
+
+      <span class="current-page">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+      </span>
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">next &rsaquo;</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+      {% endif %}
+    </span>
   </div>
 {% endblock %}
