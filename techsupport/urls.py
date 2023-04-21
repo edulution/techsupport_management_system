@@ -1,5 +1,5 @@
 from django.urls import path
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import LoginView
 from techsupport.views import (
@@ -39,6 +39,7 @@ def group_required(*group_names):
     return user_passes_test(in_groups, login_url="/login/")
 
 urlpatterns = [
+    path("", RedirectView.as_view(url="/accounts/login")),
     path("login/", CustomLoginView.as_view(), name="login"),
     # path("custom-login-redirect/", views.custom_login_redirect, name="custom_login_redirect"),
     path("", HomeView.as_view(), name="home"),

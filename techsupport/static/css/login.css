@@ -82,6 +82,16 @@ button[type="submit"] {
       border-color: #0062cc;
   }
 
+.forgot-password-link {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.forgot-password-link:hover {
+    color: rgb(29, 216, 123);
+}
+
   @media (max-width: 576px) {
       .card {
           margin-top: 50px;
