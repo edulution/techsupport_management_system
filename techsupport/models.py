@@ -1,5 +1,6 @@
 from django.utils import timezone
 from django.db import models
+from django.contrib.auth.models import Permission
 from django.utils.translation import gettext_lazy as _
 from allauth.socialaccount.models import SocialAccount
 from smart_selects.db_fields import ChainedForeignKey
@@ -40,6 +41,68 @@ class Role(BaseModel):
     class Meta:
         verbose_name = "role"
         verbose_name_plural = "roles"
+
+
+class RolePermissionMixin:
+    """Mixin to define custom permissions for each role."""
+
+    # Define permissions for each role as a class attribute
+    PERMISSIONS = {
+        Role.RoleType.ADMIN: {
+            "can_filter": _("Can filter admins"),
+            "can_delete": _("Can delete admins"),
+            "can_update": _("Can update admins"),
+            "can_read": _("Can read admins"),
+            "can_create": _("Can create admins"),
+        },
+        Role.RoleType.MANAGER: {
+            "can_filter": _("Can filter managers"),
+            "can_delete": _("Can delete managers"),
+            "can_update": _("Can update managers"),
+            "can_read": _("Can read managers"),
+            "can_create": _("Can create managers"),
+        },
+        Role.RoleType.TECHNICIAN: {
+            "can_filter": _("Can filter technicians"),
+            "can_delete": _("Can delete technicians"),
+            "can_update": _("Can update technicians"),
+            "can_read": _("Can read technicians"),
+            "can_create": _("Can create technicians"),
+        },
+        Role.RoleType.USER: {
+            "can_filter": _("Can filter users"),
+            "can_delete": _("Can delete users"),
+            "can_update": _("Can update users"),
+            "can_read": _("Can read users"),
+            "can_create": _("Can create users"),
+        },
+    }
+
+    def _get_permission_codename(self, permission_name):
+        """Get the permission codename."""
+        return f"{self.__class__.__name__.lower()}_{permission_name}"
+
+    def get_role_permissions(self):
+        """Get permissions for the user's role."""
+        try:
+            role = Role.objects.get(kind=self.user.role)
+        except Role.DoesNotExist:
+            return []
+        permissions = self.PERMISSIONS.get(role.kind, {})
+        return [
+            Permission.objects.get(codename=self._get_permission_codename(p))
+            for p in permissions.keys()
+        ]
+
+    def has_perm(self, perm, obj=None):
+        """Check if the user has the specified permission."""
+        if self.is_superuser:
+            return True
+        if not self.is_active:
+            return False
+        if perm in self.get_role_permissions():
+            return True
+        return super().has_perm(perm, obj=obj)
 
 
 class Country(BaseModel):
