@@ -105,6 +105,10 @@ class RolePermissionMixin:
         return super().has_perm(perm, obj=obj)
 
 
+class CustomSocialAccount(RolePermissionMixin, SocialAccount):
+    """SocialAccount model extended with custom permissions."""
+
+
 class Country(BaseModel):
     """Model representing a country."""
 
