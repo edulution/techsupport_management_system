@@ -197,6 +197,7 @@ class SupportTicket(BaseModel):
         OPEN = "open", _("Open")
         IN_PROGRESS = "in_progress", _("In Progress")
         RESOLVED = "resolved", _("Resolved")
+        CLOSED = "closed", _("Closed")
 
     class Priority(models.TextChoices):
         LOW = "low", _("Low")
