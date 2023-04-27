@@ -56,23 +56,15 @@ class RolePermissionMixin:
             "can_create": _("Can create admins"),
         },
         Role.RoleType.MANAGER: {
-            "can_filter": _("Can filter managers"),
-            "can_delete": _("Can delete managers"),
-            "can_update": _("Can update managers"),
             "can_read": _("Can read managers"),
             "can_create": _("Can create managers"),
         },
         Role.RoleType.TECHNICIAN: {
             "can_filter": _("Can filter technicians"),
-            "can_delete": _("Can delete technicians"),
             "can_update": _("Can update technicians"),
             "can_read": _("Can read technicians"),
-            "can_create": _("Can create technicians"),
         },
         Role.RoleType.USER: {
-            "can_filter": _("Can filter users"),
-            "can_delete": _("Can delete users"),
-            "can_update": _("Can update users"),
             "can_read": _("Can read users"),
             "can_create": _("Can create users"),
         },
