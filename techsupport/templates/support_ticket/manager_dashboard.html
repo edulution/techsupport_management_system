@@ -1,72 +1,34 @@
-{% extends 'base.html' %}
-
-{% block title %}Manager Dashboard{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-  <h1 class="mb-4">Manager Dashboard</h1>
-
-  <div class="row">
-    <div class="col-md-12">
-      {% if tickets %}
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Ticket Title</th>
-              <th scope="col">Priority</th>
-              <th scope="col">Status</th>
-              <th scope="col">Created At</th>
-              <th scope="col">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for ticket in tickets %}
-              <tr>
-                <th scope="row">{{ ticket.id }}</th>
-                <td>{{ ticket.title }}</td>
-                <td>{{ ticket.priority }}</td>
-                <td>{{ ticket.get_status_display }}</td>
-                <td>{{ ticket.created_at|date:"d/m/Y H:i" }}</td>
-                <td>
-                  <a href="{% url 'ticket_detail' ticket_id=ticket.id %}" class="btn btn-sm btn-primary">View</a>
-                  <a href="{% url 'edit_ticket' ticket_id=ticket.id %}" class="btn btn-sm btn-warning">Edit</a>
-                  <a href="#" class="btn btn-sm btn-danger delete-ticket" data-ticket-id="{{ ticket.id }}">Delete</a>
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p>No support tickets found.</p>
-      {% endif %}
-    </div>
-  </div>
-
-{% endblock %}
-
-{% block scripts %}
-  <script>
-    $(document).ready(function() {
-      // Delete ticket confirmation dialog
-      $('.delete-ticket').on('click', function(e) {
-        e.preventDefault();
-        var ticketId = $(this).data('ticket-id');
-        if (confirm('Are you sure you want to delete this ticket?')) {
-          $.ajax({
-            url: '/tickets/delete/' + ticketId + '/',
-            method: 'POST',
-            data: {
-              csrfmiddlewaretoken: '{{ csrf_token }}'
-            },
-            success: function(response) {
-              window.location.href = '/tickets/';
-            },
-            error: function() {
-              alert('There was an error deleting the ticket.');
-            }
-          });
-        }
-      });
-    });
-  </script>
+  <h1>Manager Dashboard</h1>
+  <h2>Cluster: {{ manager.cluster }}</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Ticket ID</th>
+        <th>Subject</th>
+        <th>Status</th>
+        <th>Submitted By</th>
+        <th>Created At</th>
+        <th>Last Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for ticket in tickets %}
+        <tr>
+          <td>{{ ticket.id }}</td>
+          <td><a href="{% url 'ticket_detail_user' ticket.id %}">{{ ticket.subject }}</a></td>
+          <td>{{ ticket.status }}</td>
+          <td>{{ ticket.submitted_by }}</td>
+          <td>{{ ticket.created_at }}</td>
+          <td>{{ ticket.updated_at }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="6">No tickets found.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

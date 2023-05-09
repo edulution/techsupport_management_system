@@ -38,64 +38,73 @@
 
 <body>
 
-    <div
-        class="h-screen w-full flex max-w-md mx-auto overflow-hidden md:max-w-2xl flex-col justify-center items-center">
+    <div class="h-screen w-full flex max-w-md mx-auto overflow-hidden md:max-w-2xl flex-col justify-center items-center">
         <div class="md:flex max-w-lg bg-white shadow-md rounded-lg">
 
             <div class="p-8">
 
                 <div class="flex flex-col mb-8">
-                    <h2 class="text-gray-700 font-semibold text-2xl tracking-wide mb-2">Django Social Authentication
-                    </h2>
+                    <h2 class="text-gray-700 font-semibold text-2xl tracking-wide mb-2">Edulution Technical Support</h2>
                 </div>
 
                 {% if user.is_authenticated %}
-                <figure class="bg-gray-100 rounded-xl p-8">
-                    <img class="w-32 h-32 rounded-full mx-auto" src="{{ user.socialaccount_set.all.0.get_avatar_url }}"
-                        alt="" width="384" height="512">
-                    <div class="pt-6 text-center md:text-left space-y-4">
-                        <blockquote>
-                            <p class="text-lg font-semibold">
-                                You are signed in!
-                            </p>
-                        </blockquote>
-                        <figcaption class="font-medium">
-                            <div class="text-cyan-600">
-                                {{ user.socialaccount_set.all.0.extra_data.name }}!
-                            </div>
-                            <div class="text-gray-500">
-                                Email: {{ user.email }}
-                            </div>
-                        </figcaption>
+                    <figure class="bg-gray-100 rounded-xl p-8">
+                        <img class="w-32 h-32 rounded-full mx-auto" src="{{ user.socialaccount_set.all.0.get_avatar_url }}" alt="" width="384" height="512">
+                        <div class="pt-6 text-center md:text-left space-y-4">
+                            <blockquote>
+                                <p class="text-lg font-semibold">You are signed in!</p>
+                            </blockquote>
+                            <figcaption class="font-medium">
+                                <div class="text-cyan-600">{{ user.socialaccount_set.all.0.extra_data.name }}!</div>
+                                <div class="text-gray-500">
+                                    Email: {{ user.email }}
+                                </div>
+
+                            </figcaption>
+                        </div>
+                    </figure>
+                    {% comment %} {% if user.is_authenticated %}
+                        {% if user.groups.all.0.name == 'admin' %}
+                        <div class="text-center">
+                            <a href="{% url 'home_admin' %}">Home</a>
+                        </div>
+                        {% elif user.groups.all.0.name == 'manager' %}
+                        <div class="text-center">
+                            <a href="{% url 'home_manager' %}">Home</a>
+                        </div>
+                        {% elif user.groups.all.0.name == 'technician' %}
+                        <div class="text-center">
+                            <a href="{% url 'home_technician' %}">Home T</a>
+                        </div>
+                        {% else %}
+                        <div class="text-center">
+                            <a href="{% url 'home_user' %}">Home</a>
+                        </div>
+                        {% endif %}
+                    {% endif %} {% endcomment %}
+                    <div class="flex justify-center py-4">
+                        <a href="{% url 'account_logout' %}" style="text-decoration: none;" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Sign Out</a>
                     </div>
-                </figure>
+
+                {% else %}
+
+                    <div class="flex justify-center py-4">
+                        <div class="google-btn">
+                            <a href="{% provider_login_url 'google' %}">
+                                <div class="google-icon-wrapper">
+                                    <img class="google-icon" src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" />
+                                </div>
+                                <p class="btn-text"><b>Sign in with Google</b></p>
+                            </a>
+                        </div>
+                    </div>
 
                 {% endif %}
-
-
-                <div class="flex justify-center py-4">
-
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'account_logout' %}" style="text-decoration: none;"
-                        class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Sign
-                        Out</a>
-                    {% else %}
-                    <div class="google-btn">
-                        <a href="{% provider_login_url 'google' %}">
-                            <div class="google-icon-wrapper">
-                                <img class="google-icon"
-                                    src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" />
-                            </div>
-                            <p class="btn-text"><b>Sign in with Google</b></p>
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
             </div>
         </div>
     </div>
 
-
 </body>
+
 
 </html>

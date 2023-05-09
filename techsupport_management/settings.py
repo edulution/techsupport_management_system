@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 import environ
+import secrets
+
+random_state_string = secrets.token_hex(32)
 
 env = environ.Env()
 # reading .env file
@@ -20,6 +23,7 @@ environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+TEMPLATE_DIR = os.path.join(BASE_DIR, "techsupport/templates")
 
 
 # Quick-start development settings - unsuitable for production
@@ -45,12 +49,15 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+    "crispy_forms",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
     "smart_selects",
 ]
+
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -149,9 +156,23 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
 SOCIALACCOUNT_QUERY_EMAIL = True
+ACCOUNTS_SOCIAL_LOGIN_REDIRECT_URL = '/accounts/profile/'
+
+# Use the custom login view for allauth
+ACCOUNT_LOGIN_VIEW = "techsupport.views.CustomLoginView"
+ACCOUNTS_ADAPTER = "allauthdemo.adapter.CustomAccountAdapter"
+
+# Use the custom login template for allauth
+ACCOUNT_LOGIN_TEMPLATE = os.path.join(TEMPLATE_DIR, "account/login.html")
+
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_FORMS = {'login': 'techsupport.forms.CustomLoginForm'}
+ACCOUNTS_LOGIN_ATTEMPTS_LIMIT = None
+ACCOUNTS_LOGIN_ATTEMPTS_TIMEOUT = None
+
+
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
@@ -168,6 +189,15 @@ SOCIALACCOUNT_PROVIDERS = {
         "AUTH_PARAMS": {
             "access_type": "online",
         },
+        "INIT_PARAMS": {
+            "client_id": "516736029273-71jq792f8f3o7dfdn2tjk5m4tpkbhnm4.apps.googleusercontent.com",
+        },
+        "LOGIN_PARAMS": {
+            "state": "random_state_string",
+        },
+        "POST_LOGIN_URL": "/dashboard/",
+        "LOGOUT_URL": "account/login.html",
+        "LOGIN_TEMPLATE": "socialaccount/google_login.html",
     }
 }
 
