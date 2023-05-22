@@ -156,7 +156,7 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
 SOCIALACCOUNT_QUERY_EMAIL = True
-ACCOUNTS_SOCIAL_LOGIN_REDIRECT_URL = '/accounts/profile/'
+ACCOUNTS_SOCIAL_LOGIN_REDIRECT_URL = "/accounts/profile/"
 
 # Use the custom login view for allauth
 ACCOUNT_LOGIN_VIEW = "techsupport.views.CustomLoginView"
@@ -168,10 +168,9 @@ ACCOUNT_LOGIN_TEMPLATE = os.path.join(TEMPLATE_DIR, "account/login.html")
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_FORMS = {'login': 'techsupport.forms.CustomLoginForm'}
+ACCOUNT_FORMS = {"login": "techsupport.forms.CustomLoginForm"}
 ACCOUNTS_LOGIN_ATTEMPTS_LIMIT = None
 ACCOUNTS_LOGIN_ATTEMPTS_TIMEOUT = None
-
 
 
 AUTHENTICATION_BACKENDS = [
@@ -189,8 +188,10 @@ SOCIALACCOUNT_PROVIDERS = {
         "AUTH_PARAMS": {
             "access_type": "online",
         },
-        "INIT_PARAMS": {
-            "client_id": "516736029273-71jq792f8f3o7dfdn2tjk5m4tpkbhnm4.apps.googleusercontent.com",
+        "APP": {
+            "client_id": env("GOOGLE_CLIENT_ID"),
+            "secret": env("GOOGLE_CLIENT_ID"),
+            "key": "",
         },
         "LOGIN_PARAMS": {
             "state": "random_state_string",
