@@ -4,7 +4,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from allauth.account.views import LoginView, PasswordResetView
+
+# from allauth.account.views import LoginView, PasswordResetView
 from django.contrib import messages
 from django.utils import timezone
 from django.http import Http404
@@ -15,46 +16,59 @@ from django.views import View
 from django.urls import reverse_lazy
 from django import forms
 from django.contrib.auth.views import LoginView
-from allauth.socialaccount.models import SocialAccount
+
+# from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import Group
 from django.contrib.auth.forms import UserCreationForm
 
-from .forms import TicketCreateForm, SupportTicketForm, TicketUpdateForm, UserTicketUpdateForm
+from .forms import (
+    TicketCreateForm,
+    SupportTicketForm,
+    TicketUpdateForm,
+    UserTicketUpdateForm,
+)
 from .models import Country, Region, Centre, Category, SubCategory, SupportTicket
 
 
 # Custom Login view
 
-@method_decorator(login_required, name='dispatch')
+
+@method_decorator(login_required, name="dispatch")
 class CustomLoginView(LoginView):
     pass
 
-class CustomLoginView(LoginView):
-    template_name = "account/login.html"
 
-    def get_success_url(self):
-        if self.request.user.is_superuser:
-            return reverse_lazy("home_admin")
-        elif self.request.user.groups.filter(name="manager").exists():
-            return reverse_lazy('home_manager')
-        elif self.request.user.groups.filter(name="technician").exists():
-            return reverse_lazy("home_technician")
+def user_login(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect(
+                "home"
+            )  # Replace 'home' with the URL name of your home page
         else:
-            return reverse_lazy('home_user')
+            error_message = "Invalid username or password"
+    else:
+        error_message = None
+    return render(request, "login.html", {"error_message": error_message})
 
 
 # Password reset view
 
-class CustomPasswordResetView(PasswordResetView):
-    template_name = 'account/password_reset.html'
-    email_template_name = 'email/password_reset_email.html'
-    subject_template_name = 'email/password_reset_subject.txt'
-    success_url = 'account_reset_sent'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['google_login'] = 'google'
-        return context
+# class CustomPasswordResetView(PasswordResetView):
+#     template_name = "account/password_reset.html"
+#     email_template_name = "email/password_reset_email.html"
+#     subject_template_name = "email/password_reset_subject.txt"
+#     success_url = "account_reset_sent"
+
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         context["google_login"] = "google"
+#         return context
+
 
 def base(request):
     return render(request, "base.html")
@@ -62,40 +76,39 @@ def base(request):
 
 # sign up view
 
+
 def signup(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Account created for {username}!')
-            return redirect('home')
+            username = form.cleaned_data.get("username")
+            messages.success(request, f"Account created for {username}!")
+            return redirect("home")
     else:
         form = UserCreationForm()
-    return render(request, 'signup.html', {'form_title': 'Sign up', 'form': form})
+    return render(request, "signup.html", {"form_title": "Sign up", "form": form})
+
 
 # class HomeView(TemplateView):
 #     template_name = "home.html"
-    
-    
+
 
 # iew function that checks the user's group and returns the appropriate template
+
 
 @login_required
 def home(request):
     user = request.user
-    if user.groups.filter(name='admin').exists():
-        template_name = 'home_admin.html'
-    elif user.groups.filter(name='manager').exists():
-        template_name = 'home_manager.html'
-    elif user.groups.filter(name='technician').exists():
-        template_name = 'home_technician.html'
+    if user.groups.filter(name="admin").exists():
+        template_name = "home_admin.html"
+    elif user.groups.filter(name="manager").exists():
+        template_name = "home_manager.html"
+    elif user.groups.filter(name="technician").exists():
+        template_name = "home_technician.html"
     else:
-        template_name = 'home_user.html'
+        template_name = "home_user.html"
     return render(request, template_name)
-
-
-
 
 
 # user"s home page that inherits from the TemplateView class and adds the list of support tickets related to the logged-in user to the context data of the template.
@@ -106,7 +119,7 @@ class UserHomePageView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['tickets'] = SupportTicket.objects.filter(user=request.user)
+        context["tickets"] = SupportTicket.objects.filter(user=request.user)
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
@@ -125,22 +138,19 @@ class UserHomePageView(LoginRequiredMixin, View):
     def get_context_data(self, **kwargs):
         context = {}
         if self.request.user.is_authenticated:
-            context["tickets"] = SupportTicket.objects.filter(submitted_by=self.request.user)
+            context["tickets"] = SupportTicket.objects.filter(
+                submitted_by=self.request.user
+            )
         else:
             context["tickets"] = []
         context["form"] = SupportTicketForm()
         return context
 
 
-
 class HomeView(TemplateView):
     template_name = "home.html"
 
-
-
-
-        # context["knowledge_base"] = KnowledgeBase.objects.all()
-        
+    # context["knowledge_base"] = KnowledgeBase.objects.all()
 
 
 # KnowledgeBaseListView
@@ -379,7 +389,8 @@ def ticket_detail_user(request, ticket_id):
 
 # Technician ticket detail view
 
-@user_passes_test(lambda u: u.groups.filter(name__in=['technician', 'admin']).exists())
+
+@user_passes_test(lambda u: u.groups.filter(name__in=["technician", "admin"]).exists())
 @login_required(login_url="account_login")
 def ticket_detail_technician(request, ticket_id):
     # Get the support ticket object with the given ticket_id or return a 404 error if not found
@@ -400,7 +411,6 @@ def ticket_detail_technician(request, ticket_id):
     else:
         messages.error(request, "You do not have permission to view this ticket.")
         return redirect("home_technician")
-
 
 
 # A function to check if the coach belongs to the manager group
@@ -514,18 +524,24 @@ def ticket_detail_user(request, ticket_id):
             return redirect("ticket_detail_user", ticket_id=ticket.id)
     else:
         form = UserTicketUpdateForm(instance=ticket)
-    return render(request, "support_ticket/ticket_detail_user.html", {"ticket": ticket, "form": form})
+    return render(
+        request,
+        "support_ticket/ticket_detail_user.html",
+        {"ticket": ticket, "form": form},
+    )
 
 
 # Support ticket list view for field coordinators/managers and admin
 @login_required(login_url="account_login")
 def ticket_list(request):
     if request.user.groups.filter(name="manager").exists() or request.user.is_superuser:
-        tickets = SupportTicket.objects.all().order_by('-created_at')
+        tickets = SupportTicket.objects.all().order_by("-created_at")
     else:
-        tickets = SupportTicket.objects.filter(user=request.user).order_by('-created_at')
-    paginator = Paginator(tickets, 10) # Added pagination with 10 items per page
-    page_number = request.GET.get('page')
+        tickets = SupportTicket.objects.filter(user=request.user).order_by(
+            "-created_at"
+        )
+    paginator = Paginator(tickets, 10)  # Added pagination with 10 items per page
+    page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     return render(request, "support_ticket/ticket_list.html", {"page_obj": page_obj})
 

@@ -50,10 +50,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "crispy_forms",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",
+    # "allauth",
+    # "allauth.account",
+    # "allauth.socialaccount",
+    # "allauth.socialaccount.providers.google",
     "smart_selects",
 ]
 
@@ -148,59 +148,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
-# Required by allauth
-SITE_ID = 1
-
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
-
-SOCIALACCOUNT_QUERY_EMAIL = True
-ACCOUNTS_SOCIAL_LOGIN_REDIRECT_URL = "/accounts/profile/"
-
-# Use the custom login view for allauth
-ACCOUNT_LOGIN_VIEW = "techsupport.views.CustomLoginView"
-ACCOUNTS_ADAPTER = "allauthdemo.adapter.CustomAccountAdapter"
-
-# Use the custom login template for allauth
-ACCOUNT_LOGIN_TEMPLATE = os.path.join(TEMPLATE_DIR, "account/login.html")
-
-ACCOUNT_LOGOUT_ON_GET = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_FORMS = {"login": "techsupport.forms.CustomLoginForm"}
-ACCOUNTS_LOGIN_ATTEMPTS_LIMIT = None
-ACCOUNTS_LOGIN_ATTEMPTS_TIMEOUT = None
-
+# Use custom user model in techsupport.models as default auth user model
+AUTH_USER_MODEL = "techsupport.User"
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",
+    # "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
-# Provider specific settings
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "SCOPE": [
-            "profile",
-            "email",
-        ],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-        "APP": {
-            "client_id": env("GOOGLE_CLIENT_ID"),
-            "secret": env("GOOGLE_CLIENT_ID"),
-            "key": "",
-        },
-        "LOGIN_PARAMS": {
-            "state": "random_state_string",
-        },
-        "POST_LOGIN_URL": "/dashboard/",
-        "LOGOUT_URL": "account/login.html",
-        "LOGIN_TEMPLATE": "socialaccount/google_login.html",
-    }
-}
 
 # Email settings for Gmail
 EMAIL_BACKEND = env("EMAIL_BACKEND")
@@ -222,14 +177,64 @@ LOGGING = {
         "django": {
             "handlers": ["console"],
             "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
-        },
-        "allauth": {
-            "handlers": ["console"],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
-        },
-        "allauth.socialaccount": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-        },
+        }
+        # ,
+        # "allauth": {
+        #     "handlers": ["console"],
+        #     "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+        # },
+        # "allauth.socialaccount": {
+        #     "handlers": ["console"],
+        #     "level": "DEBUG",
+        # },
     },
 }
+
+
+# Required by allauth
+# SITE_ID = 1
+
+# LOGIN_REDIRECT_URL = "/"
+# LOGOUT_REDIRECT_URL = "/"
+
+# SOCIALACCOUNT_QUERY_EMAIL = True
+# ACCOUNTS_SOCIAL_LOGIN_REDIRECT_URL = "/accounts/profile/"
+
+# Use the custom login view for allauth
+# ACCOUNT_LOGIN_VIEW = "techsupport.views.CustomLoginView"
+# ACCOUNTS_ADAPTER = "allauthdemo.adapter.CustomAccountAdapter"
+
+# Use the custom login template for allauth
+# ACCOUNT_LOGIN_TEMPLATE = os.path.join(TEMPLATE_DIR, "account/login.html")
+
+# ACCOUNT_LOGOUT_ON_GET = True
+# ACCOUNT_UNIQUE_EMAIL = True
+# ACCOUNT_EMAIL_REQUIRED = True
+# ACCOUNT_FORMS = {"login": "techsupport.forms.CustomLoginForm"}
+# ACCOUNTS_LOGIN_ATTEMPTS_LIMIT = None
+# ACCOUNTS_LOGIN_ATTEMPTS_TIMEOUT = None
+
+
+# Provider specific settings
+# SOCIALACCOUNT_PROVIDERS = {
+#     "google": {
+#         "SCOPE": [
+#             "profile",
+#             "email",
+#         ],
+#         "AUTH_PARAMS": {
+#             "access_type": "online",
+#         },
+#         "APP": {
+#             "client_id": env("GOOGLE_CLIENT_ID"),
+#             "secret": env("GOOGLE_CLIENT_ID"),
+#             "key": "",
+#         },
+#         "LOGIN_PARAMS": {
+#             "state": "random_state_string",
+#         },
+#         "POST_LOGIN_URL": "/dashboard/",
+#         "LOGOUT_URL": "account/login.html",
+#         "LOGIN_TEMPLATE": "socialaccount/google_login.html",
+#     }
+# }

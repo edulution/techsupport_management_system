@@ -1,6 +1,7 @@
 from django import forms
 from .models import Country, Region, Centre, Category, SubCategory, SupportTicket
-from allauth.account.forms import LoginForm
+
+# from allauth.account.forms import LoginForm
 
 # This is a form class named TicketCreateForm that inherits from the forms.Form class.
 # It provides fields for creating a new support ticket, including the ticket's category,
@@ -33,7 +34,6 @@ class SupportTicketForm(forms.ModelForm):
         )
 
 
-
 # Form for updating the description of a support ticket
 
 
@@ -46,14 +46,15 @@ class TicketUpdateForm(forms.ModelForm):
         widgets = {"description": forms.Textarea(attrs={"rows": 5})}
 
 
-
 # Custom Login Form
 
-class CustomLoginForm(LoginForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['login'].widget.attrs.update({'class': 'form-control'})
-        self.fields['password'].widget.attrs.update({'class': 'form-control'})
+
+# class CustomLoginForm(LoginForm):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.fields["login"].widget.attrs.update({"class": "form-control"})
+#         self.fields["password"].widget.attrs.update({"class": "form-control"})
+
 
 class UserTicketUpdateForm(forms.ModelForm):
     class Meta:

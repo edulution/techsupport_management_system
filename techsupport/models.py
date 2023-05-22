@@ -1,31 +1,14 @@
 from django.utils import timezone
 from django.db import models
-from django.contrib.auth.models import Permission
+from django.contrib.auth.models import Permission, AbstractUser
 from django.utils.translation import gettext_lazy as _
-from allauth.socialaccount.models import SocialAccount
+
+# from allauth.socialaccount.models import SocialAccount
 from smart_selects.db_fields import ChainedForeignKey
 import uuid
 
 
-class BaseModel(models.Model):
-    """Abstract base model with UUID primary key."""
-
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("date created"))
-    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date modified"))
-    modified_by = models.ForeignKey(
-        SocialAccount,
-        verbose_name=_("modified by"),
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-    )
-
-    class Meta:
-        abstract = True
-
-
-class Role(BaseModel):
+class Role:
     """Model representing user role."""
 
     class RoleType(models.TextChoices):
@@ -96,9 +79,30 @@ class RolePermissionMixin:
             return True
         return super().has_perm(perm, obj=obj)
 
-
-class CustomSocialAccount(RolePermissionMixin, SocialAccount):
+    # class CustomSocialAccount(RolePermissionMixin, SocialAccount):
     """SocialAccount model extended with custom permissions."""
+
+
+class User(AbstractUser, RolePermissionMixin):
+    """Custom user model that inherits from AbstractUser model"""
+
+
+class BaseModel(models.Model):
+    """Abstract base model with UUID primary key."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("date created"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date modified"))
+    modified_by = models.ForeignKey(
+        User,
+        verbose_name=_("modified by"),
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        abstract = True
 
 
 class Country(BaseModel):
@@ -222,13 +226,13 @@ class SupportTicket(BaseModel):
         related_name="support_issues",
     )
     submitted_by = models.ForeignKey(
-        SocialAccount,
+        User,
         verbose_name=_("submitted by"),
         on_delete=models.CASCADE,
         related_name="submitted_issues",
     )
     resolved_by = models.ForeignKey(
-        SocialAccount,
+        User,
         verbose_name=_("resolved by"),
         on_delete=models.CASCADE,
         null=True,
