@@ -1,6 +1,0 @@
-{% load socialaccount %}
-{% providers_media_js %}
-
-{% for provider in providers %}
-    <a href="{% provider_login_url provider.id %}">{{ provider.name }}</a>
-{% endfor %}
