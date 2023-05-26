@@ -2,52 +2,31 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import Permission, AbstractUser
 from django.utils.translation import gettext_lazy as _
-
-# from allauth.socialaccount.models import SocialAccount
 from smart_selects.db_fields import ChainedForeignKey
 import uuid
-
-
-class Role:
-    """Model representing user role."""
-
-    class RoleType(models.TextChoices):
-        ADMIN = "admin", _("Admin")
-        MANAGER = "manager", _("Manager")
-        TECHNICIAN = "technician", _("Technician")
-        USER = "user", _("User")
-
-    kind = models.CharField(
-        max_length=30, verbose_name=_("kind"), choices=RoleType.choices
-    )
-
-    class Meta:
-        verbose_name = "role"
-        verbose_name_plural = "roles"
 
 
 class RolePermissionMixin:
     """Mixin to define custom permissions for each role."""
 
-    # Define permissions for each role as a class attribute
     PERMISSIONS = {
-        Role.RoleType.ADMIN: {
+        "admin": {
             "can_filter": _("Can filter admins"),
             "can_delete": _("Can delete admins"),
             "can_update": _("Can update admins"),
             "can_read": _("Can read admins"),
             "can_create": _("Can create admins"),
         },
-        Role.RoleType.MANAGER: {
+        "manager": {
             "can_read": _("Can read managers"),
             "can_create": _("Can create managers"),
         },
-        Role.RoleType.TECHNICIAN: {
+        "technician": {
             "can_filter": _("Can filter technicians"),
             "can_update": _("Can update technicians"),
             "can_read": _("Can read technicians"),
         },
-        Role.RoleType.USER: {
+        "user": {
             "can_read": _("Can read users"),
             "can_create": _("Can create users"),
         },
@@ -60,10 +39,10 @@ class RolePermissionMixin:
     def get_role_permissions(self):
         """Get permissions for the user's role."""
         try:
-            role = Role.objects.get(kind=self.user.role)
-        except Role.DoesNotExist:
+            role = self.role
+        except AttributeError:
             return []
-        permissions = self.PERMISSIONS.get(role.kind, {})
+        permissions = self.PERMISSIONS.get(role, {})
         return [
             Permission.objects.get(codename=self._get_permission_codename(p))
             for p in permissions.keys()
@@ -79,12 +58,77 @@ class RolePermissionMixin:
             return True
         return super().has_perm(perm, obj=obj)
 
-    # class CustomSocialAccount(RolePermissionMixin, SocialAccount):
-    """SocialAccount model extended with custom permissions."""
-
 
 class User(AbstractUser, RolePermissionMixin):
     """Custom user model that inherits from AbstractUser model"""
+
+    class RoleType(models.TextChoices):
+        SUPER_ADMIN = "super_admin", _("Super Admin")
+        ADMIN = "admin", _("Admin")
+        MANAGER = "manager", _("Manager")
+        TECHNICIAN = "technician", _("Technician")
+        USER = "user", _("User")
+
+    ROLE_HIERARCHY = {
+        RoleType.SUPER_ADMIN: [RoleType.ADMIN],
+        RoleType.ADMIN: [RoleType.TECHNICIAN, RoleType.MANAGER, RoleType.USER],
+        RoleType.MANAGER: [RoleType.TECHNICIAN, RoleType.USER],
+        RoleType.TECHNICIAN: [RoleType.USER],
+        RoleType.USER: [],
+    }
+
+    role = models.CharField(
+        max_length=30,
+        verbose_name=_("role"),
+        choices=RoleType.choices,
+        default=RoleType.USER,
+    )
+
+    def is_super_admin(self):
+        """Check if the user is a super admin."""
+        return self.role == self.RoleType.SUPER_ADMIN
+
+    def is_admin(self):
+        """Check if the user is an admin or a super admin."""
+        return self.role in [self.RoleType.ADMIN, self.RoleType.SUPER_ADMIN]
+
+    def is_manager(self):
+        """Check if the user is a manager or higher role."""
+        return self.role in [
+            self.RoleType.MANAGER,
+            self.RoleType.ADMIN,
+            self.RoleType.SUPER_ADMIN,
+        ]
+
+    def is_technician(self):
+        """Check if the user is a technician or higher role."""
+        return self.role in [
+            self.RoleType.TECHNICIAN,
+            self.RoleType.MANAGER,
+            self.RoleType.ADMIN,
+            self.RoleType.SUPER_ADMIN,
+        ]
+
+    def is_user(self):
+        """Check if the user is a user or higher role."""
+        return self.role in [
+            self.RoleType.USER,
+            self.RoleType.TECHNICIAN,
+            self.RoleType.MANAGER,
+            self.RoleType.ADMIN,
+            self.RoleType.SUPER_ADMIN,
+        ]
+
+    def save(self, *args, **kwargs):
+        """Override the save method to enforce role hierarchy."""
+        if not self.pk:
+            # New user, check the role hierarchy
+            for role in self.ROLE_HIERARCHY.get(self.role, []):
+                if User.objects.filter(role=role).exists():
+                    raise ValidationError(
+                        f"A {role} already exists. Cannot assign the {self.role} role."
+                    )
+        super().save(*args, **kwargs)
 
 
 class BaseModel(models.Model):
