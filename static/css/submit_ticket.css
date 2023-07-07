@@ -1,0 +1,19 @@
+.was-validated .form-control:invalid {
+    border-color: #dc3545;
+  }
+
+  .was-validated .form-control:valid {
+    border-color: #28a745;
+  }
+
+  .was-validated .form-select:invalid {
+    border-color: #dc3545;
+  }
+
+  .was-validated .form-select:valid {
+    border-color: #28a745;
+  }
+
+  .was-validated .form-control:invalid ~ .invalid-feedback {
+    display: block;
+  }

@@ -1,17 +1,13 @@
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <title>Login</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block styles %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
     <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
+    <link rel="icon" href="{% static 'images/edulution_map_only_green.png' %}">
+    <title>Login</title>
+{% endblock %}
 
-<body>
+{% block content %}
     <div class="login-details">
         <div class="logo">
             <img src="{% static 'images/edulution_map_only_green.png' %}" alt="Edulution logo">
@@ -19,25 +15,21 @@
         </div>
 
         {% if error_message %}
-        <p>{{ error_message }}</p>
+            <p>{{ error_message }}</p>
         {% endif %}
 
-        <form method="post">
+        <form method="post" action="{% url 'login' %}">
             {% csrf_token %}
             <div class="form-group">
-                <!-- <label for="username">Username/Email address</label> -->
-                <input type="text" class="form-control" id="username" name="username"
-                    placeholder="Username/Email address" required />
+                <input type="text" class="form-control" id="username" name="username" placeholder="Username/Email address" required />
             </div>
 
             <div class="form-group">
-                <!-- <label for="password">Password</label> -->
-                <input type="password" class="form-control" id="password" name="password" placeholder="Password"
-                    required />
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required />
             </div>
 
             <div class="form-group">
-                <a href="http://127.0.0.1:8000/password_reset">Forgot password?</a>
+                <a href="#">Forgot password?</a>
             </div>
 
             <div class="submit-button">
@@ -46,16 +38,14 @@
         </form>
 
         <div class="google-icon">
-            <small>Sign in with</small>
             <a href="#">
                 <img src="{% static 'images/google_icon.png' %}" alt="Sign in with Google">
             </a>
         </div>
-
     </div>
+{% endblock %}
 
+{% block scripts %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-
-</html>
+{% endblock %}

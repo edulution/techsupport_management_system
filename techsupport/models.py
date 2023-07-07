@@ -4,6 +4,8 @@ from django.contrib.auth.models import Permission, AbstractUser
 from django.utils.translation import gettext_lazy as _
 from smart_selects.db_fields import ChainedForeignKey
 import uuid
+from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 
 
 class RolePermissionMixin:
@@ -57,6 +59,74 @@ class RolePermissionMixin:
         if perm in self.get_role_permissions():
             return True
         return super().has_perm(perm, obj=obj)
+
+
+class BaseModel(models.Model):
+    """Abstract base model with UUID primary key."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("date created"))
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date modified"))
+    modified_by = models.ForeignKey(
+        "User",
+        verbose_name=_("modified by"),
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        abstract = True
+
+
+class Country(BaseModel):
+    """Model representing a country."""
+
+    name = models.CharField(max_length=30, verbose_name=_("name"))
+    code = models.CharField(max_length=2, verbose_name=_("code"))
+
+    def __str__(self):
+        return f"{self.code}:{self.name}"
+
+    class Meta:
+        verbose_name_plural = "countries"
+
+
+class Region(BaseModel):
+    """Model representing a region within a country."""
+
+    name = models.CharField(max_length=30, verbose_name=_("name"))
+    country = models.ForeignKey(
+        Country,
+        on_delete=models.PROTECT,
+        related_name="regions",
+        verbose_name=_("country"),
+    )
+
+    def __str__(self):
+        return f"{self.country.code}:{self.name}"
+
+    class Meta:
+        verbose_name_plural = "regions"
+
+
+class Centre(BaseModel):
+    """Model representing a support centre within a region."""
+
+    name = models.CharField(max_length=30, verbose_name=_("name"))
+    acronym = models.CharField(max_length=5, verbose_name=_("acronym"))
+    region = models.ForeignKey(
+        Region,
+        on_delete=models.PROTECT,
+        related_name="centres",
+        verbose_name=_("region"),
+    )
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name_plural = "centres"
 
 
 class User(AbstractUser, RolePermissionMixin):
@@ -119,84 +189,39 @@ class User(AbstractUser, RolePermissionMixin):
             self.RoleType.SUPER_ADMIN,
         ]
 
-    def save(self, *args, **kwargs):
-        """Override the save method to enforce role hierarchy."""
-        if not self.pk:
-            # New user, check the role hierarchy
-            for role in self.ROLE_HIERARCHY.get(self.role, []):
-                if User.objects.filter(role=role).exists():
-                    raise ValidationError(
-                        f"A {role} already exists. Cannot assign the {self.role} role."
-                    )
-        super().save(*args, **kwargs)
+    centres = models.ManyToManyField(Centre, related_name="users")
 
 
-class BaseModel(models.Model):
-    """Abstract base model with UUID primary key."""
+def save(self, *args, **kwargs):
+    if not self.pk:
+        # New user, check the role hierarchy
+        for role in self.ROLE_HIERARCHY.get(self.role, []):
+            if User.objects.filter(role=role).exists():
+                raise ValidationError(
+                    f"A {role} already exists. Cannot assign the {self.role} role."
+                )
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("date created"))
-    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("date modified"))
-    modified_by = models.ForeignKey(
-        User,
-        verbose_name=_("modified by"),
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
+    if self.role == self.RoleType.USER and not self.centres.exists():
+        raise ValidationError("A user must belong to at least one centre.")
+
+    super(User, self).save(*args, **kwargs)
+
+
+
+class UserProfile(models.Model):
+    """Model representing a user profile."""
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    bio = models.TextField(verbose_name=_("biography"), blank=True)
+    avatar = models.ImageField(
+        verbose_name=_("avatar"), upload_to="avatars/", blank=True
     )
-
-    class Meta:
-        abstract = True
-
-
-class Country(BaseModel):
-    """Model representing a country."""
-
-    name = models.CharField(max_length=30, verbose_name=_("name"))
-    code = models.CharField(max_length=2, verbose_name=_("code"))
-
-    def __str__(self):
-        return f"{self.code}:{self.name}"
-
-    class Meta:
-        verbose_name_plural = "countries"
-
-
-class Region(BaseModel):
-    """Model representing a region within a country."""
-
-    name = models.CharField(max_length=30, verbose_name=_("name"))
-    country = models.ForeignKey(
-        Country,
-        on_delete=models.PROTECT,
-        related_name="regions",
-        verbose_name=_("country"),
+    date_of_birth = models.DateField(
+        verbose_name=_("date of birth"), null=True, blank=True
     )
 
     def __str__(self):
-        return f"{self.country.code}:{self.name}"
-
-    class Meta:
-        verbose_name_plural = "regions"
-
-
-class Centre(BaseModel):
-    """Model representing a support centre within a region."""
-
-    name = models.CharField(max_length=30, verbose_name=_("name"))
-    acronym = models.CharField(max_length=5, verbose_name=_("acronym"))
-    region = models.ForeignKey(
-        Region,
-        on_delete=models.PROTECT,
-        related_name="centres",
-        verbose_name=_("region"),
-    )
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name_plural = "centres"
+        return str(self.user)
 
 
 class Category(BaseModel):
@@ -336,3 +361,11 @@ class SupportTicket(BaseModel):
         now = timezone.now()
         age = now - self.date_submitted
         return age
+
+
+class Settings(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    dark_mode_enabled = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.user.username

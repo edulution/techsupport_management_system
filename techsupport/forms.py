@@ -1,11 +1,5 @@
 from django import forms
-from .models import Country, Region, Centre, Category, SubCategory, SupportTicket
-
-# from allauth.account.forms import LoginForm
-
-# This is a form class named TicketCreateForm that inherits from the forms.Form class.
-# It provides fields for creating a new support ticket, including the ticket's category,
-# subcategory, title, description, priority level, center, and region.
+from .models import Country, Region, Centre, Category, SubCategory, SupportTicket, UserProfile, User
 
 
 class TicketCreateForm(forms.Form):
@@ -13,7 +7,7 @@ class TicketCreateForm(forms.Form):
     subcategory = forms.ModelChoiceField(queryset=SubCategory.objects.all())
     title = forms.CharField(max_length=100)
     description = forms.CharField(widget=forms.Textarea)
-    priority = forms.ChoiceField(choices=SupportTicket.Priority.choices)
+    # priority = forms.ChoiceField(choices=SupportTicket.Priority.choices)
     centre = forms.ModelChoiceField(queryset=Centre.objects.all())
 
 
@@ -21,6 +15,20 @@ class TicketCreateForm(forms.Form):
 
 
 class SupportTicketForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')  # Retrieve the user from the kwargs
+        super().__init__(*args, **kwargs)
+
+        # Set the subcategory choices based on the selected category
+        self.fields['subcategory'].queryset = SubCategory.objects.none()
+
+        # Set the centre choices based on user allocation
+        if user.is_superuser:
+            centres = Centre.objects.all()
+        else:
+            centres = user.centres.all()
+        self.fields['centre'].queryset = centres
+
     class Meta:
         model = SupportTicket
         fields = (
@@ -28,7 +36,6 @@ class SupportTicketForm(forms.ModelForm):
             "subcategory",
             "title",
             "description",
-            "priority",
             "centre",
             "submitted_by",
         )
@@ -46,15 +53,6 @@ class TicketUpdateForm(forms.ModelForm):
         widgets = {"description": forms.Textarea(attrs={"rows": 5})}
 
 
-# Custom Login Form
-
-
-# class CustomLoginForm(LoginForm):
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.fields["login"].widget.attrs.update({"class": "form-control"})
-#         self.fields["password"].widget.attrs.update({"class": "form-control"})
-
 
 class UserTicketUpdateForm(forms.ModelForm):
     class Meta:
@@ -70,3 +68,15 @@ class UserTicketUpdateForm(forms.ModelForm):
         Ensure that the title cannot be changed by the user.
         """
         return self.instance.title
+
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['bio', 'avatar', 'date_of_birth']
+        
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'role', 'is_active', 'is_staff', 'centres']

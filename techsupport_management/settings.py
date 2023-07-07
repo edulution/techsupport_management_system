@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "crispy_forms",
     "smart_selects",
+    "bootstrap4",
+    'django.contrib.postgres',
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
@@ -59,8 +61,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.cache.UpdateCacheMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.cache.FetchFromCacheMiddleware",
 ]
 
+CACHE_MIDDLEWARE_SECONDS = 0
 ROOT_URLCONF = "techsupport_management.urls"
 
 TEMPLATES = [
@@ -91,7 +97,6 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -130,8 +135,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 
-STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 

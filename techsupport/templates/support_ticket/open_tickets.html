@@ -1,0 +1,20 @@
+{% extends '../base.html' %}
+
+{% block content %}
+
+{% if tickets %}
+  <ul class="list-group">
+    {% for ticket in tickets %}
+      <li class="list-group-item">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5>{{ ticket.title }}</h5>
+          <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-primary">Details</a>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No open tickets found.</p>
+{% endif %}
+
+{% endblock %}

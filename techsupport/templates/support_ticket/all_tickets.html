@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>All Tickets</h1>
+
+<!-- Open Tickets -->
+<h2>Open Tickets</h2>
+<ul>
+  {% for ticket in open_tickets %}
+    <li>
+      <a href="{% url 'ticket_details' pk=ticket.pk %}">{{ ticket.title }}</a>
+    </li>
+  {% empty %}
+    <li>No open tickets</li>
+  {% endfor %}
+</ul>
+
+<!-- Closed Tickets -->
+<h2>Closed Tickets</h2>
+<ul>
+  {% for ticket in closed_tickets %}
+    <li>
+      <a href="{% url 'ticket_details' pk=ticket.pk %}">{{ ticket.title }}</a>
+    </li>
+  {% empty %}
+    <li>No closed tickets</li>
+  {% endfor %}
+</ul>
+
+{% endblock %}
