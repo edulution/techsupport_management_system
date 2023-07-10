@@ -19,3 +19,6 @@ logs/
 # virtual environment
 Lib
 Scripts
+
+# Ignore Static files
+staticfiles/
