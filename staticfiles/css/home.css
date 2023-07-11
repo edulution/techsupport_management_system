@@ -1,0 +1,95 @@
+/* CSS for the Homepage */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  .container {
+    margin-top: 20px;
+  }
+  
+  .navbar {
+    justify-content: space-between;
+  }
+  
+  .navbar-brand {
+    font-weight: bold;
+    font-size: 24px;
+    margin: 0 auto;
+  }
+  
+  .navbar-nav .nav-link {
+    color: #fff;
+  }
+  
+  .navbar-nav .nav-link i {
+    margin-right: 5px;
+  }
+  
+  .navbar-nav .btn-danger {
+    margin-left: 10px;
+  }
+  
+  .col-md-9 {
+    margin-top: 20px;
+  }
+  
+  h2 {
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .col-md-3 {
+    margin-top: 20px;
+  }
+  
+  .nav.flex-column .nav-link {
+    padding: 10px 0;
+    font-size: 18px;
+  }
+  
+  .nav.flex-column .nav-link i {
+    margin-right: 10px;
+  }
+  
+  .nav.flex-column .nav-link .dropdown-menu {
+    display: none;
+  }
+  
+  .nav.flex-column .nav-link:hover .dropdown-menu {
+    display: block;
+  }
+  
+  .nav.flex-column .nav-link .dropdown-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    padding: 5px 10px;
+  }
+  
+  .nav.flex-column .nav-link .dropdown-menu .dropdown-item i {
+    margin-right: 5px;
+  }
+  
+  @media (max-width: 768px) {
+    .navbar-nav.ml-auto {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .navbar-nav .nav-item {
+      margin-bottom: 10px;
+    }
+  
+    .navbar-nav .btn-danger {
+      margin-left: 0;
+      margin-top: 10px;
+      display: block;
+    }
+  
+    .col-md-3 {
+      margin-top: 40px;
+    }
+  }
+  
