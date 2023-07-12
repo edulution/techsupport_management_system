@@ -4,7 +4,7 @@ from django.contrib.auth.models import Permission, AbstractUser
 from django.utils.translation import gettext_lazy as _
 from smart_selects.db_fields import ChainedForeignKey
 import uuid
-from django.contrib.postgres.fields import ArrayField
+# from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 
 
@@ -326,6 +326,7 @@ class SupportTicket(BaseModel):
     )
     description = models.TextField(
         verbose_name=_("description"),
+        max_length=100,
         help_text="Describe the issue",
     )
     title = models.CharField(
