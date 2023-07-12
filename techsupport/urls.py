@@ -20,6 +20,7 @@ from .views import (
     open_tickets,
     resolved_tickets,
     tickets_in_progress,
+    get_subcategories,
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -46,6 +47,7 @@ urlpatterns = [
     path('open_tickets/', open_tickets, name='open_tickets'),
     path('resolved_tickets/', resolved_tickets, name='resolved_tickets'),
     path('tickets_in_progress/', tickets_in_progress, name='tickets_in_progress'),
+    path('get_subcategories/', get_subcategories, name='get_subcategories'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from .forms import SupportTicketForm, UserTicketUpdateForm
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import Group
@@ -77,35 +79,14 @@ def ticket_details(request, pk):
     return render(request, 'support_ticket/ticket_details.html', context)
 
 
-# @login_required
-# def create_ticket(request):
-#     """ create_ticket view function to create a new ticket and return a rendered response using the 'create_ticket.html' template """
-
-#     if request.method == "POST":
-#         form = SupportTicketForm(request.POST)
-#         if form.is_valid():
-#             support_ticket = form.save(commit=False)
-#             support_ticket.created_by = request.user
-#             support_ticket.ticket_status = "open"
-#             support_ticket.save()
-
-#             messages.info(request, "Ticket created successfully. Please wait for a technician to respond.")
-#             return redirect('dashboard')  # Replace 'dashboard' with your actual URL name for the dashboard
-#         else:
-#             messages.warning(request, "Ticket creation failed")
-#             return redirect('create_ticket')  # Replace 'create_ticket' with your actual URL name for the create ticket page
-#     else:
-#         form = SupportTicketForm()
-#         context = {'form': form}
-#         return render(request, 'support_ticket/create_ticket.html', context)
 @login_required
 def create_ticket(request):
     if request.method == "POST":
-        form = SupportTicketForm(request.POST, user=request.user)  # Pass the user parameter
+        form = SupportTicketForm(request.POST, user=request.user)
         if form.is_valid():
             support_ticket = form.save(commit=False)
-            support_ticket.created_by = request.user
-            support_ticket.ticket_status = "open"
+            support_ticket.submitted_by = request.user
+            support_ticket.status = SupportTicket.Status.OPEN
             support_ticket.save()
 
             messages.info(request, "Ticket created successfully. Please wait for a technician to respond.")
@@ -114,9 +95,17 @@ def create_ticket(request):
             messages.warning(request, "Ticket creation failed")
             return redirect('create_ticket')
     else:
-        form = SupportTicketForm(user=request.user)  # Pass the user parameter
-        context = {'form': form}
-        return render(request, 'support_ticket/create_ticket.html', context)
+        form = SupportTicketForm(user=request.user)
+
+    context = {'form': form}
+    return render(request, 'support_ticket/create_ticket.html', context)
+
+
+@login_required
+def get_subcategories(request):
+    category_id = request.GET.get('category_id')
+    subcategories = SubCategory.objects.filter(category_id=category_id).values('id', 'name')
+    return JsonResponse({'subcategories': list(subcategories)})
 
 
 

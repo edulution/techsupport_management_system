@@ -8,27 +8,30 @@ class TicketCreateForm(forms.Form):
     subcategory = forms.ModelChoiceField(queryset=SubCategory.objects.all())
     title = forms.CharField(max_length=100, validators=[MaxLengthValidator(50)])
     description = forms.CharField(widget=forms.Textarea, validators=[MaxLengthValidator(100)])
-    # priority = forms.ChoiceField(choices=SupportTicket.Priority.choices)
     centre = forms.ModelChoiceField(queryset=Centre.objects.all())
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        
+        if user.centres.count() == 1:
+            self.fields['centre'].initial = user.centres.first()
 
 
 # Form for updating a support ticket
 
-
 class SupportTicketForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user')  # Retrieve the user from the kwargs
+        user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
 
-        # Set the subcategory choices based on the selected category
-        self.fields['subcategory'].queryset = SubCategory.objects.none()
+        if user.centres.count() == 1:
+            self.fields['centre'].initial = user.centres.first()
 
-        # Set the centre choices based on user allocation
-        if user.is_superuser:
-            centres = Centre.objects.all()
-        else:
-            centres = user.centres.all()
-        self.fields['centre'].queryset = centres
+        self.fields['subcategory'].queryset = SubCategory.objects.none()
+        if 'category' in self.data:
+            category_id = self.data['category']
+            self.fields['subcategory'].queryset = SubCategory.objects.filter(category_id=category_id)
 
     class Meta:
         model = SupportTicket
