@@ -1,12 +1,13 @@
 from django import forms
 from .models import Country, Region, Centre, Category, SubCategory, SupportTicket, UserProfile, User
+from django.core.validators import MaxLengthValidator
 
 
 class TicketCreateForm(forms.Form):
     category = forms.ModelChoiceField(queryset=Category.objects.all())
     subcategory = forms.ModelChoiceField(queryset=SubCategory.objects.all())
-    title = forms.CharField(max_length=100)
-    description = forms.CharField(widget=forms.Textarea)
+    title = forms.CharField(max_length=100, validators=[MaxLengthValidator(50)])
+    description = forms.CharField(widget=forms.Textarea, validators=[MaxLengthValidator(100)])
     # priority = forms.ChoiceField(choices=SupportTicket.Priority.choices)
     centre = forms.ModelChoiceField(queryset=Centre.objects.all())
 
