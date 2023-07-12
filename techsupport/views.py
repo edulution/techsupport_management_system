@@ -89,7 +89,7 @@ def create_ticket(request):
             support_ticket.status = SupportTicket.Status.OPEN
             support_ticket.save()
 
-            messages.info(request, "Ticket created successfully. Please wait for a technician to respond.")
+            messages.success(request, "Ticket created successfully. Please wait for a technician to respond.")
             return redirect('dashboard')
         else:
             messages.warning(request, "Ticket creation failed")
