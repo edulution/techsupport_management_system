@@ -93,7 +93,6 @@ def create_ticket(request):
             messages.success(request, "Ticket created successfully. Please wait for a technician to respond.")
             return redirect('dashboard')
         else:
-            print(form.errors)
             messages.warning(request, "Ticket creation failed")
     else:
         form = SupportTicketForm(user=request.user)
