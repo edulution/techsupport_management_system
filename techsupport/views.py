@@ -19,7 +19,7 @@ def user_login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            messages.success(request, f"Welcome, {user.username}!")
+            messages.success(request, f"Welcome, {user.first_name}!")
             return redirect("dashboard")
         else:
             error_message = "Invalid username or password"
