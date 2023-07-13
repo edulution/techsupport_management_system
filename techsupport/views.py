@@ -11,20 +11,21 @@ from django.contrib.auth.models import Group
 from .models import Country, Region, Centre, Category, SubCategory, SupportTicket, UserProfile
 
 
-
 def user_login(request):
+    error_message = None
     if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
+        username = request.POST.get("username")
+        password = request.POST.get("password")
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+            messages.success(request, f"Welcome, {user.username}!")
             return redirect("dashboard")
         else:
             error_message = "Invalid username or password"
-    else:
-        error_message = None
+            messages.warning(request, error_message)
     return render(request, "accounts/login.html", {"error_message": error_message})
+
 
 
 def user_logout(request):
@@ -92,8 +93,8 @@ def create_ticket(request):
             messages.success(request, "Ticket created successfully. Please wait for a technician to respond.")
             return redirect('dashboard')
         else:
+            print(form.errors)
             messages.warning(request, "Ticket creation failed")
-            return redirect('create_ticket')
     else:
         form = SupportTicketForm(user=request.user)
 
