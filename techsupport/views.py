@@ -2,16 +2,13 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from .forms import SupportTicketForm, UserTicketUpdateForm
+from .forms import SupportTicketForm, SupportTicketUpdateForm
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import Group
 from .models import Country, Region, Centre, Category, SubCategory, SupportTicket, UserProfile , User
-# from django.contrib.auth.models import User
-
-
 
 
 def user_login(request):
@@ -76,42 +73,26 @@ def profile(request):
 
 @login_required
 def ticket_details(request, ticket_id):
-    """ view ticket details view function to view ticket details and return a rendered response using the 'view_ticket_details.html' template """  
     ticket = get_object_or_404(SupportTicket, id=ticket_id)
-    ticket = SupportTicket.objects.get(id=ticket_id)
-    context = {'ticket': ticket}
+
+    if request.method == 'POST':
+        form = SupportTicketUpdateForm(request.POST, instance=ticket)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Ticket updated successfully.')
+            return redirect('dashboard')
+    else:
+        form = SupportTicketUpdateForm(instance=ticket)
+
+    context = {
+        'form': form,
+        'ticket': ticket,
+    }
+
     return render(request, 'support_ticket/ticket_details.html', context)
 
 
-# @login_required
-# def create_ticket(request):
-#     if not request.user.is_authenticated:
-#         return redirect('login')
 
-#     if request.method == "POST":
-#         form = SupportTicketForm(request.POST, user=request.user)
-#         if form.is_valid():
-#             var = form
-#             var.submitted_by = request.user
-#             var.status = "open"
-#             var.save()     
-
-#             # # var.ticket_number = SupportTicket.id.hex[:5]
-#             # var.title = SupportTicket.title
-#             # var.priority = SupportTicket.priority
-#             # # var.ticket_age = timezone.now() - SupportTicket.date_submitted
-#             # var.save()
-
-#             messages.info(request, "Ticket created successfully. Please wait for a technician to respond.")
-#             return redirect('dashboard')
-#         else:
-#             messages.warning(request, "Ticket creation failed")
-#             return redirect('dashboard')    
-#     else:
-#         form = SupportTicketForm(user=request.user)
-#         context = {'form': form}
-#         return render(request, 'support_ticket/create_ticket.html', context)
-# views.py
 @login_required
 def create_ticket(request):
     if request.method == 'POST':
@@ -139,31 +120,6 @@ def get_subcategories(request):
     category_id = request.GET.get('category_id')
     subcategories = SubCategory.objects.filter(category_id=category_id).values('id', 'name')
     return JsonResponse({'subcategories': list(subcategories)})
-
-
-
-
-@login_required
-def update_ticket(request, pk):
-    """update_ticket view function to update a ticket and return a rendered response using the 'update_ticket.html' template"""
-    ticket = SupportTicket.objects.get(pk=pk)
-    form = UserTicketUpdateForm(instance=ticket)
-
-    if request.user.role not in ["technician", "admin", "super_admin"]:
-        messages.warning(request, "You are not authorized to access this page.")
-        return redirect('dashboard')
-
-    if request.method == "POST":
-        form = SupportTicketForm(request.POST, instance=ticket)
-        if form.is_valid():
-            form.save()
-            messages.info(request, "Ticket has been updated successfully")
-            return redirect('dashboard')
-        else:
-            messages.warning(request, "Ticket update failed")
-
-    context = {'form': form}
-    return render(request, 'support_ticket/update_ticket.html', context)
 
     
 

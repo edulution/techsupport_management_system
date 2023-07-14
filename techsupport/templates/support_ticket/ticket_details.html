@@ -9,15 +9,12 @@
   <p>Centre: {{ ticket.centre }}</p>
   <p>Category: {{ ticket.category }}</p>
   <p>Subcategory: {{ ticket.subcategory }}</p>
-  <p>Description: {{ ticket.description }}</p>
-
-  <h2>Update Ticket</h2>
+  
   <form method="post">
     {% csrf_token %}
     <div class="form-group">
       <label for="description">Description:</label>
       <textarea class="form-control" id="description" name="description" rows="4">{{ ticket.description }}</textarea>
-
     </div>
     <button type="submit" class="btn btn-primary">Update</button>
   </form>

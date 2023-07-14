@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "smart_selects",
     "bootstrap4",
-    "django.contrib.postgres",
+    # "django.contrib.postgres",
 ]
 
 CRISPY_TEMPLATE_PACK = "bootstrap4"
