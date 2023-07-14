@@ -18,94 +18,87 @@
 
 <body>
   <main>
-<!-- Dashboard Widgets -->
-<div class="row">
-  <div class="col">
-    <div class="card">
-      <div class="card-body">
-        <h3 class="card-title"><i class="bi bi-journal-arrow-up"></i>{{ total_tickets }}</h3>
-        <p class="widget-description">All Tickets</p>
+    <!-- Dashboard Widgets -->
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title"><i class="bi bi-journal-arrow-up"></i>{{ tickets.count }}</h3>
+            <p class="widget-description">All Tickets</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title"><i class="bi bi-folder"></i>{{ open_tickets_count }}</h3>
+            <p class="widget-description">Open</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title"><i class="bi bi-clock-history"></i>{{ in_progress_tickets_count }}</h3>
+            <p class="widget-description">In Progress</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title"><i class="bi bi-check2-square"></i>{{ resolved_tickets_count }}</h3>
+            <p class="widget-description">Resolved</p>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="col">
-    <div class="card">
-      <div class="card-body">
-        <h3 class="card-title"><i class="bi bi-folder"></i>{{ open_tickets }}</h3>
-        <p class="widget-description">Open</p>
+  
+    <!-- Submit Ticket Button and Search Filter -->
+    <div class="d-flex justify-content-between align-items-center my-3">
+      <div>
+        <a href="{% url 'create_ticket' %}" class="btn btn-primary"><i class="bi bi-journal-plus"></i> Submit Ticket</a>
+      </div>
+      <div class="d-flex">
+        <form action="{% url 'dashboard' %}" method="GET" class="input-group">
+          <input type="text" name="search_query" class="form-control" placeholder="Search" value="{{ search_query }}">
+          <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search"></i></button>
+        </form>
       </div>
     </div>
-  </div>
-  <div class="col">
-    <div class="card">
-      <div class="card-body">
-        <h3 class="card-title"><i class="bi bi-clock-history"></i>{{ tickets_in_progress }}</h3>
-        <p class="widget-description">In Progress</p>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <div class="card">
-      <div class="card-body">
-        <h3 class="card-title"><i class="bi bi-check2-square"></i>{{ resolved_tickets }}</h3>
-        <p class="widget-description">Resolved</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Submit Ticket Button and Search Filter -->
-<div class="d-flex justify-content-between align-items-center my-3">
-  <div>
-    <a href="{% url 'create_ticket' %}" class="btn btn-primary"><i class="bi bi-journal-plus"></i> Submit Ticket</a>
-  </div>
-  <div class="d-flex">
-    <form action="{% url 'dashboard' %}" method="GET" class="input-group">
-      <input type="text" name="search" class="form-control" placeholder="Search" value="{{ request.GET.search }}">
-      <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search"></i></button>
-    </form>
-  </div>
-</div>
-
-
-<!-- Ticket Table -->
-<table id="ticket-table" class="table">
-  <thead>
-    <tr>
-      <th>Ticket Number</th>
-      <th>Title</th>
-      <th>Status</th>
-      <th>Priority</th>
-      <th>Ticket Age</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% if tickets %}
-      {% for ticket in tickets %}
+  
+    <!-- Ticket Table -->
+    <table id="ticket-table" class="table">
+      <thead>
         <tr>
-          <td><a href="{% url 'ticket_details' ticket.id %}">{{ ticket.ticket_number }}</a></td>
-          <td>{{ ticket.title }}</td>
-          <td>{{ ticket.status }}</td>
-          <td>{{ ticket.priority }}</td>
-          <td>{{ ticket.ticket_age }}</td>
+          <th>Ticket Number</th>
+          <th>Title</th>
+          <th>Status</th>
+          <th>Priority</th>
+          <th>Ticket Age</th>
         </tr>
-      {% empty %}
-        <tr>
-          <td colspan="5">No tickets found.</td>
-        </tr>
-      {% endfor %}
-    {% else %}
-      <tr>
-        <td colspan="5">No tickets found.</td>
-      </tr>
-    {% endif %}
-  </tbody>
-</table>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{% static 'js/user_dashboard.js' %}"></script>
-
-
+      </thead>
+      <tbody>
+        {% if tickets %}
+          {% for ticket in tickets %}
+            <tr>
+              <td>{{ ticket.ticket_number }}</td>
+              <td>{{ ticket.title }}</td>
+              <td>{{ ticket.status }}</td>
+              <td>{{ ticket.priority }}</td>
+              <td>{{ ticket.ticket_age }}</td>
+            </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="5">No tickets found.</td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/user_dashboard.js' %}"></script>
   </main>
 </body>
 

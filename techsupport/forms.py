@@ -1,7 +1,7 @@
 from django import forms
 from .models import Country, Region, Centre, Category, SubCategory, SupportTicket, UserProfile, User
 from django.core.validators import MaxLengthValidator
-
+from django.shortcuts import get_object_or_404
 
 class TicketCreateForm(forms.Form):
     category = forms.ModelChoiceField(queryset=Category.objects.all())
@@ -20,18 +20,43 @@ class TicketCreateForm(forms.Form):
 
 # Form for updating a support ticket
 
+# class SupportTicketForm(forms.ModelForm):
+#     def __init__(self, *args, **kwargs):
+#         user = kwargs.pop('user', None)
+#         super().__init__(*args, **kwargs)
+
+#         if user.centres.count() == 1:
+#             self.fields['centre'].initial = user.centres.first()
+
+#         if 'category' in self.data:
+#             category_id = self.data['category']
+#             self.fields['subcategory'].queryset = SubCategory.objects.filter(category_id=category_id)
+#         else:
+#             self.fields['subcategory'].queryset = SubCategory.objects.none()
+
+#     class Meta:
+#         model = SupportTicket
+#         fields = (
+#             "category",
+#             "subcategory",
+#             "title",
+#             "description",
+#             "centre",
+#             # "submitted_by",
+#         )
 class SupportTicketForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user')
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
         if user.centres.count() == 1:
             self.fields['centre'].initial = user.centres.first()
 
-        self.fields['subcategory'].queryset = SubCategory.objects.none()
         if 'category' in self.data:
-            category_id = self.data['category']
-            self.fields['subcategory'].queryset = SubCategory.objects.filter(category_id=category_id)
+            category = get_object_or_404(Category, id=self.data['category'])
+            self.fields['subcategory'].queryset = SubCategory.objects.filter(category=category)
+        else:
+            self.fields['subcategory'].queryset = SubCategory.objects.none()
 
     class Meta:
         model = SupportTicket
@@ -45,9 +70,8 @@ class SupportTicketForm(forms.ModelForm):
         )
 
 
+
 # Form for updating the description of a support ticket
-
-
 class TicketUpdateForm(forms.ModelForm):
     class Meta:
         model = SupportTicket

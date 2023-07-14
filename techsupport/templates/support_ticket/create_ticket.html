@@ -7,7 +7,7 @@
   <h3>Submit a ticket</h3>
 </div>
 <div id="dashboard-url" data-url="{% url 'dashboard' %}"></div>
-<form method="POST" class="needs-validation" novalidate id="submit-ticket-form" url="{% url 'create_ticket' %}">
+<form method="POST" action="" class="needs-validation" novalidate id="submit-ticket-form">
   {% csrf_token %}
   {{ form.non_field_errors }}
 
@@ -15,7 +15,7 @@
     {{ form.centre.errors }}
     <select name="centre" id="id_centre" class="form-control" required>
       {% if form.centre.field.initial %}
-      <option value="{{ form.centre.field.initial }}">{{ form.centre.field.initial }}</option>
+      <option value="{{ form.fields.centre.initial }}">{{ form.fields.centre.initial }}</option>
       {% endif %}
       {% for centre in form.centre.field.queryset %}
       <option value="{{ centre.id }}">{{ centre.name }}</option>
@@ -51,7 +51,17 @@
       required></textarea>
   </div>
 
-  <button class="btn btn-primary" id="submit-btn" disabled>Submit</button>
+  <div class="mb-3">
+    {{ form.submitted_by.errors }}
+    <select name="submitted_by" id="id_submitted_by" class="form-control" required>
+      <!-- <option value="" selected disabled>Submitted by</option> -->
+      {% for submitted in user_submit %}
+      <option value="{{ submitted.id }}">{{ submitted }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <button class="btn btn-primary" type="submit" id="submit-btn" disabled>Submit</button>
 </form>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

@@ -8,7 +8,10 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import Group
-from .models import Country, Region, Centre, Category, SubCategory, SupportTicket, UserProfile
+from .models import Country, Region, Centre, Category, SubCategory, SupportTicket, UserProfile , User
+# from django.contrib.auth.models import User
+
+
 
 
 def user_login(request):
@@ -33,27 +36,59 @@ def user_logout(request):
     return render(request, "accounts/login.html")
 
 
+# @login_required
+# def dashboard(request):
+#     search_query = request.GET.get("search_query", "")
+#     user = request.user
+#     role = user.role if user.is_authenticated else None
+    
+#     if role == "user":
+#         # Filter tickets submitted by the logged-in user
+#         tickets = SupportTicket.objects.filter(submitted_by=request.user)
+#     elif role in ["technician", "admin", "super_admin"]:
+#         # Show all tickets for technicians and above
+#         tickets = SupportTicket.objects.all()
+#     else:
+#         # For other roles, show no tickets
+#         tickets = SupportTicket.objects.none()
+    
+#     technician_or_above = role in ["technician", "admin", "super_admin"]
+#     all_users = role in ["user", "manager", "technician", "admin", "super_admin"]
+#     admin_or_above = role in ["admin", "super_admin"]
+
+#     context = {
+#         "role": role,
+#         "technician_or_above": technician_or_above,
+#         "all_users": all_users,
+#         "admin_or_above": admin_or_above,
+#         "tickets": tickets,
+#         "search_query": search_query,
+#     }
+
+#     return render(request, "dashboard.html", context)
 @login_required
 def dashboard(request):
-    """Renders the dashboard view with dynamic content based on user roles and returns a rendered response using the 'dashboard.html' template"""
-    search_query = request.GET.get("search_query", "")
-    user = request.user
-    role = user.role if user.is_authenticated else None
-    tickets = SupportTicket.objects.filter(submitted_by=user)
-    technician_or_above = role in ["technician", "admin", "super_admin"]
-    all_users = role in ["user", "manager", "technician", "admin", "super_admin"]
-    admin_or_above = role in ["admin", "super_admin"]
+    # Fetch and filter the tickets based on your requirements
+    tickets = SupportTicket.objects.filter(submitted_by=request.user).order_by('-date_submitted')
+
+    # Calculate ticket counts for each status
+    open_tickets_count = tickets.filter(status='open').count()
+    in_progress_tickets_count = tickets.filter(status='in_progress').count()
+    resolved_tickets_count = tickets.filter(status='resolved').count()
 
     context = {
-        "role": role,
-        "technician_or_above": technician_or_above,
-        "all_users": all_users,
-        "admin_or_above": admin_or_above,
-        "tickets": tickets,
-        "search_query": search_query,
+        'tickets': tickets,
+        'open_tickets_count': open_tickets_count,
+        'in_progress_tickets_count': in_progress_tickets_count,
+        'resolved_tickets_count': resolved_tickets_count,
+        'search_query': request.GET.get('search_query', ''),
     }
 
-    return render(request, "dashboard.html", context)
+    return render(request, 'dashboard.html', context)
+
+
+
+
 
 @login_required
 def profile(request):
@@ -74,31 +109,61 @@ def profile(request):
 @login_required
 def ticket_details(request, pk):
     """ view ticket details view function to view ticket details and return a rendered response using the 'view_ticket_details.html' template """  
-    
+    ticket_details = get_object_or_404(ticket_details, pk=pk)
     ticket = SupportTicket.objects.get(pk=pk)
     context = {'ticket': ticket}
     return render(request, 'support_ticket/ticket_details.html', context)
 
 
+# @login_required
+# def create_ticket(request):
+#     if not request.user.is_authenticated:
+#         return redirect('login')
+
+#     if request.method == "POST":
+#         form = SupportTicketForm(request.POST, user=request.user)
+#         if form.is_valid():
+#             var = form
+#             var.submitted_by = request.user
+#             var.status = "open"
+#             var.save()     
+
+#             # # var.ticket_number = SupportTicket.id.hex[:5]
+#             # var.title = SupportTicket.title
+#             # var.priority = SupportTicket.priority
+#             # # var.ticket_age = timezone.now() - SupportTicket.date_submitted
+#             # var.save()
+
+#             messages.info(request, "Ticket created successfully. Please wait for a technician to respond.")
+#             return redirect('dashboard')
+#         else:
+#             messages.warning(request, "Ticket creation failed")
+#             return redirect('dashboard')    
+#     else:
+#         form = SupportTicketForm(user=request.user)
+#         context = {'form': form}
+#         return render(request, 'support_ticket/create_ticket.html', context)
+# views.py
 @login_required
 def create_ticket(request):
-    if request.method == "POST":
+    if request.method == 'POST':
         form = SupportTicketForm(request.POST, user=request.user)
         if form.is_valid():
             support_ticket = form.save(commit=False)
             support_ticket.submitted_by = request.user
             support_ticket.status = SupportTicket.Status.OPEN
             support_ticket.save()
-
-            messages.success(request, "Ticket created successfully. Please wait for a technician to respond.")
+            messages.success(request, 'Support ticket created successfully.')
             return redirect('dashboard')
-        else:
-            messages.warning(request, "Ticket creation failed")
     else:
         form = SupportTicketForm(user=request.user)
-
-    context = {'form': form}
+    
+    context = {'form': form,
+               'user_submit': User.objects.filter(username=request.user)
+               }
     return render(request, 'support_ticket/create_ticket.html', context)
+
+
 
 
 @login_required

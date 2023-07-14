@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, UserProfile, Country, Centre, Category, SubCategory, SubCategory, Settings, Region
+from .models import User, UserProfile, Country, Centre, Category, SubCategory, SubCategory, Settings, Region, SupportTicket
 
 admin.site.register(User)
 admin.site.register(UserProfile)
@@ -9,3 +9,4 @@ admin.site.register(Centre)
 admin.site.register(Category)
 admin.site.register(SubCategory)
 admin.site.register(Settings)
+admin.site.register(SupportTicket)
