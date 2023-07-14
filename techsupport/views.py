@@ -36,35 +36,6 @@ def user_logout(request):
     return render(request, "accounts/login.html")
 
 
-# @login_required
-# def dashboard(request):
-#     search_query = request.GET.get("search_query", "")
-#     user = request.user
-#     role = user.role if user.is_authenticated else None
-    
-#     if role == "user":
-#         # Filter tickets submitted by the logged-in user
-#         tickets = SupportTicket.objects.filter(submitted_by=request.user)
-#     elif role in ["technician", "admin", "super_admin"]:
-#         # Show all tickets for technicians and above
-#         tickets = SupportTicket.objects.all()
-#     else:
-#         # For other roles, show no tickets
-#         tickets = SupportTicket.objects.none()
-    
-#     technician_or_above = role in ["technician", "admin", "super_admin"]
-#     all_users = role in ["user", "manager", "technician", "admin", "super_admin"]
-#     admin_or_above = role in ["admin", "super_admin"]
-
-#     context = {
-#         "role": role,
-#         "technician_or_above": technician_or_above,
-#         "all_users": all_users,
-#         "admin_or_above": admin_or_above,
-#         "tickets": tickets,
-#         "search_query": search_query,
-#     }
-
 #     return render(request, "dashboard.html", context)
 @login_required
 def dashboard(request):
@@ -87,9 +58,6 @@ def dashboard(request):
     return render(request, 'dashboard.html', context)
 
 
-
-
-
 @login_required
 def profile(request):
     details = UserProfile.objects.filter(user=request.user.pk)
@@ -107,10 +75,10 @@ def profile(request):
 
 
 @login_required
-def ticket_details(request, pk):
+def ticket_details(request, ticket_id):
     """ view ticket details view function to view ticket details and return a rendered response using the 'view_ticket_details.html' template """  
-    ticket_details = get_object_or_404(ticket_details, pk=pk)
-    ticket = SupportTicket.objects.get(pk=pk)
+    ticket = get_object_or_404(SupportTicket, id=ticket_id)
+    ticket = SupportTicket.objects.get(id=ticket_id)
     context = {'ticket': ticket}
     return render(request, 'support_ticket/ticket_details.html', context)
 
@@ -242,14 +210,6 @@ def close_ticket(request, pk):
     messages.info(request, "Ticket has been closed by Technician")
     return redirect('support_ticket/ticket_que.html')
 
- 
-@login_required
-def workspace(request):
-    """ Technician_active_tickets view function to view all active tickets and return a rendered response using the 'Technician_active_tickets.html' template """  
-    
-    tickets = SupportTicket.objects.filter(assigned_to=request.user, is_resolved=False)
-    context = {'tickets': tickets}
-    return render(request, 'support_ticket/workspace.html', context)
 
 
 @login_required

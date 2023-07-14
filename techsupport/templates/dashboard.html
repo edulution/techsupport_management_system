@@ -82,7 +82,7 @@
         {% if tickets %}
           {% for ticket in tickets %}
             <tr>
-              <td>{{ ticket.ticket_number }}</td>
+              <td><a href="{% url 'ticket_details' ticket.id %}">{{ ticket.ticket_number }}</a></td>
               <td>{{ ticket.title }}</td>
               <td>{{ ticket.status }}</td>
               <td>{{ ticket.priority }}</td>
