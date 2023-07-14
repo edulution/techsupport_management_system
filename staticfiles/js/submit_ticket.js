@@ -1,3 +1,4 @@
+var dashboardUrl = document.getElementById('dashboard-url').getAttribute('data-url');
 $(document).ready(function() {
   // Disable submit button until form is valid
   $('form').on('input', function() {
@@ -45,5 +46,37 @@ $(document).ready(function() {
       // Disable subcategory field if no category is selected
       subcategoryField.prop('disabled', true);
     }
+  });
+
+  // Handle form submission using AJAX
+  $("#submit-ticket-form").submit(function(event) {
+    event.preventDefault();
+
+    // Serialize form data
+    var formData = $(this).serialize();
+
+    // Get the CSRF token from the form
+    var csrfToken = $("input[name='csrfmiddlewaretoken']").val();
+
+    // Add the CSRF token to the form data
+    formData += "&csrfmiddlewaretoken=" + encodeURIComponent(csrfToken);
+
+    // Send AJAX request to the server
+    $.ajax({
+      type: "POST",
+      url: '/create_ticket/',
+      data: formData,
+      success: function(response) {
+        // Handle the success response
+        // Example: Display a success message or redirect to another page
+        alert("Ticket created successfully");
+        window.location.href = dashboardUrl;
+      },
+      error: function(error) {
+        // Handle the error response
+        // Example: Display an error message
+        alert("Ticket creation failed");
+      }
+    });
   });
 });

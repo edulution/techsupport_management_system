@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
+
 <link rel="stylesheet" href="{% static 'css/submit_ticket.css' %}">
 {% block content %}
 <div class="hearder">
   <h3>Submit a ticket</h3>
 </div>
-
-<form method="post" class="needs-validation" novalidate>
+<div id="dashboard-url" data-url="{% url 'dashboard' %}"></div>
+<form method="POST" class="needs-validation" novalidate id="submit-ticket-form" url="{% url 'create_ticket' %}">
   {% csrf_token %}
   {{ form.non_field_errors }}
 
@@ -50,7 +51,7 @@
       required></textarea>
   </div>
 
-  <button type="submit" class="btn btn-primary" id="submit-btn" disabled>Submit</button>
+  <button class="btn btn-primary" id="submit-btn" disabled>Submit</button>
 </form>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
