@@ -77,7 +77,7 @@
       <th>Priority</th>
       <th>Ticket Age</th>
       {% if user_role == 'technician_or_above' %}
-        <th></th>
+        <th>Details</th>
       {% endif %}
     </tr>
   </thead>
@@ -87,13 +87,21 @@
         <tr>
           <td><a href="{% url 'ticket_details' ticket.id %}">{{ ticket.ticket_number }}</a></td>
           <td>{{ ticket.title }}</td>
-          <td>{{ ticket.status }}</td>
+          <td>
+            {% if ticket.status == 'resolved' %}
+              <span class="badge bg-success">{{ ticket.status }}</span>
+            {% elif ticket.status == 'in_progress' %}
+              <span class="badge bg-warning">{{ ticket.status }}</span>
+            {% else %}
+              {{ ticket.status }}
+            {% endif %}
+          </td>
           <td>{{ ticket.priority }}</td>
           <td>{{ ticket.ticket_age }}</td>
           {% if user_role == 'technician_or_above' %}
             {% if ticket.status == 'in_progress' or ticket.status == 'resolved' %}
               <td>
-                <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-warning">View Details</a>
+                <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-info">View Details</a>
               </td>
             {% else %}
               <td>
@@ -112,8 +120,6 @@
     {% endif %}
   </tbody>
 </table>
-
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{% static 'js/user_dashboard.js' %}"></script>
   </main>
