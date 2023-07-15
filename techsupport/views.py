@@ -36,15 +36,19 @@ def user_logout(request):
 #     return render(request, "dashboard.html", context)
 @login_required
 def dashboard(request):
-    # Fetch and filter the tickets based on your requirements
-    tickets = SupportTicket.objects.filter(submitted_by=request.user).order_by('-date_submitted')
+    tickets = SupportTicket.objects.all().order_by('-date_submitted')
 
     # Calculate ticket counts for each status
     open_tickets_count = tickets.filter(status='open').count()
     in_progress_tickets_count = tickets.filter(status='in_progress').count()
     resolved_tickets_count = tickets.filter(status='resolved').count()
 
+    user_role = None
+    if request.user.groups.filter(name__in=['technician', 'admin', 'super_admin']).exists():
+        user_role = 'technician_or_above'
+
     context = {
+        'user_role': user_role,
         'tickets': tickets,
         'open_tickets_count': open_tickets_count,
         'in_progress_tickets_count': in_progress_tickets_count,
@@ -53,6 +57,8 @@ def dashboard(request):
     }
 
     return render(request, 'dashboard.html', context)
+
+
 
 
 @login_required
@@ -143,15 +149,24 @@ def ticket_queue(request):
 
 
 @login_required
-def take_ticket(request, pk):
-    """ take_ticket view function to take a ticket and return a rendered response using the 'take_ticket.html' template """ 
+def take_ticket(request, ticket_id):
+    """ take_ticket view function to take a ticket and update its status to 'in_progress' """
+
+    ticket = get_object_or_404(SupportTicket, id=ticket_id)
+
+    if request.method == 'POST':
+        ticket.assigned_to = request.user
+        ticket.status = 'in_progress'
+        ticket.save()
+        messages.info(request, 'Ticket has been assigned to you')
+        return redirect('dashboard')
     
-    ticket = SupportTicket.objects.get(pk=pk)
-    ticket.assigned_to = request.user
-    ticket.ticket_status = "in_progress"
-    ticket.save()
-    messages.info(request, "Ticket has been assigned to you")
-    return redirect('take_ticket')
+    context = {
+        'ticket': ticket,
+    }
+
+    return render(request, 'support_ticket/take_ticket.html', context)
+
 
   
 @login_required
