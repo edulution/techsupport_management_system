@@ -67,7 +67,7 @@
       </div>
     </div>
 
-    <!-- Ticket Table -->
+<!-- Ticket Table -->
 <table id="ticket-table" class="table">
   <thead>
     <tr>
@@ -90,15 +90,18 @@
           <td>{{ ticket.status }}</td>
           <td>{{ ticket.priority }}</td>
           <td>{{ ticket.ticket_age }}</td>
-          {% if user_role == 'technician_or_above' and ticket.status == 'open' %}
-            <td>
-              <form method="post" action="{% url 'take_ticket' pk=ticket.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Take Ticket</button>
-              </form>
-            </td>
-          {% else %}
-            <td></td>
+          {% if user_role == 'technician_or_above' %}
+            {% if ticket.status == 'in_progress' or ticket.status == 'resolved' %}
+              <td>
+                <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-warning">View Details</a>
+              </td>
+            {% else %}
+              <td>
+                <a href="{% url 'ticket_details' ticket.id %}">
+                  <button type="submit" class="btn btn-primary">Take Ticket</button>
+                </a>
+              </td>
+            {% endif %}
           {% endif %}
         </tr>
       {% endfor %}
@@ -109,8 +112,6 @@
     {% endif %}
   </tbody>
 </table>
-
-
 
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

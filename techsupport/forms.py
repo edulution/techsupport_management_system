@@ -58,6 +58,21 @@ class SupportTicketUpdateForm(forms.ModelForm):
         return self.instance.title
 
 
+class TicketResolutionForm(forms.ModelForm):
+    STATUS_CHOICES = (
+        ('in_progress', 'In Progress'),
+        ('resolved', 'Resolved'),
+    )
+    status = forms.ChoiceField(choices=STATUS_CHOICES)
+
+    class Meta:
+        model = SupportTicket
+        fields = ('status', 'resolution_notes',)
+        widgets = {
+            'resolution_notes': forms.Textarea(attrs={'rows': 4}),
+        }
+
+
 
 class ProfileForm(forms.ModelForm):
     class Meta:

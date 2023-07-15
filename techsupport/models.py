@@ -335,6 +335,7 @@ class SupportTicket(BaseModel):
         null=True,
         blank=True,
     )
+    resolution_notes = models.TextField(blank=True)
 
     def save(self, *args, **kwargs):
         """
