@@ -268,7 +268,7 @@ class SupportTicket(BaseModel):
         LOW = "low", _("Low")
         MEDIUM = "medium", _("Medium")
         HIGH = "high", _("High")
-
+        
     ticket_number = models.PositiveIntegerField(
         verbose_name=_("ticket number"), unique=True, editable=False
     )
@@ -282,17 +282,11 @@ class SupportTicket(BaseModel):
         max_length=30, verbose_name=_("status"), choices=Status.choices
     )
     priority = models.CharField(
-        max_length=30, verbose_name=_("priority"), choices=Priority.choices
+        max_length=30, verbose_name=_("priority"), choices=Priority.choices, default=Priority.MEDIUM
     )
     centre = models.ForeignKey(
         Centre,
-        # chained_field="name",
-        # chained_model_field="name",
-        # show_all=False,
-        # auto_choose=True,
-        # verbose_name=_("centre"),
         on_delete=models.CASCADE,
-        # related_name="support_issues",
     )
     submitted_by = models.ForeignKey(
         User,

@@ -60,9 +60,6 @@ def dashboard(request):
     return render(request, 'dashboard.html', context)
 
 
-
-
-
 @login_required
 def profile(request):
     details = UserProfile.objects.filter(user=request.user.pk)
@@ -156,11 +153,28 @@ def get_subcategories(request):
 
 @login_required
 def all_tickets(request):
-    """ view_all_tickets view function to view all tickets and return a rendered response using the 'view_all_tickets.html' template """    
-    
+    """view_all_tickets view function to view all tickets and return a rendered response using the 'view_all_tickets.html' template"""
+
+    user = request.user
     tickets = SupportTicket.objects.all()
-    context = {'tickets': tickets}
+    total_tickets_count = tickets.count()
+    open_tickets_count = tickets.filter(status='open').count()
+    in_progress_tickets_count = tickets.filter(status='in_progress').count()
+    resolved_tickets_count = tickets.filter(status='resolved').count()
+
+    if not user.is_superuser and not user.groups.filter(name__in=['admin', 'technician']).exists():
+        tickets = tickets.filter(submitted_by=user)
+
+    context = {
+        'tickets': tickets,
+        'total_tickets_count': total_tickets_count,
+        'open_tickets_count': open_tickets_count,
+        'in_progress_tickets_count': in_progress_tickets_count,
+        'resolved_tickets_count': resolved_tickets_count,
+    }
+
     return render(request, 'support_ticket/all_tickets.html', context)
+
 
 
 @login_required
@@ -213,24 +227,6 @@ def settings_view(request):
         'dark_mode_enabled': dark_mode_enabled,
     }
     return render(request, 'support_ticket/settings.html', context)
-
-
-def mark_ticket_resolved(request):
-    if request.method == 'POST':
-        ticket_id = request.POST.get('ticket_id')
-        ticket = SupportTicket.objects.get(id=ticket_id)
-        ticket.status = SupportTicket.Status.RESOLVED
-        ticket.save()
-    return redirect('dashboard')
-
-
-def toggle_dark_mode(request):
-    user = request.user
-    if request.method == 'POST':
-        dark_mode_enabled = request.POST.get('dark_mode_enabled') == 'on'
-        user.dark_mode_enabled = dark_mode_enabled
-        user.save()
-    return redirect('dashboard')
 
 
 def assign_ticket(request):
