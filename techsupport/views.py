@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from .forms import SupportTicketForm, SupportTicketUpdateForm
+from .forms import SupportTicketForm, SupportTicketUpdateForm, TicketResolutionForm, TicketCreateForm
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -33,19 +33,20 @@ def user_logout(request):
     return render(request, "accounts/login.html")
 
 
-#     return render(request, "dashboard.html", context)
 @login_required
 def dashboard(request):
     tickets = SupportTicket.objects.all().order_by('-date_submitted')
 
-    # Calculate ticket counts for each status
-    open_tickets_count = tickets.filter(status='open').count()
-    in_progress_tickets_count = tickets.filter(status='in_progress').count()
-    resolved_tickets_count = tickets.filter(status='resolved').count()
-
     user_role = None
     if request.user.groups.filter(name__in=['technician', 'admin', 'super_admin']).exists():
         user_role = 'technician_or_above'
+
+    if user_role != 'technician_or_above':
+        tickets = tickets.filter(submitted_by=request.user)
+
+    open_tickets_count = tickets.filter(status='open').count()
+    in_progress_tickets_count = tickets.filter(status='in_progress').count()
+    resolved_tickets_count = tickets.filter(status='resolved').count()
 
     context = {
         'user_role': user_role,
@@ -57,6 +58,7 @@ def dashboard(request):
     }
 
     return render(request, 'dashboard.html', context)
+
 
 
 
@@ -80,22 +82,45 @@ def profile(request):
 @login_required
 def ticket_details(request, ticket_id):
     ticket = get_object_or_404(SupportTicket, id=ticket_id)
+    user_role = None
+
+    if request.user.groups.filter(name__in=['technician', 'admin', 'super_admin']).exists():
+        user_role = 'technician_or_above'
 
     if request.method == 'POST':
-        form = SupportTicketUpdateForm(request.POST, instance=ticket)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Ticket updated successfully.')
-            return redirect('dashboard')
+        if user_role == 'technician_or_above':
+            form = TicketResolutionForm(request.POST, instance=ticket)
+            if form.is_valid():
+                ticket = form.save(commit=False)
+                status = form.cleaned_data.get('status')
+                if status == 'in_progress':
+                    ticket.status = 'in_progress'
+                elif status == 'resolved':
+                    ticket.status = 'resolved'
+                    ticket.resolved_by = request.user
+                ticket.save()
+                messages.info(request, 'Support ticket status has been updated.')
+                return redirect('dashboard')
+        else:
+            form = SupportTicketUpdateForm(request.POST, instance=ticket)
+            if form.is_valid():
+                form.save()
+                messages.info(request, 'Ticket description has been updated.')
+                return redirect('dashboard')
     else:
-        form = SupportTicketUpdateForm(instance=ticket)
+        if user_role == 'technician_or_above':
+            form = TicketResolutionForm(instance=ticket)
+        else:
+            form = SupportTicketUpdateForm(instance=ticket)
 
     context = {
-        'form': form,
         'ticket': ticket,
+        'user_role': user_role,
+        'form': form,
     }
 
     return render(request, 'support_ticket/ticket_details.html', context)
+
 
 
 
@@ -145,27 +170,6 @@ def ticket_queue(request):
     tickets = SupportTicket.objects.filter(ticket_status="open")
     context = {'tickets': tickets} 
     return render(request, 'support_ticket/ticket_queue.html', context)
-
-
-
-@login_required
-def take_ticket(request, ticket_id):
-    """ take_ticket view function to take a ticket and update its status to 'in_progress' """
-
-    ticket = get_object_or_404(SupportTicket, id=ticket_id)
-
-    if request.method == 'POST':
-        ticket.assigned_to = request.user
-        ticket.status = 'in_progress'
-        ticket.save()
-        messages.info(request, 'Ticket has been assigned to you')
-        return redirect('dashboard')
-    
-    context = {
-        'ticket': ticket,
-    }
-
-    return render(request, 'support_ticket/take_ticket.html', context)
 
 
   
