@@ -3,7 +3,7 @@
 {% block content %}
   <h1>Ticket Details</h1>
   <p>Ticket ID: {{ ticket.ticket_number }}</p>
-  <p>Submitted By: {{ ticket.submitted_by.username }}</p> <!-- Updated line -->
+  <p>Submitted By: {{ ticket.submitted_by.username }}</p>
   <p>Status: {{ ticket.get_status_display }}</p>
   <p>Priority: {{ ticket.get_priority_display }}</p>
   <p>Centre: {{ ticket.centre }}</p>
@@ -17,6 +17,7 @@
       <textarea class="form-control" id="description" name="description" rows="4">{{ ticket.description }}</textarea>
     </div>
     {% if user_role == 'technician_or_above' %}
+    <!-- Display status field for technicians or above -->
     <div class="form-group">
       <label for="status">Status:</label>
       <select class="form-control" id="status" name="status">
@@ -26,6 +27,7 @@
     </div>
     <button type="submit" class="btn btn-primary">Update</button>
     {% else %}
+    <!-- Display update description button for other roles -->
     <button type="submit" class="btn btn-primary">Update Description</button>
     {% endif %}
   </form>

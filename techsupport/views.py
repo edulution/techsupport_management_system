@@ -33,9 +33,44 @@ def user_logout(request):
     return render(request, "accounts/login.html")
 
 
+# @login_required
+# def dashboard(request):
+#     tickets = SupportTicket.objects.all().order_by('-date_submitted')
+
+#     user_role = None
+#     if request.user.groups.filter(name__in=['technician', 'admin', 'super_admin']).exists():
+#         user_role = 'technician_or_above'
+
+#     if user_role != 'technician_or_above':
+#         tickets = tickets.filter(submitted_by=request.user)
+
+#     status = request.GET.get('status')  # Get the selected status from the request
+#     if status:
+#         tickets = tickets.filter(status=status)  # Filter the tickets by the selected status
+
+#     open_tickets_count = tickets.filter(status='open').count()
+#     in_progress_tickets_count = tickets.filter(status='in_progress').count()
+#     resolved_tickets_count = tickets.filter(status='resolved').count()
+
+#     context = {
+#         'user_role': user_role,
+#         'tickets': tickets,
+#         'open_tickets_count': open_tickets_count,
+#         'in_progress_tickets_count': in_progress_tickets_count,
+#         'resolved_tickets_count': resolved_tickets_count,
+#         'search_query': request.GET.get('search_query', ''),
+#     }
+
+#     return render(request, 'dashboard.html', context)
+
+from django.db.models import Count
+
 @login_required
 def dashboard(request):
     tickets = SupportTicket.objects.all().order_by('-date_submitted')
+
+    # Retrieve ticket trends data
+    ticket_trends = SupportTicket.objects.values('category__name').annotate(ticket_count=Count('id'))
 
     user_role = None
     if request.user.groups.filter(name__in=['technician', 'admin', 'super_admin']).exists():
@@ -43,6 +78,10 @@ def dashboard(request):
 
     if user_role != 'technician_or_above':
         tickets = tickets.filter(submitted_by=request.user)
+
+    status = request.GET.get('status')  # Get the selected status from the request
+    if status:
+        tickets = tickets.filter(status=status)  # Filter the tickets by the selected status
 
     open_tickets_count = tickets.filter(status='open').count()
     in_progress_tickets_count = tickets.filter(status='in_progress').count()
@@ -55,9 +94,12 @@ def dashboard(request):
         'in_progress_tickets_count': in_progress_tickets_count,
         'resolved_tickets_count': resolved_tickets_count,
         'search_query': request.GET.get('search_query', ''),
+        'ticket_trends': ticket_trends,  # Pass ticket trends data to the template
     }
 
     return render(request, 'dashboard.html', context)
+
+
 
 
 @login_required
@@ -119,8 +161,6 @@ def ticket_details(request, ticket_id):
     return render(request, 'support_ticket/ticket_details.html', context)
 
 
-
-
 @login_required
 def create_ticket(request):
     if request.method == 'POST':
@@ -149,7 +189,7 @@ def get_subcategories(request):
     subcategories = SubCategory.objects.filter(category_id=category_id).values('id', 'name')
     return JsonResponse({'subcategories': list(subcategories)})
 
-    
+   
 
 @login_required
 def all_tickets(request):
@@ -178,39 +218,6 @@ def all_tickets(request):
 
 
 @login_required
-def ticket_queue(request):
-    """ ticket_query view function to query a ticket and return a rendered response using the 'ticket_query.html' template """  
-    
-    tickets = SupportTicket.objects.filter(ticket_status="open")
-    context = {'tickets': tickets} 
-    return render(request, 'support_ticket/ticket_queue.html', context)
-
-
-  
-@login_required
-def close_ticket(request, pk):
-    """close_ticket view function to close a ticket and return a rendered response using the 'close_ticket.html' template """ 
-    
-    ticket = SupportTicket.objects.get(pk=pk)
-    ticket.ticket_status = "closed"
-    ticket.is_resolved = True
-    ticket.closed_date = timezone.now()
-    ticket.save()
-    messages.info(request, "Ticket has been closed by Technician")
-    return redirect('support_ticket/ticket_que.html')
-
-
-
-@login_required
-def all_closed_tickets(request):
-    """ all closed/resolved tickets view function to view all closed tickets and return a rendered response using the 'all_closed_tickets.html' template """    
-    
-    tickets = SupportTicket.objects.filter(assignee=request.user, is_resolved=True)
-    context = {'tickets': tickets}
-    return render(request, 'support_ticket/all_closed_tickets.html', context)
-
-
-@login_required
 def settings_view(request):
     """ settings view """
 
@@ -229,18 +236,25 @@ def settings_view(request):
     return render(request, 'support_ticket/settings.html', context)
 
 
-def assign_ticket(request):
+@login_required
+def assign_ticket(request, ticket_id):
+    ticket = get_object_or_404(SupportTicket, id=ticket_id)
     if request.method == 'POST':
-        ticket_id = request.POST.get('ticket_id')
         technician_id = request.POST.get('technician_id')
-        ticket = SupportTicket.objects.get(id=ticket_id)
         technician = User.objects.get(id=technician_id)
         ticket.resolved_by = technician
         ticket.save()
-        return redirect('dashboard')
+        messages.success(request, 'Ticket assigned to technician successfully.')
+        return redirect('ticket_details', ticket_id=ticket_id)
     else:
-        # Handle GET request if needed
-        pass
+        technicians = User.objects.filter(groups__name='technician')
+        context = {
+            'ticket': ticket,
+            'technicians': technicians,
+        }
+        return render(request, 'support_ticket/assign_ticket.html', context)
+
+
 
 def open_tickets(request):
     # Retrieve open tickets from the database
