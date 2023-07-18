@@ -20,12 +20,15 @@ class SupportTicketForm(forms.ModelForm):
 
         if user.centres.count() == 1:
             self.fields['centre'].initial = user.centres.first()
+            self.fields['centre'].widget.attrs['hidden'] = True
 
         if 'category' in self.data:
             category = get_object_or_404(Category, id=self.data['category'])
             self.fields['subcategory'].queryset = SubCategory.objects.filter(category=category)
         else:
             self.fields['subcategory'].queryset = SubCategory.objects.none()
+
+
 
 
 class TicketCreateForm(forms.Form):

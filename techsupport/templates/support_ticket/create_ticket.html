@@ -12,9 +12,13 @@
   {{ form.non_field_errors }}
 
   <div class="mb-3">
-    {{ form.centre.errors }}
-    <select name="centre" id="id_centre" class="form-control" required>
-      {% if form.centre.field.initial %}
+    {% if form.centre.errors %}
+    <div class="alert alert-danger">
+      {{ form.centre.errors }}
+    </div>
+    {% endif %}
+    <select name="centre" id="id_centre" class="form-control" required{% if form.fields.centre.widget.attrs.hidden %} hidden{% endif %}>
+      {% if form.fields.centre.initial %}
       <option value="{{ form.fields.centre.initial }}">{{ form.fields.centre.initial }}</option>
       {% endif %}
       {% for centre in form.centre.field.queryset %}
@@ -22,6 +26,7 @@
       {% endfor %}
     </select>
   </div>
+  
 
   <div class="mb-3">
     {{ form.category.errors }}
@@ -51,19 +56,10 @@
       required></textarea>
   </div>
 
-  <div class="mb-3">
-    {{ form.submitted_by.errors }}
-    <select name="submitted_by" id="id_submitted_by" class="form-control" required>
-      <!-- <option value="" selected disabled>Submitted by</option> -->
-      {% for submitted in user_submit %}
-      <option value="{{ submitted.id }}">{{ submitted }}</option>
-      {% endfor %}
-    </select>
-  </div>
-
   <button class="btn btn-primary" type="submit" id="submit-btn" disabled>Submit</button>
 </form>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static 'js/submit_ticket.js' %}"></script>
 {% endblock %}
+

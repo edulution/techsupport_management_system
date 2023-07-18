@@ -79,9 +79,9 @@ def dashboard(request):
     if user_role != 'technician_or_above':
         tickets = tickets.filter(submitted_by=request.user)
 
-    status = request.GET.get('status')  # Get the selected status from the request
+    status = request.GET.get('status')
     if status:
-        tickets = tickets.filter(status=status)  # Filter the tickets by the selected status
+        tickets = tickets.filter(status=status)
 
     open_tickets_count = tickets.filter(status='open').count()
     in_progress_tickets_count = tickets.filter(status='in_progress').count()
@@ -94,7 +94,7 @@ def dashboard(request):
         'in_progress_tickets_count': in_progress_tickets_count,
         'resolved_tickets_count': resolved_tickets_count,
         'search_query': request.GET.get('search_query', ''),
-        'ticket_trends': ticket_trends,  # Pass ticket trends data to the template
+        'ticket_trends': ticket_trends,
     }
 
     return render(request, 'dashboard.html', context)
@@ -161,6 +161,7 @@ def ticket_details(request, ticket_id):
     return render(request, 'support_ticket/ticket_details.html', context)
 
 
+
 @login_required
 def create_ticket(request):
     if request.method == 'POST':
@@ -174,13 +175,10 @@ def create_ticket(request):
             return redirect('dashboard')
     else:
         form = SupportTicketForm(user=request.user)
-    
+
     context = {'form': form,
-               'user_submit': User.objects.filter(username=request.user)
-               }
+               'user_submit': User.objects.filter(username=request.user)}
     return render(request, 'support_ticket/create_ticket.html', context)
-
-
 
 
 @login_required

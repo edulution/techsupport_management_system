@@ -26,7 +26,7 @@ class Command(BaseCommand):
         countries = [
             {'name': 'Zambia', 'code': 'ZM'},
             {'name': 'South Africa', 'code': 'ZA'},
-            # Add more country data as needed
+
         ]
         for country_data in countries:
             Country.objects.create(**country_data)
@@ -37,7 +37,7 @@ class Command(BaseCommand):
             {'name': 'Western Region', 'country': Country.objects.get(code='ZM')},
             {'name': 'Mpumalanga', 'country': Country.objects.get(code='ZA')},
             {'name': 'KwaZulu Natal', 'country': Country.objects.get(code='ZA')},
-            # Add more region data as needed
+
         ]
         for region_data in regions:
             Region.objects.create(**region_data)
@@ -48,7 +48,7 @@ class Command(BaseCommand):
             {'name': 'Mayukwayukwa Secondary', 'acronym': 'MYS', 'region': Region.objects.get(name='Western Region')},
             {'name': 'Kanyajalo', 'acronym': 'INK', 'region': Region.objects.get(name='KwaZulu Natal')},
             {'name': 'Zwelisha', 'acronym': 'WRZ', 'region': Region.objects.get(name='Mpumalanga')},
-            # Add more centre data as needed
+
         ]
         for centre_data in centres:
             Centre.objects.create(**centre_data)
@@ -58,22 +58,22 @@ class Command(BaseCommand):
             {'first_name': 'Admin', 'last_name': 'All', 'username': 'admin1', 'role': 'admin', 'password': 'admin', 'groups': ['admin']},
             {'first_name': 'Manager', 'last_name': 'All', 'username': 'manager1', 'role': 'manager', 'password': 'manager1', 'groups': ['manager'] },
             {'first_name': 'Technician', 'last_name': 'Zambia', 'username': 'tech1', 'role': 'technician', 'password': 'tech1', 'groups': ['technician']},
-            {'first_name': 'Sandile', 'last_name': 'Ncobile', 'username': 'ZA_SN09', 'role': 'user', 'password': 'A_SN09', 'groups': ['user'], 'centre': 'Lumezi Primary'},
-            {'first_name': 'Jose', 'last_name': 'Zulu', 'username': 'ZM_JZ13', 'role': 'user', 'password': 'ZM_JZ13', 'groups': ['User'], 'centre': 'Mayukwayukwa Secondary'},
-            {'first_name': 'Thobekile', 'last_name': 'Gumede', 'username': 'ZA_TG20', 'role': 'user', 'password': 'ZA_TG20', 'groups': ['user'], 'centre': 'Kanyajalo'},
-            {'first_name': 'Matildah', 'last_name': 'Mbuzi', 'username': 'ZM_MM23', 'role': 'user', 'password': 'ZM_MM23', 'groups': ['user'], 'centre': 'Zwelisha'},
-            # Add more user data as needed
+            {'first_name': 'Sandile', 'last_name': 'Ncobile', 'username': 'ZA_SN09', 'role': 'user', 'password': 'A_SN09', 'groups': ['user'], 'centres': ['Lumezi Primary']},
+            {'first_name': 'Jose', 'last_name': 'Zulu', 'username': 'ZM_JZ13', 'role': 'user', 'password': 'ZM_JZ13', 'groups': ['user'], 'centres': ['Mayukwayukwa Secondary']},
+            {'first_name': 'Thobekile', 'last_name': 'Gumede', 'username': 'ZA_TG20', 'role': 'user', 'password': 'ZA_TG20', 'groups': ['user'], 'centres': ['Kanyajalo']},
+            {'first_name': 'Matildah', 'last_name': 'Mbuzi', 'username': 'ZM_MM23', 'role': 'user', 'password': 'ZM_MM23', 'groups': ['user'], 'centres': ['Zwelisha']},
+        
         ]
         for user_data in users:
             password = user_data.pop('password')
             groups = user_data.pop('groups', [])
-            centre_name = user_data.pop('centre', None)
+            centre_names = user_data.pop('centres', [])
             user_data['password'] = password
             user = User.objects.create_user(**user_data)
             for group_name in groups:
                 group, _ = Group.objects.get_or_create(name=group_name)
                 user.groups.add(group)
-            if centre_name:
+            for centre_name in centre_names:
                 centre = Centre.objects.get(name=centre_name)
                 user.centres.add(centre)
 
@@ -81,7 +81,7 @@ class Command(BaseCommand):
         categories = [
             {'name': 'Hardware', 'code': '001'},
             {'name': 'Software', 'code': '002'},
-            # Add more category data as needed
+
         ]
         for category_data in categories:
             Category.objects.create(**category_data)
@@ -125,3 +125,5 @@ class Command(BaseCommand):
                 description=f'Support Ticket {i + 1}',
                 title=f'Ticket-{i + 1}',
             )
+
+
