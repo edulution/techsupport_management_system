@@ -1,3 +1,5 @@
+from django.core.management import BaseCommand
+
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
 import os
@@ -20,3 +22,20 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+class Command(BaseCommand):
+    """
+    Custom Django management command to handle subcommands.
+    """
+
+    def add_arguments(self, parser):
+        parser.add_argument('subcommand', nargs='?', help='Subcommand to run.')
+
+    def handle(self, *args, **options):
+        subcommand = options.get('subcommand')
+        if subcommand == 'generate_dummy_data':
+            from your_app.management.commands.generate_dummy_data import Command as GenerateDummyDataCommand
+            GenerateDummyDataCommand().handle(*args, **options)
+        else:
+            self.stdout.write(self.help)
