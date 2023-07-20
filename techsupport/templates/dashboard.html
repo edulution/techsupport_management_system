@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block content %}
 <div class="container">
   <!-- Dashboard Widgets -->
-  <div class="row">
+  <div class="row mb-4">
     <div class="col-lg-3 col-md-6">
-      <div class="card">
+      <div class="card bg-primary text-white">
         <div class="card-body">
           <h3 class="card-title"><i class="bi bi-journal-arrow-up"></i>{{ tickets.count }}</h3>
           <p class="widget-description">All Tickets</p>
@@ -14,7 +15,7 @@
       </div>
     </div>
     <div class="col-lg-3 col-md-6">
-      <div class="card">
+      <div class="card bg-info text-white">
         <div class="card-body">
           <h3 class="card-title"><i class="bi bi-folder"></i>{{ open_tickets_count }}</h3>
           <p class="widget-description">Open</p>
@@ -22,7 +23,7 @@
       </div>
     </div>
     <div class="col-lg-3 col-md-6">
-      <div class="card">
+      <div class="card bg-warning text-white">
         <div class="card-body">
           <h3 class="card-title"><i class="bi bi-clock-history"></i>{{ in_progress_tickets_count }}</h3>
           <p class="widget-description">In Progress</p>
@@ -30,7 +31,7 @@
       </div>
     </div>
     <div class="col-lg-3 col-md-6">
-      <div class="card">
+      <div class="card bg-success text-white">
         <div class="card-body">
           <h3 class="card-title"><i class="bi bi-check2-square"></i>{{ resolved_tickets_count }}</h3>
           <p class="widget-description">Resolved</p>
@@ -40,36 +41,68 @@
   </div>
 
   {% if user_role == 'technician_or_above' %}
-  <div class="card">
+  <!-- Ticket Insights -->
+  <div class="card mb-4">
     <div class="card-header">
-      Ticket Trends
+      Ticket Insights
     </div>
     <div class="card-body">
-      {% for trend in ticket_trends %}
-      <div class="progress mb-3">
-        <div class="progress-bar bg-info ticket-trend" role="progressbar" style="width: {{ trend.ticket_count }}%"
-          aria-valuenow="{{ trend.ticket_count }}" aria-valuemin="0" aria-valuemax="100"
-          data-category="{{ trend.category__name }}">
-          {{ trend.category__name }}
+      <div class="insights-section">
+        <h5>Common Ticket Trends:</h5>
+        {% for trend in ticket_insights.common_ticket_trends %}
+        <div class="insights-item">
+          <div class="insights-label">
+            {{ trend.category__name }}
+          </div>
+          <div class="progress circular-progress">
+            <div class="progress-bar bg-{{ forloop.counter0|cycle_color }}"
+                 role="progressbar" style="width: {{ trend.ticket_count }}%"
+                 aria-valuenow="{{ trend.ticket_count }}" aria-valuemin="0" aria-valuemax="100">
+            </div>
+          </div>
+          <div class="insights-value">
+            {{ trend.ticket_count }} tickets
+          </div>
         </div>
+        {% endfor %}
       </div>
-      {% endfor %}
+  
+      <div class="insights-section mt-4">
+        <h5>Frequently Reported Issues:</h5>
+        {% for issue in ticket_insights.frequent_issues %}
+        <div class="insights-item">
+          <div class="insights-label">
+            {{ issue.subcategory__name }}
+          </div>
+          <div class="progress circular-progress">
+            <div class="progress-bar bg-{{ forloop.counter0|cycle_color }}"
+                 role="progressbar" style="width: {{ issue.ticket_count }}%"
+                 aria-valuenow="{{ issue.ticket_count }}" aria-valuemin="0" aria-valuemax="100">
+            </div>
+          </div>
+          <div class="insights-value">
+            {{ issue.ticket_count }} tickets
+          </div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
   {% endif %}
 
-  <!-- Submit Ticket Button -->
-  <div class="d-flex justify-content-between align-items-center my-3">
+  <!-- Submit Ticket Button and Search Filter -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
       <a href="{% url 'create_ticket' %}" class="btn btn-primary"><i class="bi bi-journal-plus"></i> Submit Ticket</a>
     </div>
-    <!-- Search Filter -->
-    <div class="d-flex">
+    <div class="d-flex align-items-center">
       <form action="{% url 'dashboard' %}" method="GET" class="input-group">
         <input type="text" name="search_query" class="form-control" placeholder="Search" value="{{ search_query }}">
-        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search"></i></button>
+        <div class="input-group-append">
+          <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search"></i> Search</button>
+        </div>
         <!-- Ticket Filter -->
-        <div class="form-group ms-2">
+        <div class="form-group mx-2 mb-0">
           <select name="status" class="form-control">
             <option value="">All</option>
             <option value="open">Open</option>
@@ -83,7 +116,7 @@
   </div>
 
   <!-- Ticket Table -->
-  <table id="ticket-table" class="table">
+  <table id="ticket-table" class="table table-striped">
     <thead>
       <tr>
         <th>Ticket Number</th>
@@ -140,6 +173,7 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0@dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6G6lYCXalGZ4CkVg" crossorigin="anonymous">
 <script src="{% static 'js/user_dashboard.js' %}"></script>
-<script src="{% static 'js/ticket_trends.js' %}"></script>
+
 {% endblock %}

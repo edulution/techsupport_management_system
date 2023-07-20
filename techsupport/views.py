@@ -9,7 +9,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import Group
 from .models import Country, Region, Centre, Category, SubCategory, SupportTicket, UserProfile , User
-
+from django.db.models import Q, Count
 
 def user_login(request):
     error_message = None
@@ -63,8 +63,6 @@ def user_logout(request):
 
 #     return render(request, 'dashboard.html', context)
 
-from django.db.models import Count
-
 @login_required
 def dashboard(request):
     tickets = SupportTicket.objects.all().order_by('-date_submitted')
@@ -79,7 +77,21 @@ def dashboard(request):
     if user_role != 'technician_or_above':
         tickets = tickets.filter(submitted_by=request.user)
 
+    # Retrieve search parameters from the request
+    search_query = request.GET.get('search_query', '').strip()
     status = request.GET.get('status')
+
+    if search_query:
+    # Use Q objects for searching across multiple fields with OR condition
+        tickets = tickets.filter(
+            Q(title__icontains=search_query) |
+            Q(category__name__icontains=search_query) |
+            Q(subcategory__name__icontains=search_query) |
+            Q(centre__name__icontains=search_query) |
+            Q(centre__region__name__icontains=search_query) |
+            Q(submitted_by__username__icontains=search_query)
+        )
+
     if status:
         tickets = tickets.filter(status=status)
 
@@ -87,18 +99,34 @@ def dashboard(request):
     in_progress_tickets_count = tickets.filter(status='in_progress').count()
     resolved_tickets_count = tickets.filter(status='resolved').count()
 
+    def get_ticket_insights():
+        # Retrieve common ticket trends
+        common_ticket_trends = SupportTicket.objects.values('category__name').annotate(ticket_count=Count('id')).order_by('-ticket_count')[:5]
+
+        # Retrieve frequently reported issues
+        frequent_issues = SupportTicket.objects.values('subcategory__name').annotate(ticket_count=Count('id')).order_by('-ticket_count')[:5]
+
+        # # Retrieve potential solutions based on historical data
+        # potential_solutions = SupportTicket.objects.filter(status='resolved').values('resolution_notes')
+
+        return {
+            'common_ticket_trends': common_ticket_trends,
+            'frequent_issues': frequent_issues,
+            # 'potential_solutions': potential_solutions,
+        }
+
     context = {
         'user_role': user_role,
         'tickets': tickets,
         'open_tickets_count': open_tickets_count,
         'in_progress_tickets_count': in_progress_tickets_count,
         'resolved_tickets_count': resolved_tickets_count,
-        'search_query': request.GET.get('search_query', ''),
+        'search_query': search_query,
         'ticket_trends': ticket_trends,
+        'ticket_insights': get_ticket_insights(),
     }
 
     return render(request, 'dashboard.html', context)
-
 
 
 
