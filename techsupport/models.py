@@ -330,6 +330,16 @@ class SupportTicket(BaseModel):
         blank=True,
     )
     resolution_notes = models.TextField(blank=True)
+    
+    #NEW
+    assigned_to = models.ForeignKey(
+        User,
+        verbose_name=_("assigned to"),
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="assigned_tickets",
+    )
 
     def save(self, *args, **kwargs):
         """

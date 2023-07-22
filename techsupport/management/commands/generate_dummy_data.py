@@ -58,6 +58,7 @@ class Command(BaseCommand):
             {'first_name': 'Admin', 'last_name': 'All', 'username': 'admin1', 'role': 'admin', 'password': 'admin', 'groups': ['admin']},
             {'first_name': 'Manager', 'last_name': 'All', 'username': 'manager1', 'role': 'manager', 'password': 'manager1', 'groups': ['manager'] },
             {'first_name': 'Technician', 'last_name': 'Zambia', 'username': 'tech1', 'role': 'technician', 'password': 'tech1', 'groups': ['technician']},
+            {'first_name': 'Technician2', 'last_name': 'South Africa', 'username': 'tech2', 'role': 'technician', 'password': 'tech2', 'groups': ['technician']},
             {'first_name': 'Sandile', 'last_name': 'Ncobile', 'username': 'ZA_SN09', 'role': 'user', 'password': 'A_SN09', 'groups': ['user'], 'centres': ['Lumezi Primary']},
             {'first_name': 'Jose', 'last_name': 'Zulu', 'username': 'ZM_JZ13', 'role': 'user', 'password': 'ZM_JZ13', 'groups': ['user'], 'centres': ['Mayukwayukwa Secondary']},
             {'first_name': 'Thobekile', 'last_name': 'Gumede', 'username': 'ZA_TG20', 'role': 'user', 'password': 'ZA_TG20', 'groups': ['user'], 'centres': ['Kanyajalo']},

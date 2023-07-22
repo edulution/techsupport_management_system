@@ -28,6 +28,25 @@ class SupportTicketForm(forms.ModelForm):
         else:
             self.fields['subcategory'].queryset = SubCategory.objects.none()
 
+    def clean_title(self):
+        title = self.cleaned_data.get('title')
+
+        if len(title) < 10 or len(title) > 20:
+            raise forms.ValidationError("Title should be between 10 and 20 characters.")
+
+        return title
+
+    def clean_description(self):
+        description = self.cleaned_data.get('description')
+
+        if len(description) > 100:
+            raise forms.ValidationError("Description should not exceed 100 characters.")
+
+        return description
+
+#NEWW
+class TicketAssignmentForm(forms.Form):
+    assigned_to = forms.ModelChoiceField(queryset=User.objects.filter(role='technician'))
 
 
 

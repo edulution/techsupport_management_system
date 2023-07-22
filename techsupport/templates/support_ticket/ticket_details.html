@@ -14,21 +14,39 @@
     {% csrf_token %}
     <div class="form-group">
       <label for="description">Description:</label>
-      <textarea class="form-control" id="description" name="description" rows="4">{{ ticket.description }}</textarea>
+      <textarea class="form-control" id="description" name="description" rows="4" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}readonly{% endif %}>{{ ticket.description }}</textarea>
     </div>
     {% if user_role == 'technician_or_above' %}
-    <!-- Display status field for technicians or above -->
+    <!-- Display resolution form for technicians or above -->
     <div class="form-group">
       <label for="status">Status:</label>
-      <select class="form-control" id="status" name="status">
-        <option value="in_progress">In Progress</option>
-        <option value="resolved">Resolved</option>
+      <select class="form-control" id="status" name="status" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}disabled{% endif %}>
+        <option value="open" {% if ticket.status == 'open' %}selected{% endif %}>Open</option>
+        <option value="in_progress" {% if ticket.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+        <option value="resolved" {% if ticket.status == 'resolved' %}selected{% endif %}>Resolved</option>
+        <option value="closed" {% if ticket.status == 'closed' %}selected{% endif %}>Closed</option>
       </select>
     </div>
-    <button type="submit" class="btn btn-primary">Update</button>
+    <button type="submit" class="btn btn-primary" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}disabled{% endif %}>Update</button>
     {% else %}
     <!-- Display update description button for other roles -->
-    <button type="submit" class="btn btn-primary">Update Description</button>
+    <button type="submit" class="btn btn-primary" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}disabled{% endif %}>Update Description</button>
     {% endif %}
   </form>
+
+  {% if user_role == 'technician_or_above' %}
+  <!-- Display ticket assignment form for technicians or above -->
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="assigned_to">Assign To:</label>
+      <select class="form-control" id="assigned_to" name="assigned_to">
+        {% for technician in technicians %}
+          <option value="{{ technician.id }}">{{ technician.username }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Assign Ticket</button>
+  </form>
+  {% endif %}
 {% endblock %}

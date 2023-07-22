@@ -1,36 +1,66 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_head %}
+  <link rel="stylesheet" href="{% static 'css/ticket_list.css' %}">
+{% endblock %}
+
 {% block content %}
-  <h1>All Tickets</h1>
-
-  <div class="table-responsive">
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Ticket Number</th>
-          <th>Title</th>
-          <th>Status</th>
-          <th>Priority</th>
-          <th>Ticket Age</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for ticket in tickets %}
-          <tr>
-            <td>{{ ticket.ticket_number }}</td>
-            <td><a href="{% url 'ticket_details' ticket.id %}">{{ ticket.title }}</a></td>
-            <td>{{ ticket.status }}</td>
-            <td>{{ ticket.priority }}</td>
-            <td>{{ ticket.ticket_age }}</td>
-          </tr>
-        {% empty %}
-          <tr>
-            <td colspan="5">No tickets found.</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="container mt-4">
+    <div class="row justify-content-center">
+      <div class="col-md-10">
+        <div class="card">
+          <div class="card-header bg-primary text-white text-center">
+            <h4>All Tickets</h4>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                  <tr>
+                    <th>Ticket Number</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Ticket Age</th>
+                    {% if request.user.is_technician %}
+                      <th>Actions</th>
+                    {% endif %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for ticket in tickets %}
+                    <tr>
+                      <td>{{ ticket.ticket_number }}</td>
+                      <td><a href="{% url 'ticket_details' ticket.id %}">{{ ticket.title }}</a></td>
+                      <td>
+                        {% if ticket.status == 'resolved' %}
+                          <span class="badge bg-success d-grid">{{ ticket.status }}</span>
+                        {% elif ticket.status == 'in_progress' %}
+                          <span class="badge bg-warning d-grid">{{ ticket.status }}</span>
+                        {% else %}
+                          <span class="badge bg-primary d-grid">Open</span>
+                        {% endif %}
+                      </td>
+                      <td>{{ ticket.get_priority_display }}</td>
+                      <td>{{ ticket.ticket_age }}</td>
+                      {% if request.user.is_technician %}
+                        <td>
+                          <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-sm btn-info">View</a>
+                        </td>
+                      {% endif %}
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="{% if request.user.is_technician %}6{% else %}5{% endif %}" class="text-center">No tickets found.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-
 {% endblock %}

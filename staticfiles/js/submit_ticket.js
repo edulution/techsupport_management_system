@@ -68,13 +68,11 @@ $(document).ready(function() {
       data: formData,
       success: function(response) {
         // Handle the success response
-        // Example: Display a success message or redirect to another page
         alert("Ticket created successfully");
         window.location.href = dashboardUrl;
       },
       error: function(error) {
         // Handle the error response
-        // Example: Display an error message
         alert("Ticket creation failed");
       }
     });

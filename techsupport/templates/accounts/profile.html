@@ -2,18 +2,32 @@
 
 {% block content %}
 <!-- User Profile -->
-<div class="container">
-  <div class="row">
-    <div class="col-lg-6 offset-lg-3">
-      <h2>User Profile</h2>
-      <p class="mb-3"><strong>Name:</strong> {{ user.profile.user.get_full_name }}</p>
-      <p class="mb-3"><strong>Role:</strong> {{ user.role }}</p>
-      <p class="mb-3"><strong>Email:</strong> {{ user.email }}</p>
-      <p class="mb-3"><strong>Bio:</strong> {{ user.profile.bio }}</p>
-      <p class="mb-3"><strong>Date of Birth:</strong> {{ user.profile.date_of_birth }}</p>
-      {% if avatar %}
-      <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="img-fluid mb-3">
-      {% endif %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h4 class="card-title mb-4">Profile</h4>
+          <div class="mb-3">
+            <strong>Name:</strong> {{ user.profile.user.get_full_name }}
+          </div>
+          <div class="mb-3">
+            <strong>Role:</strong> {{ user.role }}
+          </div>
+          <div class="mb-3">
+            <strong>Email:</strong> {{ user.email }}
+          </div>
+          <div class="mb-3">
+            <strong>Bio:</strong> {{ user.profile.bio }}
+          </div>
+          <div class="mb-3">
+            <strong>Date of Birth:</strong> {{ user.profile.date_of_birth }}
+          </div>
+          {% if avatar %}
+            <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="img-fluid rounded-circle mb-3">
+          {% endif %}
+        </div>
+      </div>
     </div>
   </div>
 </div>

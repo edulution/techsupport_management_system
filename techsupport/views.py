@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from .forms import SupportTicketForm, SupportTicketUpdateForm, TicketResolutionForm, TicketCreateForm
+from .forms import SupportTicketForm, SupportTicketUpdateForm, TicketResolutionForm, TicketCreateForm, TicketAssignmentForm
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -33,35 +33,6 @@ def user_logout(request):
     return render(request, "accounts/login.html")
 
 
-# @login_required
-# def dashboard(request):
-#     tickets = SupportTicket.objects.all().order_by('-date_submitted')
-
-#     user_role = None
-#     if request.user.groups.filter(name__in=['technician', 'admin', 'super_admin']).exists():
-#         user_role = 'technician_or_above'
-
-#     if user_role != 'technician_or_above':
-#         tickets = tickets.filter(submitted_by=request.user)
-
-#     status = request.GET.get('status')  # Get the selected status from the request
-#     if status:
-#         tickets = tickets.filter(status=status)  # Filter the tickets by the selected status
-
-#     open_tickets_count = tickets.filter(status='open').count()
-#     in_progress_tickets_count = tickets.filter(status='in_progress').count()
-#     resolved_tickets_count = tickets.filter(status='resolved').count()
-
-#     context = {
-#         'user_role': user_role,
-#         'tickets': tickets,
-#         'open_tickets_count': open_tickets_count,
-#         'in_progress_tickets_count': in_progress_tickets_count,
-#         'resolved_tickets_count': resolved_tickets_count,
-#         'search_query': request.GET.get('search_query', ''),
-#     }
-
-#     return render(request, 'dashboard.html', context)
 
 @login_required
 def dashboard(request):
@@ -146,20 +117,33 @@ def profile(request):
     return render(request, 'accounts/profile.html', context)
 
 
+
 @login_required
 def ticket_details(request, ticket_id):
     ticket = get_object_or_404(SupportTicket, id=ticket_id)
     user_role = None
+    form_resolution = None
+    form_assignment = None
 
     if request.user.groups.filter(name__in=['technician', 'admin', 'super_admin']).exists():
         user_role = 'technician_or_above'
 
     if request.method == 'POST':
         if user_role == 'technician_or_above':
-            form = TicketResolutionForm(request.POST, instance=ticket)
-            if form.is_valid():
-                ticket = form.save(commit=False)
-                status = form.cleaned_data.get('status')
+            # Check if the form for ticket assignment is submitted
+            form_assignment = TicketAssignmentForm(request.POST)
+            if form_assignment.is_valid():
+                assigned_to = form_assignment.cleaned_data['assigned_to']
+                ticket.assigned_to = assigned_to
+                ticket.save()
+                messages.info(request, 'Support ticket has been assigned.')
+                return redirect('dashboard')
+
+            # Check if the form for ticket resolution is submitted
+            form_resolution = TicketResolutionForm(request.POST, instance=ticket)
+            if form_resolution.is_valid():
+                ticket = form_resolution.save(commit=False)
+                status = form_resolution.cleaned_data.get('status')
                 if status == 'in_progress':
                     ticket.status = 'in_progress'
                 elif status == 'resolved':
@@ -168,7 +152,9 @@ def ticket_details(request, ticket_id):
                 ticket.save()
                 messages.info(request, 'Support ticket status has been updated.')
                 return redirect('dashboard')
+
         else:
+            # For other user roles, use the existing form
             form = SupportTicketUpdateForm(request.POST, instance=ticket)
             if form.is_valid():
                 form.save()
@@ -176,18 +162,24 @@ def ticket_details(request, ticket_id):
                 return redirect('dashboard')
     else:
         if user_role == 'technician_or_above':
-            form = TicketResolutionForm(instance=ticket)
+            # Show both ticket resolution form and ticket assignment form to technicians
+            form_resolution = TicketResolutionForm(instance=ticket)
+            form_assignment = TicketAssignmentForm()
         else:
+            # For other user roles, use the existing form
             form = SupportTicketUpdateForm(instance=ticket)
+    
+    technicians = User.objects.filter(role='technician')
 
     context = {
         'ticket': ticket,
         'user_role': user_role,
-        'form': form,
+        'form_resolution': form_resolution,
+        'form_assignment': form_assignment,
+        'technicians': technicians,
     }
 
     return render(request, 'support_ticket/ticket_details.html', context)
-
 
 
 @login_required
@@ -215,12 +207,10 @@ def get_subcategories(request):
     subcategories = SubCategory.objects.filter(category_id=category_id).values('id', 'name')
     return JsonResponse({'subcategories': list(subcategories)})
 
-   
+
 
 @login_required
 def all_tickets(request):
-    """view_all_tickets view function to view all tickets and return a rendered response using the 'view_all_tickets.html' template"""
-
     user = request.user
     tickets = SupportTicket.objects.all()
     total_tickets_count = tickets.count()
@@ -228,7 +218,11 @@ def all_tickets(request):
     in_progress_tickets_count = tickets.filter(status='in_progress').count()
     resolved_tickets_count = tickets.filter(status='resolved').count()
 
-    if not user.is_superuser and not user.groups.filter(name__in=['admin', 'technician']).exists():
+    if user.is_technician():
+        # If the user is a technician, show tickets assigned to them
+        tickets = tickets.filter(assigned_to=user)
+    else:
+        # If the user is not a technician, show their own submitted tickets
         tickets = tickets.filter(submitted_by=user)
 
     context = {
@@ -240,6 +234,7 @@ def all_tickets(request):
     }
 
     return render(request, 'support_ticket/all_tickets.html', context)
+
 
 
 
