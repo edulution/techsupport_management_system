@@ -33,7 +33,6 @@ def user_logout(request):
     return render(request, "accounts/login.html")
 
 
-
 @login_required
 def dashboard(request):
     tickets = SupportTicket.objects.all().order_by('-date_submitted')
@@ -47,13 +46,20 @@ def dashboard(request):
 
     if user_role != 'technician_or_above':
         tickets = tickets.filter(submitted_by=request.user)
+    
+    user_role = None
+    if request.user.groups.filter(name__in=['manager', 'technician', 'admin', 'super_admin']).exists():
+        user_role = 'manager_or_above'
+
+    if user_role != 'manager_or_above':
+        tickets = tickets.filter(submitted_by=request.user)
 
     # Retrieve search parameters from the request
     search_query = request.GET.get('search_query', '').strip()
     status = request.GET.get('status')
 
     if search_query:
-    # Use Q objects for searching across multiple fields with OR condition
+        # Use Q objects for searching across multiple fields with OR condition
         tickets = tickets.filter(
             Q(title__icontains=search_query) |
             Q(category__name__icontains=search_query) |
@@ -86,6 +92,19 @@ def dashboard(request):
             # 'potential_solutions': potential_solutions,
         }
 
+    # Retrieve the regions and centres for the manager filter
+    manager_country = request.user.country
+    regions = Region.objects.filter(country=manager_country)
+    centres = Centre.objects.filter(region__country=manager_country)
+
+    selected_region = request.GET.getlist('region')
+    selected_centre = request.GET.getlist('centre')
+
+    if selected_region:
+        tickets = tickets.filter(centre__region__name__in=selected_region)
+    if selected_centre:
+        tickets = tickets.filter(centre__name__in=selected_centre)
+
     context = {
         'user_role': user_role,
         'tickets': tickets,
@@ -95,6 +114,10 @@ def dashboard(request):
         'search_query': search_query,
         'ticket_trends': ticket_trends,
         'ticket_insights': get_ticket_insights(),
+        'regions': regions,
+        'centres': centres,
+        'selected_region': selected_region,
+        'selected_centre': selected_centre,
     }
 
     return render(request, 'dashboard.html', context)

@@ -63,20 +63,58 @@ class Command(BaseCommand):
             {'first_name': 'Jose', 'last_name': 'Zulu', 'username': 'ZM_JZ13', 'role': 'user', 'password': 'ZM_JZ13', 'groups': ['user'], 'centres': ['Mayukwayukwa Secondary']},
             {'first_name': 'Thobekile', 'last_name': 'Gumede', 'username': 'ZA_TG20', 'role': 'user', 'password': 'ZA_TG20', 'groups': ['user'], 'centres': ['Kanyajalo']},
             {'first_name': 'Matildah', 'last_name': 'Mbuzi', 'username': 'ZM_MM23', 'role': 'user', 'password': 'ZM_MM23', 'groups': ['user'], 'centres': ['Zwelisha']},
-        
+            # Manager for Zambia, Eastern Region
+            {
+                'first_name': 'Zambian',
+                'last_name': 'Manager',
+                'username': 'zambia_mgr',
+                'role': 'manager',
+                'password': 'zambia_mgr',
+                'groups': ['manager'],
+                'country': Country.objects.get(code='ZM'),
+                'region': Region.objects.get(name='Eastern Region'),
+            },
+            # Manager for South Africa, KwaZulu Natal Region
+            {
+                'first_name': 'SA',
+                'last_name': 'Manager',
+                'username': 'sa_mgr',
+                'role': 'manager',
+                'password': 'sa_mgr',
+                'groups': ['manager'],
+                'country': Country.objects.get(code='ZA'),
+                'region': Region.objects.get(name='KwaZulu Natal'),
+            },
         ]
+
         for user_data in users:
+            if 'country' in user_data and 'region' in user_data:
+                country = user_data.pop('country')
+                region = user_data.pop('region')
+            else:
+                country = None
+                region = None
+
             password = user_data.pop('password')
             groups = user_data.pop('groups', [])
             centre_names = user_data.pop('centres', [])
+            
             user_data['password'] = password
             user = User.objects.create_user(**user_data)
+            
             for group_name in groups:
                 group, _ = Group.objects.get_or_create(name=group_name)
                 user.groups.add(group)
+            
             for centre_name in centre_names:
                 centre = Centre.objects.get(name=centre_name)
                 user.centres.add(centre)
+
+            # Assign the country and region to the manager user
+            if country and region:
+                user.country = country
+                user.region = region
+                user.save()
 
     def generate_categories(self):
         categories = [

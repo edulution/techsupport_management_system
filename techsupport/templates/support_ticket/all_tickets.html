@@ -11,7 +11,11 @@
       <div class="col-md-10">
         <div class="card">
           <div class="card-header bg-primary text-white text-center">
+            {% if request.user.is_technician %}
+            <h4>Assigned to you</h4>
+            {% else %}
             <h4>All Tickets</h4>
+            {% endif %}
           </div>
           <div class="card-body">
             <div class="table-responsive">
@@ -46,7 +50,7 @@
                       <td>{{ ticket.ticket_age }}</td>
                       {% if request.user.is_technician %}
                         <td>
-                          <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-sm btn-info">View</a>
+                          <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-sm btn-info d-grid">View Ticket</a>
                         </td>
                       {% endif %}
                     </tr>

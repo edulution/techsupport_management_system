@@ -73,6 +73,7 @@ class BaseModel(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
+        related_name="%(class)s_modified",
     )
 
     class Meta:
@@ -84,6 +85,15 @@ class Country(BaseModel):
 
     name = models.CharField(max_length=30, verbose_name=_("name"))
     code = models.CharField(max_length=2, verbose_name=_("code"))
+    
+    modified_by = models.ForeignKey(
+        'User',
+        verbose_name=_("modified by"),
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="modified_countries",
+    )
 
     def __str__(self):
         return f"{self.code}:{self.name}"
@@ -102,6 +112,16 @@ class Region(BaseModel):
         related_name="regions",
         verbose_name=_("country"),
     )
+    
+    modified_by = models.ForeignKey(
+        'User',
+        verbose_name=_("modified by"),
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="modified_regions",
+    )
+
 
     def __str__(self):
         return f"{self.country.code}:{self.name}"
@@ -153,7 +173,22 @@ class User(AbstractUser, RolePermissionMixin):
         choices=RoleType.choices,
         default=RoleType.USER,
     )
+    #to assign user to a country and region
+    country = models.ForeignKey(
+        Country,
+        on_delete=models.SET_NULL,
+        verbose_name=_("country"),
+        null=True,
+        blank=True,
+    )
 
+    region = models.ForeignKey(
+        Region,
+        on_delete=models.SET_NULL,
+        verbose_name=_("region"),
+        null=True,
+        blank=True,
+    )
     def is_super_admin(self):
         """Check if the user is a super admin."""
         return self.role == self.RoleType.SUPER_ADMIN

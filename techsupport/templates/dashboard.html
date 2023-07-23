@@ -89,164 +89,201 @@
         </div>
       </div>
     </div>
-  </div>
-  {% if user_role == 'technician_or_above' %}
-  <div class="card shadow-sm">
-    <div class="card-header border-bottom border-gray-300">
-      <h2 class="h5 mb-0">Ticket Insights</h2>
-    </div>
-    <div class="card-body">
-      {% for trend in ticket_insights.common_ticket_trends %}
-      <div class="row align-items-center mb-4">
-        <div class="col-auto">
-          {% if trend.category__name == "Bootstrap" %}
-          <span class="icon icon-md text-purple"><i class="bi bi-bootstrap-fill"></i></span>
-          {% elif trend.category__name == "Angular" %}
-          <span class="icon icon-md text-danger"><i class="bi bi-angular"></i></span>
-          {% else %}
-          <span class="icon icon-md text-info"><i class="bi bi-gear"></i></span>
-          {% endif %}
-        </div>
-        <div class="col">
-          <div class="progress-wrapper">
-            <div class="progress-info">
-              <div class="h6 mb-0">{{ trend.category__name }}</div>
-              <div class="small fw-bold text-dark">{{ trend.ticket_count }} tickets</div>
-            </div>
-            <div class="progress mb-0">
-              <div class="progress-bar bg-{{ forloop.counter0|cycle_color }}" role="progressbar"
-                aria-valuenow="{{ trend.ticket_count }}" aria-valuemin="0" aria-valuemax="100"
-                style="width: {{ trend.ticket_count }}%;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
 
-      {% for issue in ticket_insights.frequent_issues %}
-      <div class="row align-items-center mb-4">
-        <div class="col-auto">
-          {% if issue.subcategory__name == "React" %}
-          <span class="icon icon-md text-success"><i class="bi bi-react"></i></span>
-          {% elif issue.subcategory__name == "Vue.js" %}
-          <span class="icon icon-md text-tertiary"><i class="bi bi-cpu"></i></span>
-          {% else %}
-          <span class="icon icon-md text-warning"><i class="bi bi-clipboard"></i></span>
-          {% endif %}
-        </div>
-        <div class="col">
-          <div class="progress-wrapper">
-            <div class="progress-info">
-              <div class="h6 mb-0">{{ issue.subcategory__name }}</div>
-              <div class="small fw-bold text-dark">{{ issue.ticket_count }} tickets</div>
-            </div>
-            <div class="progress mb-0">
-              <div class="progress-bar bg-{{ forloop.counter0|cycle_color }}" role="progressbar"
-                aria-valuenow="{{ issue.ticket_count }}" aria-valuemin="0" aria-valuemax="100"
-                style="width: {{ issue.ticket_count }}%;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
-  <!-- Submit Ticket Button and Search Filter -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <a href="{% url 'create_ticket' %}" class="btn btn-primary">
-        <i class="bi bi-journal-plus me-2"></i> Submit Ticket
-      </a>
-    </div>
-    <div class="d-flex align-items-center">
-      <form action="{% url 'dashboard' %}" method="GET" class="input-group">
-        <input type="text" name="search_query" class="form-control" placeholder="Search" value="{{ search_query }}">
-        <div class="input-group-append">
-          <button type="submit" class="btn btn-outline-primary">
-            <i class="bi bi-search me-2"></i> Search
-          </button>
-        </div>
-        <!-- Ticket Filter -->
-        <div class="form-group mx-2 mb-0">
-          <select name="status" class="form-control">
-            <option value="">All</option>
-            <option value="open">Open</option>
-            <option value="in_progress">In Progress</option>
-            <option value="resolved">Resolved</option>
+    {% if user_role == 'manager_or_above' %}
+    <div class="container mt-4">
+      <form method="get" class="form-inline">
+        <div class="form-group mx-2">
+          <label for="region">Filter by Region:</label>
+          <select name="region" id="region" class="form-control">
+            <option value="" {% if not selected_region %}selected{% endif %}>All Regions</option>
+            {% if regions %}
+              {% for region in regions %}
+                <option value="{{ region.name }}" {% if selected_region == region.name %}selected{% endif %}>{{ region.name }}</option>
+              {% endfor %}
+            {% endif %}
           </select>
         </div>
-        <button type="submit" class="btn btn-primary">
-          <i class="bi bi-filter me-2"></i> Filter
-        </button>
+        <div class="form-group mx-2">
+          <label for="centre">Filter by Centre:</label>
+          <select name="centre" id="centre" class="form-control">
+            <option value="" {% if not selected_centre %}selected{% endif %}>All Centres</option>
+            {% if centres %}
+              {% for centre in centres %}
+                <option value="{{ centre.name }}" {% if selected_centre == centre.name %}selected{% endif %}>{{ centre.name }}</option>
+              {% endfor %}
+            {% endif %}
+          </select>
+        </div>
+        <div class="mx-2">
+          <button type="submit" class="btn btn-primary">Apply</button>
+        </div>
       </form>
     </div>
-  </div>
+    {% endif %}
+    
+    
+    <!-- Submit Ticket Button and Search Filter -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <a href="{% url 'create_ticket' %}" class="btn btn-primary">
+          <i class="bi bi-journal-plus me-2"></i> Submit Ticket
+        </a>
+      </div>
+      <div class="d-flex align-items-center">
+        <form action="{% url 'dashboard' %}" method="GET" class="input-group">
+          <input type="text" name="search_query" class="form-control" placeholder="Search" value="{{ search_query }}">
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-outline-primary">
+              <i class="bi bi-search me-2"></i> Search
+            </button>
+          </div>
+          <!-- Ticket Filter -->
+          <div class="form-group mx-2 mb-0">
+            <select name="status" class="form-control">
+              <option value="">All</option>
+              <option value="open">Open</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-filter me-2"></i> Filter
+          </button>
+        </form>
+      </div>
+    </div>
+    
 
-
-  <div class="table-responsive">
-    <table id="ticket-table" class="table table-striped table-bordered">
-      <thead>
-        <tr>
-          <th>Ticket Number</th>
-          <th>Title</th>
-          <th>Status</th>
-          <th>Priority</th>
-          <th>Ticket Age</th>
-          {% if user_role == 'technician_or_above' %}
-          <th>Actions</th>
-          {% endif %}
-        </tr>
-      </thead>
-      <tbody>
-        {% if tickets %}
-        {% for ticket in tickets %}
-        <tr>
-          <td>{{ ticket.ticket_number }}</td>
-          <td><a href="{% url 'ticket_details' ticket.id %}">{{ ticket.title }}</a></td>
-          <td>
-            {% if ticket.status == 'resolved' %}
-            <span class="badge bg-success d-grid">{{ ticket.status }}</span>
-            {% elif ticket.status == 'in_progress' %}
-            <span class="badge bg-warning d-grid">{{ ticket.status }}</span>
+  <div class="container">
+    {% if user_role == 'technician_or_above' %}
+    <div class="card shadow-sm">
+      <div class="card-header border-bottom border-gray-300">
+        <h2 class="h5 mb-0">Ticket Insights</h2>
+      </div>
+      <div class="card-body">
+        {% for trend in ticket_insights.common_ticket_trends %}
+        <div class="row align-items-center mb-4">
+          <div class="col-auto">
+            {% if trend.category__name == "Bootstrap" %}
+            <span class="icon icon-md text-purple"><i class="bi bi-bootstrap-fill"></i></span>
+            {% elif trend.category__name == "Angular" %}
+            <span class="icon icon-md text-danger"><i class="bi bi-angular"></i></span>
             {% else %}
-            <span class="badge bg-primary d-grid">Open</span>
+            <span class="icon icon-md text-info"><i class="bi bi-gear"></i></span>
             {% endif %}
-          </td>
-          <td>{{ ticket.priority }}</td>
-          <td>{{ ticket.ticket_age }}</td>
-          <!-- Only visible to technician or above -->
-          {% if user_role == 'technician_or_above' %}
-          {% if ticket.status == 'in_progress' or ticket.status == 'resolved' %}
-          <td>
-            <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-success d-grid">View Details</a>
-          </td>
-          {% else %}
-          <td>
-            <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-primary d-grid">
-              Take Ticket
-            </a>
-          </td>
-
-          {% endif %}
-          {% endif %}
-        </tr>
+          </div>
+          <div class="col">
+            <div class="progress-wrapper">
+              <div class="progress-info">
+                <div class="h6 mb-0">{{ trend.category__name }}</div>
+                <div class="small fw-bold text-dark">{{ trend.ticket_count }} tickets</div>
+              </div>
+              <div class="progress mb-0">
+                <div class="progress-bar bg-{{ forloop.counter0|cycle_color }}" role="progressbar"
+                  aria-valuenow="{{ trend.ticket_count }}" aria-valuemin="0" aria-valuemax="100"
+                  style="width: {{ trend.ticket_count }}%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
         {% endfor %}
-        {% else %}
-        <tr>
-          <td colspan="{% if user_role == 'technician_or_above' %}6{% else %}5{% endif %}">No tickets found.</td>
-        </tr>
-        {% endif %}
-      </tbody>
-    </table>
-  </div>
+
+        {% for issue in ticket_insights.frequent_issues %}
+        <div class="row align-items-center mb-4">
+          <div class="col-auto">
+            {% if issue.subcategory__name == "React" %}
+            <span class="icon icon-md text-success"><i class="bi bi-react"></i></span>
+            {% elif issue.subcategory__name == "Vue.js" %}
+            <span class="icon icon-md text-tertiary"><i class="bi bi-cpu"></i></span>
+            {% else %}
+            <span class="icon icon-md text-warning"><i class="bi bi-clipboard"></i></span>
+            {% endif %}
+          </div>
+          <div class="col">
+            <div class="progress-wrapper">
+              <div class="progress-info">
+                <div class="h6 mb-0">{{ issue.subcategory__name }}</div>
+                <div class="small fw-bold text-dark">{{ issue.ticket_count }} tickets</div>
+              </div>
+              <div class="progress mb-0">
+                <div class="progress-bar bg-{{ forloop.counter0|cycle_color }}" role="progressbar"
+                  aria-valuenow="{{ issue.ticket_count }}" aria-valuemin="0" aria-valuemax="100"
+                  style="width: {{ issue.ticket_count }}%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="table-responsive">
+      <div class="card-header">Support Tickets
+        <table id="ticket-table" class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>Ticket Number</th>
+              <th>Title</th>
+              <th>Status</th>
+              <th>Priority</th>
+              <th>Ticket Age</th>
+              {% if user_role == 'technician_or_above' %}
+              <th>Actions</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% if tickets %}
+            {% for ticket in tickets %}
+            <tr>
+              <td>{{ ticket.ticket_number }}</td>
+              <td><a href="{% url 'ticket_details' ticket.id %}">{{ ticket.title }}</a></td>
+              <td>
+                {% if ticket.status == 'resolved' %}
+                <span class="badge bg-success d-grid">{{ ticket.status }}</span>
+                {% elif ticket.status == 'in_progress' %}
+                <span class="badge bg-warning d-grid">{{ ticket.status }}</span>
+                {% else %}
+                <span class="badge bg-primary d-grid">Open</span>
+                {% endif %}
+              </td>
+              <td>{{ ticket.priority }}</td>
+              <td>{{ ticket.ticket_age }}</td>
+              <!-- Only visible to technician or above -->
+              {% if user_role == 'technician_or_above' %}
+              {% if ticket.status == 'in_progress' or ticket.status == 'resolved' %}
+              <td>
+                <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-success d-grid">View Details</a>
+              </td>
+              {% else %}
+              <td>
+                <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-primary d-grid">
+                  Take Ticket
+                </a>
+              </td>
+
+              {% endif %}
+              {% endif %}
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr>
+              <td colspan="{% if user_role == 'technician_or_above' %}6{% else %}5{% endif %}">No tickets found.</td>
+            </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
 
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0@dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6G6lYCXalGZ4CkVg" crossorigin="anonymous">
-  <script src="{% static 'js/user_dashboard.js' %}"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0@dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6G6lYCXalGZ4CkVg" crossorigin="anonymous">
+    <script src="{% static 'js/user_dashboard.js' %}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.6.1/font/bootstrap-icons.css">
 
-  {% endblock %}
+    {% endblock %}

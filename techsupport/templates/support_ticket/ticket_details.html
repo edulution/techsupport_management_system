@@ -1,52 +1,65 @@
 {% extends '../base.html' %}
 
 {% block content %}
-  <h1>Ticket Details</h1>
-  <p>Ticket ID: {{ ticket.ticket_number }}</p>
-  <p>Submitted By: {{ ticket.submitted_by.username }}</p>
-  <p>Status: {{ ticket.get_status_display }}</p>
-  <p>Priority: {{ ticket.get_priority_display }}</p>
-  <p>Centre: {{ ticket.centre }}</p>
-  <p>Category: {{ ticket.category }}</p>
-  <p>Subcategory: {{ ticket.subcategory }}</p>
-  
-  <form method="post">
-    {% csrf_token %}
-    <div class="form-group">
-      <label for="description">Description:</label>
-      <textarea class="form-control" id="description" name="description" rows="4" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}readonly{% endif %}>{{ ticket.description }}</textarea>
-    </div>
-    {% if user_role == 'technician_or_above' %}
-    <!-- Display resolution form for technicians or above -->
-    <div class="form-group">
-      <label for="status">Status:</label>
-      <select class="form-control" id="status" name="status" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}disabled{% endif %}>
-        <option value="open" {% if ticket.status == 'open' %}selected{% endif %}>Open</option>
-        <option value="in_progress" {% if ticket.status == 'in_progress' %}selected{% endif %}>In Progress</option>
-        <option value="resolved" {% if ticket.status == 'resolved' %}selected{% endif %}>Resolved</option>
-        <option value="closed" {% if ticket.status == 'closed' %}selected{% endif %}>Closed</option>
-      </select>
-    </div>
-    <button type="submit" class="btn btn-primary" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}disabled{% endif %}>Update</button>
-    {% else %}
-    <!-- Display update description button for other roles -->
-    <button type="submit" class="btn btn-primary" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}disabled{% endif %}>Update Description</button>
-    {% endif %}
-  </form>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-6">
+      <h4><i class="fas fa-ticket-alt"></i> Ticket Details</h4>
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="description"><i class="fas fa-file-alt"></i> Description:</label>
+          <textarea class="form-control" id="description" name="description" rows="4" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}readonly{% endif %}>{{ ticket.description }}</textarea>
+        </div>
+        {% if user_role == 'technician_or_above' %}
+        <!-- Display resolution form for technicians or above -->
+        <div class="form-group">
+          <label for="status"><i class="fas fa-cog"></i> Status:</label>
+          <select class="form-control" id="status" name="status" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}disabled{% endif %}>
+            <option value="open" {% if ticket.status == 'open' %}selected{% endif %}>Open</option>
+            <option value="in_progress" {% if ticket.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+            <option value="resolved" {% if ticket.status == 'resolved' %}selected{% endif %}>Resolved</option>
+            <option value="closed" {% if ticket.status == 'closed' %}selected{% endif %}>Closed</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}disabled{% endif %}><i class="fas fa-save"></i> Update</button>
+        {% else %}
+        <!-- Display update description button for other roles -->
+        <button type="submit" class="btn btn-primary" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}disabled{% endif %}><i class="fas fa-save"></i> Update Description</button>
+        {% endif %}
+      </form>
 
-  {% if user_role == 'technician_or_above' %}
-  <!-- Display ticket assignment form for technicians or above -->
-  <form method="post">
-    {% csrf_token %}
-    <div class="form-group">
-      <label for="assigned_to">Assign To:</label>
-      <select class="form-control" id="assigned_to" name="assigned_to">
-        {% for technician in technicians %}
-          <option value="{{ technician.id }}">{{ technician.username }}</option>
-        {% endfor %}
-      </select>
+      {% if user_role == 'technician_or_above' %}
+      <!-- Display ticket assignment form for technicians or above -->
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="assigned_to"><i class="fas fa-user"></i> Assign To:</label>
+          <select class="form-control" id="assigned_to" name="assigned_to">
+            {% for technician in technicians %}
+              <option value="{{ technician.id }}">{{ technician.username }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-user-check"></i> Assign Ticket</button>
+      </form>
+      {% endif %}
     </div>
-    <button type="submit" class="btn btn-primary">Assign Ticket</button>
-  </form>
-  {% endif %}
+
+    <div class="col-lg-6">
+      <!-- Right section to display ticket details -->
+      <div class="card">
+        <div class="card-body">
+          <h4 class="card-title"><i class="fas fa-hashtag"></i> Ticket Number: {{ ticket.ticket_number }}</h4>
+          <p class="card-text"><i class="fas fa-user"></i> Submitted By: {{ ticket.submitted_by.username }}</p>
+          <p class="card-text"><i class="fas fa-info-circle"></i> Status: {{ ticket.get_status_display }}</p>
+          <p class="card-text"><i class="fas fa-exclamation-triangle"></i> Priority: {{ ticket.get_priority_display }}</p>
+          <p class="card-text"><i class="fas fa-building"></i> Centre: {{ ticket.centre }}</p>
+          <p class="card-text"><i class="fas fa-tags"></i> Category: {{ ticket.category }}</p>
+          <p class="card-text"><i class="fas fa-tag"></i> Subcategory: {{ ticket.subcategory }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
