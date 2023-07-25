@@ -365,8 +365,7 @@ class SupportTicket(BaseModel):
         blank=True,
     )
     resolution_notes = models.TextField(blank=True)
-    
-    #NEW
+
     assigned_to = models.ForeignKey(
         User,
         verbose_name=_("assigned to"),

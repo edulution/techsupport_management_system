@@ -1,65 +1,44 @@
 {% extends 'base.html' %}
 {% load static %}
 
-<link rel="stylesheet" href="{% static 'css/submit_ticket.css' %}">
 {% block content %}
-<div class="hearder">
-  <h3>Submit a ticket</h3>
-</div>
-<div id="dashboard-url" data-url="{% url 'dashboard' %}"></div>
-<form method="POST" action="" class="needs-validation" novalidate id="submit-ticket-form">
-  {% csrf_token %}
-  {{ form.non_field_errors }}
-
-  <div class="mb-3">
-    {% if form.centre.errors %}
-    <div class="alert alert-danger">
-      {{ form.centre.errors }}
+<div class="container mt-5">
+  <h1 class="mb-4">Create a New Support Ticket</h1>
+  <form method="post" id="supportTicketForm">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="{{ form.title.id_for_label }}">Title:</label>
+      {{ form.title }}
+      <div class="invalid-feedback">{{ form.title.errors }}</div>
     </div>
+    <div class="form-group">
+      <label for="{{ form.description.id_for_label }}">Description:</label>
+      {{ form.description }}
+      <div class="invalid-feedback">{{ form.description.errors }}</div>
+    </div>
+    {% if user.centres.count < 1 %}
+      <div class="form-group">
+        <label for="{{ form.centre.id_for_label }}">Centre:</label>
+        {{ form.centre }}
+      </div>
     {% endif %}
-    <select name="centre" id="id_centre" class="form-control" required{% if form.fields.centre.widget.attrs.hidden %} hidden{% endif %}>
-      {% if form.fields.centre.initial %}
-      <option value="{{ form.fields.centre.initial }}">{{ form.fields.centre.initial }}</option>
-      {% endif %}
-      {% for centre in form.centre.field.queryset %}
-      <option value="{{ centre.id }}">{{ centre.name }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  
-
-  <div class="mb-3">
-    {{ form.category.errors }}
-    <select name="category" id="id_category" class="form-control" required>
-      <option value="" selected disabled>What type of issue is it?</option>
-      {% for category in form.category.field.queryset %}
-      <option value="{{ category.id }}">{{ category.name }}</option>
-      {% endfor %}
-    </select>
-  </div>
-
-  <div class="mb-3">
-    {{ form.subcategory.errors }}
-    <select name="subcategory" id="id_subcategory" class="form-control" required disabled>
-      <option value="" selected disabled>Subcategory</option>
-    </select>
-  </div>
-
-  <div class="mb-3">
-    {{ form.title.errors }}
-    <input type="text" name="title" id="id_title" class="form-control" placeholder="Ticket Title" required>
-  </div>
-
-  <div class="mb-3">
-    {{ form.description.errors }}
-    <textarea name="description" id="id_description" class="form-control" placeholder="Briefly describe the issue"
-      required></textarea>
-  </div>
-
-  <button class="btn btn-primary" type="submit" id="submit-btn" disabled>Submit</button>
-</form>
+    <div class="form-group">
+      <label for="{{ form.category.id_for_label }}">Category:</label>
+      {{ form.category }}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.subcategory.id_for_label }}">Subcategory:</label>
+      {{ form.subcategory }}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.priority.id_for_label }}">Priority:</label>
+      {{ form.priority }}
+    </div>
+    <input type="hidden" name="submitted_by" value="{{ user.id }}">
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static 'js/submit_ticket.js' %}"></script>
 {% endblock %}
-

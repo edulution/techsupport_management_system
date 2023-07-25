@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
-from .forms import SupportTicketForm, SupportTicketUpdateForm, TicketResolutionForm, TicketCreateForm, TicketAssignmentForm
+from .forms import SupportTicketForm, SupportTicketUpdateForm, TicketResolutionForm, TicketAssignmentForm
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -10,6 +10,8 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import Group
 from .models import Country, Region, Centre, Category, SubCategory, SupportTicket, UserProfile , User
 from django.db.models import Q, Count
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 def user_login(request):
     error_message = None
@@ -99,6 +101,8 @@ def dashboard(request):
         tickets = tickets.filter(centre__region__name__in=selected_regions)
     if selected_centres:
         tickets = tickets.filter(centre__name__in=selected_centres)
+
+    
 
     context = {
         'user_role': user_role,
@@ -200,23 +204,19 @@ def ticket_details(request, ticket_id):
     return render(request, 'support_ticket/ticket_details.html', context)
 
 
-@login_required
 def create_ticket(request):
     if request.method == 'POST':
         form = SupportTicketForm(request.POST, user=request.user)
         if form.is_valid():
             support_ticket = form.save(commit=False)
             support_ticket.submitted_by = request.user
-            support_ticket.status = SupportTicket.Status.OPEN
             support_ticket.save()
             messages.success(request, 'Support ticket created successfully.')
             return redirect('dashboard')
     else:
-        form = SupportTicketForm(user=request.user)
+        form = SupportTicketForm(user=request.user) 
 
-    context = {'form': form,
-               'user_submit': User.objects.filter(username=request.user)}
-    return render(request, 'support_ticket/create_ticket.html', context)
+    return render(request, 'support_ticket/create_ticket.html', {'form': form})
 
 
 @login_required
@@ -224,6 +224,7 @@ def get_subcategories(request):
     category_id = request.GET.get('category_id')
     subcategories = SubCategory.objects.filter(category_id=category_id).values('id', 'name')
     return JsonResponse({'subcategories': list(subcategories)})
+
 
 
 
