@@ -115,6 +115,16 @@ class Command(BaseCommand):
                 user.country = country
                 user.region = region
                 user.save()
+            
+        # Assign all regions and centres to technicians and admins
+        if user_data['role'] in ['technician', 'admin']:
+            all_regions = Region.objects.all()
+            all_centres = Centre.objects.all()
+            
+            for region in all_regions:
+                user.regions.add(region)
+            for centre in all_centres:
+                user.centres.add(centre)
 
     def generate_categories(self):
         categories = [

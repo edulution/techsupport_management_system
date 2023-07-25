@@ -43,15 +43,11 @@ def dashboard(request):
     user_role = None
     if request.user.groups.filter(name__in=['technician', 'admin', 'super_admin']).exists():
         user_role = 'technician_or_above'
+        
+    elif request.user.groups.filter(name='manager').exists():
+        user_role = 'manager'
 
     if user_role != 'technician_or_above':
-        tickets = tickets.filter(submitted_by=request.user)
-    
-    user_role = None
-    if request.user.groups.filter(name__in=['manager', 'technician', 'admin', 'super_admin']).exists():
-        user_role = 'manager_or_above'
-
-    if user_role != 'manager_or_above':
         tickets = tickets.filter(submitted_by=request.user)
 
     # Retrieve search parameters from the request
@@ -77,33 +73,32 @@ def dashboard(request):
     resolved_tickets_count = tickets.filter(status='resolved').count()
 
     def get_ticket_insights():
-        # Retrieve common ticket trends
         common_ticket_trends = SupportTicket.objects.values('category__name').annotate(ticket_count=Count('id')).order_by('-ticket_count')[:5]
-
-        # Retrieve frequently reported issues
         frequent_issues = SupportTicket.objects.values('subcategory__name').annotate(ticket_count=Count('id')).order_by('-ticket_count')[:5]
-
-        # # Retrieve potential solutions based on historical data
-        # potential_solutions = SupportTicket.objects.filter(status='resolved').values('resolution_notes')
-
         return {
             'common_ticket_trends': common_ticket_trends,
             'frequent_issues': frequent_issues,
             # 'potential_solutions': potential_solutions,
         }
+    
+    if user_role == 'technician_or_above':
+        # Fetch all regions and centres for technicians and admins
+        regions = Region.objects.all()
+        centres = Centre.objects.all()
+    else:
+        # Retrieve the regions and centres for the manager filter
+        manager_country = request.user.country
+        regions = Region.objects.filter(country=manager_country)
+        centres = Centre.objects.filter(region__country=manager_country)
 
-    # Retrieve the regions and centres for the manager filter
-    manager_country = request.user.country
-    regions = Region.objects.filter(country=manager_country)
-    centres = Centre.objects.filter(region__country=manager_country)
+    # Retrieve the selected regions and centres from the request
+    selected_regions = request.GET.getlist('region')
+    selected_centres = request.GET.getlist('centre')
 
-    selected_region = request.GET.getlist('region')
-    selected_centre = request.GET.getlist('centre')
-
-    if selected_region:
-        tickets = tickets.filter(centre__region__name__in=selected_region)
-    if selected_centre:
-        tickets = tickets.filter(centre__name__in=selected_centre)
+    if selected_regions:
+        tickets = tickets.filter(centre__region__name__in=selected_regions)
+    if selected_centres:
+        tickets = tickets.filter(centre__name__in=selected_centres)
 
     context = {
         'user_role': user_role,
@@ -116,8 +111,8 @@ def dashboard(request):
         'ticket_insights': get_ticket_insights(),
         'regions': regions,
         'centres': centres,
-        'selected_region': selected_region,
-        'selected_centre': selected_centre,
+        'selected_regions': selected_regions,
+        'selected_centres': selected_centres,
     }
 
     return render(request, 'dashboard.html', context)
