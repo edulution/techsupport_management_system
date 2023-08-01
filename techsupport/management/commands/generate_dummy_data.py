@@ -153,7 +153,7 @@ class Command(BaseCommand):
         users = User.objects.all()
         categories = Category.objects.all()
         subcategories = SubCategory.objects.all()
-        statuses = [SupportTicket.Status.OPEN, SupportTicket.Status.RESOLVED, SupportTicket.Status.CLOSED]
+        statuses = [SupportTicket.Status.OPEN, SupportTicket.Status.RESOLVED, SupportTicket.Status.IN_PROGRESS]
         priorities = [SupportTicket.Priority.LOW, SupportTicket.Priority.MEDIUM, SupportTicket.Priority.HIGH]
 
         for i in range(20):

@@ -3695,7 +3695,7 @@ jQuery.extend( {
 				[ "notify", "progress", jQuery.Callbacks( "memory" ),
 					jQuery.Callbacks( "memory" ), 2 ],
 				[ "resolve", "done", jQuery.Callbacks( "once memory" ),
-					jQuery.Callbacks( "once memory" ), 0, "resolved" ],
+					jQuery.Callbacks( "once memory" ), 0, "Resolved" ],
 				[ "reject", "fail", jQuery.Callbacks( "once memory" ),
 					jQuery.Callbacks( "once memory" ), 1, "rejected" ]
 			],
@@ -3931,7 +3931,7 @@ jQuery.extend( {
 				list.add(
 					function() {
 
-						// state = "resolved" (i.e., fulfilled)
+						// state = "Resolved" (i.e., fulfilled)
 						// state = "rejected"
 						state = stateString;
 					},

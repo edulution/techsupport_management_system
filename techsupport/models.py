@@ -173,7 +173,6 @@ class User(AbstractUser, RolePermissionMixin):
         choices=RoleType.choices,
         default=RoleType.USER,
     )
-    #to assign user to a country and region
     country = models.ForeignKey(
         Country,
         on_delete=models.SET_NULL,
@@ -229,7 +228,6 @@ class User(AbstractUser, RolePermissionMixin):
 
 def save(self, *args, **kwargs):
     if not self.pk:
-        # New user, check the role hierarchy
         for role in self.ROLE_HIERARCHY.get(self.role, []):
             if User.objects.filter(role=role).exists():
                 raise ValidationError(
@@ -294,15 +292,15 @@ class SupportTicket(BaseModel):
     """Model representing a support ticket submitted by a coach."""
 
     class Status(models.TextChoices):
-        OPEN = "open", _("Open")
-        IN_PROGRESS = "in_progress", _("In Progress")
-        RESOLVED = "resolved", _("Resolved")
-        CLOSED = "closed", _("Closed")
+        OPEN = "Open", _("Open")
+        IN_PROGRESS = "In Progress", _("In Progress")
+        RESOLVED = "Resolved", _("Resolved")
+        CLOSED = "Closed", _("Closed")
 
     class Priority(models.TextChoices):
-        LOW = "low", _("Low")
-        MEDIUM = "medium", _("Medium")
-        HIGH = "high", _("High")
+        LOW = "Low", _("Low")
+        MEDIUM = "Medium", _("Medium")
+        HIGH = "High", _("High")
         
     ticket_number = models.PositiveIntegerField(
         verbose_name=_("ticket number"), unique=True, editable=False
@@ -400,7 +398,16 @@ class SupportTicket(BaseModel):
         """
         now = timezone.now()
         age = now - self.date_submitted
-        return age
+
+        if age.days >= 1:
+            days = age.days
+            hours, remainder = divmod(age.seconds, 3600)
+            minutes, _ = divmod(remainder, 60)
+            return f"{days} days {hours} hours {minutes} minutes"
+        else:
+            hours, remainder = divmod(age.seconds, 3600)
+            minutes, _ = divmod(remainder, 60)
+            return f"{hours} hours {minutes} minutes"
 
 
 class Settings(models.Model):

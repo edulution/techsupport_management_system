@@ -70,9 +70,9 @@ def dashboard(request):
     if status:
         tickets = tickets.filter(status=status)
 
-    open_tickets_count = tickets.filter(status='open').count()
-    in_progress_tickets_count = tickets.filter(status='in_progress').count()
-    resolved_tickets_count = tickets.filter(status='resolved').count()
+    open_tickets_count = tickets.filter(status='Open').count()
+    in_progress_tickets_count = tickets.filter(status='In Progress').count()
+    resolved_tickets_count = tickets.filter(status='Resolved').count()
 
     def get_ticket_insights():
         common_ticket_trends = SupportTicket.objects.values('category__name').annotate(ticket_count=Count('id')).order_by('-ticket_count')[:5]
@@ -82,6 +82,25 @@ def dashboard(request):
             'frequent_issues': frequent_issues,
             # 'potential_solutions': potential_solutions,
         }
+    
+        # Retrieve the number of tickets per page (you can adjust this as needed)
+    tickets_per_page = 10
+
+    # Create a Paginator instance
+    paginator = Paginator(tickets, tickets_per_page)
+
+    # Get the current page number from the request's GET parameters
+    page = request.GET.get('page')
+
+    try:
+        # Get the tickets for the requested page
+        paginated_tickets = paginator.page(page)
+    except PageNotAnInteger:
+        # If the page parameter is not an integer, show the first page
+        paginated_tickets = paginator.page(1)
+    except EmptyPage:
+        # If the page is out of range (e.g., 9999), show the last page
+        paginated_tickets = paginator.page(paginator.num_pages)
     
     if user_role == 'technician_or_above':
         # Fetch all regions and centres for technicians and admins
@@ -117,6 +136,7 @@ def dashboard(request):
         'centres': centres,
         'selected_regions': selected_regions,
         'selected_centres': selected_centres,
+        'paginated_tickets': paginated_tickets,
     }
 
     return render(request, 'dashboard.html', context)
@@ -166,10 +186,10 @@ def ticket_details(request, ticket_id):
             if form_resolution.is_valid():
                 ticket = form_resolution.save(commit=False)
                 status = form_resolution.cleaned_data.get('status')
-                if status == 'in_progress':
-                    ticket.status = 'in_progress'
-                elif status == 'resolved':
-                    ticket.status = 'resolved'
+                if status == 'In Progress':
+                    ticket.status = 'In Progress'
+                elif status == 'Resolved':
+                    ticket.status = 'Resolved'
                     ticket.resolved_by = request.user
                 ticket.save()
                 messages.info(request, 'Support ticket status has been updated.')
@@ -203,7 +223,7 @@ def ticket_details(request, ticket_id):
 
     return render(request, 'support_ticket/ticket_details.html', context)
 
-
+@login_required
 def create_ticket(request):
     if request.method == 'POST':
         form = SupportTicketForm(request.POST, user=request.user)
@@ -214,7 +234,7 @@ def create_ticket(request):
             messages.success(request, 'Support ticket created successfully.')
             return redirect('dashboard')
     else:
-        form = SupportTicketForm(user=request.user) 
+        form = SupportTicketForm(user=request.user)
 
     return render(request, 'support_ticket/create_ticket.html', {'form': form})
 
@@ -233,9 +253,9 @@ def all_tickets(request):
     user = request.user
     tickets = SupportTicket.objects.all()
     total_tickets_count = tickets.count()
-    open_tickets_count = tickets.filter(status='open').count()
-    in_progress_tickets_count = tickets.filter(status='in_progress').count()
-    resolved_tickets_count = tickets.filter(status='resolved').count()
+    open_tickets_count = tickets.filter(status='Open').count()
+    in_progress_tickets_count = tickets.filter(status='In Progress').count()
+    resolved_tickets_count = tickets.filter(status='Resolved').count()
 
     if user.is_technician():
         # If the user is a technician, show tickets assigned to them
@@ -310,4 +330,4 @@ def resolved_tickets(request):
 
 def tickets_in_progress(request):
     tickets = SupportTicket.objects.filter(status='In Progress')
-    return render(request, 'support_ticket/tickets_in_progress.html', {'tickets': tickets})
+    return render(request, 'support_ticket/tickets_In Progress.html', {'tickets': tickets})

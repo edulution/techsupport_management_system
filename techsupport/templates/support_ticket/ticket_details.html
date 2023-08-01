@@ -9,23 +9,23 @@
         {% csrf_token %}
         <div class="form-group">
           <label for="description"><i class="fas fa-file-alt"></i> Description:</label>
-          <textarea class="form-control" id="description" name="description" rows="4" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}readonly{% endif %}>{{ ticket.description }}</textarea>
+          <textarea class="form-control" id="description" name="description" rows="4" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}readonly{% endif %}>{{ ticket.description }}</textarea>
         </div>
         {% if user_role == 'technician_or_above' %}
         <!-- Display resolution form for technicians or above -->
         <div class="form-group">
           <label for="status"><i class="fas fa-cog"></i> Status:</label>
-          <select class="form-control" id="status" name="status" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}disabled{% endif %}>
-            <option value="open" {% if ticket.status == 'open' %}selected{% endif %}>Open</option>
-            <option value="in_progress" {% if ticket.status == 'in_progress' %}selected{% endif %}>In Progress</option>
-            <option value="resolved" {% if ticket.status == 'resolved' %}selected{% endif %}>Resolved</option>
-            <option value="closed" {% if ticket.status == 'closed' %}selected{% endif %}>Closed</option>
+          <select class="form-control" id="status" name="status" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}disabled{% endif %}>
+            <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open</option>
+            <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+            <option value="Resolved" {% if ticket.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+            <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
           </select>
         </div>
-        <button type="submit" class="btn btn-primary" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}disabled{% endif %}><i class="fas fa-save"></i> Update</button>
+        <button type="submit" class="btn btn-primary" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}disabled{% endif %}><i class="fas fa-save"></i> Update</button>
         {% else %}
         <!-- Display update description button for other roles -->
-        <button type="submit" class="btn btn-primary" {% if ticket.status == 'resolved' or ticket.status == 'in_progress' %}disabled{% endif %}><i class="fas fa-save"></i> Update Description</button>
+        <button type="submit" class="btn btn-primary" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}disabled{% endif %}><i class="fas fa-save"></i> Update Description</button>
         {% endif %}
       </form>
 

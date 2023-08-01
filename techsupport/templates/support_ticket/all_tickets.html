@@ -1,11 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block extra_head %}
-  <link rel="stylesheet" href="{% static 'css/ticket_list.css' %}">
-{% endblock %}
 
 {% block content %}
+
   <div class="container mt-4">
     <div class="row justify-content-center">
       <div class="col-md-10">
@@ -22,7 +20,7 @@
               <table class="table table-bordered table-striped">
                 <thead class="thead-dark">
                   <tr>
-                    <th>Ticket Number</th>
+                    <th>#</th>
                     <th>Title</th>
                     <th>Status</th>
                     <th>Priority</th>
@@ -38,9 +36,9 @@
                       <td>{{ ticket.ticket_number }}</td>
                       <td><a href="{% url 'ticket_details' ticket.id %}">{{ ticket.title }}</a></td>
                       <td>
-                        {% if ticket.status == 'resolved' %}
+                        {% if ticket.status == 'Resolved' %}
                           <span class="badge bg-success d-grid">{{ ticket.status }}</span>
-                        {% elif ticket.status == 'in_progress' %}
+                        {% elif ticket.status == 'In Progress' %}
                           <span class="badge bg-warning d-grid">{{ ticket.status }}</span>
                         {% else %}
                           <span class="badge bg-primary d-grid">Open</span>

@@ -124,7 +124,7 @@ class Migration(migrations.Migration):
                 ('ticket_number', models.PositiveIntegerField(editable=False, unique=True, verbose_name='ticket number')),
                 ('date_submitted', models.DateTimeField(auto_now_add=True, verbose_name='date submitted')),
                 ('date_resolved', models.DateTimeField(blank=True, null=True, verbose_name='date resolved')),
-                ('status', models.CharField(choices=[('open', 'Open'), ('in_progress', 'In Progress'), ('resolved', 'Resolved'), ('closed', 'Closed')], max_length=30, verbose_name='status')),
+                ('status', models.CharField(choices=[('open', 'Open'), ('In Progress', 'In Progress'), ('resolved', 'Resolved'), ('closed', 'Closed')], max_length=30, verbose_name='status')),
                 ('priority', models.CharField(choices=[('low', 'Low'), ('medium', 'Medium'), ('high', 'High')], max_length=30, verbose_name='priority')),
                 ('description', models.TextField(help_text='Describe the issue', verbose_name='description')),
                 ('title', models.CharField(blank=True, max_length=20, null=True, verbose_name='title')),
