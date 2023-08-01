@@ -11,7 +11,7 @@ from django.contrib.auth.models import Group
 from .models import Country, Region, Centre, Category, SubCategory, SupportTicket, UserProfile , User
 from django.db.models import Q, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-
+import uuid
 
 def user_login(request):
     error_message = None
@@ -242,6 +242,16 @@ def create_ticket(request):
 @login_required
 def get_subcategories(request):
     category_id = request.GET.get('category_id')
+
+    # Check if category_id is empty or not a valid UUID
+    if not category_id:
+        return JsonResponse({'subcategories': []})
+
+    try:
+        uuid.UUID(category_id)
+    except (TypeError, ValueError):
+        return JsonResponse({'subcategories': []})
+
     subcategories = SubCategory.objects.filter(category_id=category_id).values('id', 'name')
     return JsonResponse({'subcategories': list(subcategories)})
 
