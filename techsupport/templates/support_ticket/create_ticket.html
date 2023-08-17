@@ -1,15 +1,42 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% load custom_filters %}
 {% block content %}
-<h1>Create Support Ticket</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-
-    <input type="submit" value="Submit">
-</form>
-
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Log Ticket</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="form">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            {{ form.title|add_placeholder:"Enter title here"|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.description|add_placeholder:"Enter your description here"|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.centre|add_placeholder:"Centre"|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.category|add_placeholder:"Category"|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.subcategory|add_placeholder:"Subcategory"|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.priority|add_placeholder:"Priority"|add_class:"form-control" }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static 'js/submit_ticket.js' %}"></script>
