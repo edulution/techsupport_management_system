@@ -340,23 +340,23 @@ def all_tickets(request):
 
 
 
-@login_required
-def settings_view(request):
-    """ settings view """
+# @login_required
+# def settings_view(request):
+#     """ settings view """
 
-    user = request.user
-    dark_mode_enabled = user.dark_mode_enabled
+#     user = request.user
+#     dark_mode_enabled = user.dark_mode_enabled
     
-    if request.method == 'POST':
-        dark_mode_enabled = request.POST.get('dark_mode_enabled') == 'on'
-        user.dark_mode_enabled = dark_mode_enabled
-        user.save()
-        return redirect('settings')
+#     if request.method == 'POST':
+#         dark_mode_enabled = request.POST.get('dark_mode_enabled') == 'on'
+#         user.dark_mode_enabled = dark_mode_enabled
+#         user.save()
+#         return redirect('settings')
     
-    context = {
-        'dark_mode_enabled': dark_mode_enabled,
-    }
-    return render(request, 'support_ticket/settings.html', context)
+#     context = {
+#         'dark_mode_enabled': dark_mode_enabled,
+#     }
+#     return render(request, 'support_ticket/settings.html', context)
 
 
 @login_required
