@@ -71,6 +71,16 @@ body {
   .nav.flex-column .nav-link .dropdown-menu .dropdown-item i {
     margin-right: 5px;
   }
+  body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+  }
+  
+  body {
+    background-color: #ffffff;
+    color: #000000;
+    /* Additional light mode styles */
+  }
   
   @media (max-width: 768px) {
     .navbar-nav.ml-auto {

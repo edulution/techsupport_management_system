@@ -4,6 +4,9 @@ from django.core.management import BaseCommand
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from django.core.management import execute_from_command_line
+from django.core.management.base import BaseCommand
+from termcolor import colored
 
 
 def main():
@@ -34,8 +37,17 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         subcommand = options.get('subcommand')
+        
         if subcommand == 'generate_dummy_data':
             from your_app.management.commands.generate_dummy_data import Command as GenerateDummyDataCommand
             GenerateDummyDataCommand().handle(*args, **options)
+        
+        elif subcommand == 'create_categories_subcategories':
+            from your_app.management.commands.create_categories_subcategories import Command as CreateCategoriesSubcategoriesCommand
+            CreateCategoriesSubcategoriesCommand().handle(*args, **options)
+        
+        elif subcommand == 'generate_users':
+            from your_app.management.commands.generate_users import Command as GenerateUsersCommand
+            GenerateUsersCommand().handle(*args, **options)
         else:
             self.stdout.write(self.help)
