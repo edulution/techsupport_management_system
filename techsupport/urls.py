@@ -13,6 +13,7 @@ from .views import (
     resolved_tickets,
     tickets_in_progress,
     get_subcategories,
+    export_tickets_csv,
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -26,6 +27,7 @@ urlpatterns = [
     path("profile/logout/", user_logout, name="logout"),
     path('ticket_details/<uuid:ticket_id>/', ticket_details, name='ticket_details'),
     path("create_ticket/", create_ticket, name="create_ticket"),
+    path("export_tickets_csv/", export_tickets_csv, name="export_tickets_csv"),
     path("create_ticket/logout/", user_logout, name="logout"),
     path("all_tickets/", all_tickets, name="all_tickets"),
     path("all_tickets/logout/", user_logout, name="logout"),

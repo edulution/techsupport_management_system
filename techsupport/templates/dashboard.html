@@ -86,39 +86,8 @@
       </div>
     </div>
   </div>
-
-    {% if user_role == 'technician_or_above' or user_role == 'manager' %}
-    <div class="container mt-4">
-      <form method="get" class="form-inline">
-        <div class="form-group mx-2">
-          <label for="region">Filter by Region:</label>
-          <select name="region" id="region" class="form-control">
-            <option value="" {% if not selected_region %}selected{% endif %}>All Regions</option>
-            {% if regions %}
-              {% for region in regions %}
-                <option value="{{ region.name }}" {% if selected_region == region.name %}selected{% endif %}>{{ region.name }}</option>
-              {% endfor %}
-            {% endif %}
-          </select>
-        </div>
-        <div class="form-group mx-2">
-          <label for="centre">Filter by Centre:</label>
-          <select name="centre" id="centre" class="form-control">
-            <option value="" {% if not selected_centre %}selected{% endif %}>All Centres</option>
-            {% if centres %}
-              {% for centre in centres %}
-                <option value="{{ centre.name }}" {% if selected_centre == centre.name %}selected{% endif %}>{{ centre.name }}</option>
-              {% endfor %}
-            {% endif %}
-          </select>
-        </div>
-        <div class="mx-2">
-          <button type="submit" class="btn btn-primary">Apply</button>
-        </div>
-      </form>
-    </div>
-    {% endif %}
-    
+  
+  
     <div class="container">
       {% if user_role == 'technician_or_above' %}
       <div class="card shadow-sm">
@@ -163,6 +132,12 @@
           {% endfor %}
         </div>
       </div>
+        <!-- Button to Navigate to Export Form -->
+        <div class="row align-items-center mb-4">
+          <div class="col">
+            <a href="{% url 'export_tickets_csv' %}" class="btn btn-primary">Export Support Tickets</a>
+          </div>
+        </div>
       {% endif %}
 
       <!-- Submit Ticket Button and Search Filter -->
@@ -177,7 +152,7 @@
             <input type="text" name="search_query" class="form-control" placeholder="Search" value="{{ search_query }}">
             <div class="input-group-append">
               <button type="submit" class="btn btn-outline-primary">
-                <i class="bi bi-search me-2"></i> Search
+                <i class="bi bi-search me-2"></i>
               </button>
             </div>
             <!-- Ticket Filter -->
@@ -190,11 +165,40 @@
               </select>
             </div>
             <button type="submit" class="btn btn-primary">
-              <i class="bi bi-filter me-2"></i> Filter
+              <i class="bi bi-filter me-2"></i>
             </button>
           </form>
         </div>
       </div>
+      {% if user_role == 'technician_or_above' or user_role == 'manager' %}
+      <div class="container mt-4">
+        <form method="get" class="form-inline">
+          <div class="form-group mx-2">
+            <select name="region" id="region" class="form-control">
+              <option value="" {% if not selected_region %}selected{% endif %}>All Regions</option>
+              {% if regions %}
+                {% for region in regions %}
+                  <option value="{{ region.name }}" {% if selected_region == region.name %}selected{% endif %}>{{ region.name }}</option>
+                {% endfor %}
+              {% endif %}
+            </select>
+          </div>
+          <div class="form-group mx-2">
+            <select name="centre" id="centre" class="form-control">
+              <option value="" {% if not selected_centre %}selected{% endif %}>All Centres</option>
+              {% if centres %}
+                {% for centre in centres %}
+                  <option value="{{ centre.name }}" {% if selected_centre == centre.name %}selected{% endif %}>{{ centre.name }}</option>
+                {% endfor %}
+              {% endif %}
+            </select>
+          </div>
+          <div class="mx-2">
+            <button type="submit" class="btn btn-primary">Apply</button>
+          </div>
+        </form>
+      </div>
+      {% endif %}
 
       <div class="card-header">
         <div class="table-responsive">

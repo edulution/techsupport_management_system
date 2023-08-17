@@ -11,6 +11,8 @@ from django.contrib.auth.models import Group
 from .models import Country, Region, Centre, Category, SubCategory, SupportTicket, UserProfile , User
 from django.db.models import Q, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+import csv
+from django.http import HttpResponse
 import uuid
 
 def user_login(request):
@@ -141,6 +143,57 @@ def dashboard(request):
 
     return render(request, 'dashboard.html', context)
 
+@login_required
+def export_tickets_csv(request):
+    # Define the time period for which you want to extract data
+    if request.method == 'POST':
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+
+        tickets = SupportTicket.objects.filter(date_submitted__range=(start_date, end_date))
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = 'attachment; filename="support_tickets.csv"'
+
+        csv_writer = csv.writer(response)
+        csv_writer.writerow([
+        "Ticket Number",
+        "Date Submitted",
+        "Status",
+        "Priority",
+        "Centre",
+        "Submitted By",
+        "Category",
+        "Subcategory",
+        "Description",
+        "Title",
+        "Resolution Notes",
+        "Assigned To",
+    ])
+
+    # Write ticket data to the CSV file
+        for ticket in tickets:
+            csv_writer.writerow([
+            ticket.ticket_number,
+            ticket.date_submitted,
+            ticket.status,
+            ticket.priority,
+            ticket.centre.name,
+            ticket.submitted_by.username,
+            ticket.category.name,
+            ticket.subcategory.name,
+            ticket.description,
+            ticket.title,
+            ticket.resolution_notes,
+            ticket.assigned_to.username if ticket.assigned_to else "",
+        ])
+
+        return response
+    else:
+        # Provide an empty queryset for the initial GET request
+        tickets = SupportTicket.objects.none()
+        
+        return render(request, 'support_ticket/export_tickets_csv.html')
 
 
 @login_required
