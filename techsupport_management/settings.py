@@ -29,7 +29,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env("TSUPPORT_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG")
+
+# SMTP variables
+EMAIL_BACKEND = env("EMAIL_BACKEND")
+EMAIL_HOST = env("EMAIL_HOST")
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS")
+EMAIL_HOST_USER = env("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+
 
 ALLOWED_HOSTS = []
 
@@ -86,10 +95,15 @@ WSGI_APPLICATION = "techsupport_management.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": env("TSUPPORT_DATABASE_NAME"),
+        "USER": env("TSUPPORT_DATABASE_USER"),
+        "PASSWORD": env("TSUPPORT_DATABASE_PASSWORD"),
+        "HOST": env("TSUPPORT_DATABASE_HOST"),
+        "PORT": env("TSUPPORT_DATABASE_PORT"),
     }
 }
 
