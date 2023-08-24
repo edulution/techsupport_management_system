@@ -2,11 +2,9 @@
 
 """Django's command-line utility for administrative tasks."""
 
-from django.core.management import BaseCommand
+from django.core.management import BaseCommand, execute_from_command_line
 import os
 import sys
-from django.core.management import execute_from_command_line
-from django.core.management.base import BaseCommand
 
 
 def main():
