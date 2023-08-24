@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-from django.core.management import BaseCommand
 
 """Django's command-line utility for administrative tasks."""
+
+from django.core.management import BaseCommand
 import os
 import sys
 from django.core.management import execute_from_command_line
