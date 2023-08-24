@@ -4,6 +4,7 @@ from django.contrib.auth.models import Permission, AbstractUser
 from django.utils.translation import gettext_lazy as _
 from smart_selects.db_fields import ChainedForeignKey
 import uuid
+
 # from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 
@@ -85,15 +86,6 @@ class Country(BaseModel):
 
     name = models.CharField(max_length=30, verbose_name=_("name"))
     code = models.CharField(max_length=2, verbose_name=_("code"))
-    
-    modified_by = models.ForeignKey(
-        'User',
-        verbose_name=_("modified by"),
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name="modified_countries",
-    )
 
     def __str__(self):
         return f"{self.code}:{self.name}"
@@ -112,16 +104,6 @@ class Region(BaseModel):
         related_name="regions",
         verbose_name=_("country"),
     )
-    
-    modified_by = models.ForeignKey(
-        'User',
-        verbose_name=_("modified by"),
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name="modified_regions",
-    )
-
 
     def __str__(self):
         return f"{self.country.code}:{self.name}"
@@ -188,6 +170,7 @@ class User(AbstractUser, RolePermissionMixin):
         null=True,
         blank=True,
     )
+
     def is_super_admin(self):
         """Check if the user is a super admin."""
         return self.role == self.RoleType.SUPER_ADMIN
@@ -240,8 +223,7 @@ def save(self, *args, **kwargs):
     super(User, self).save(*args, **kwargs)
 
 
-
-class UserProfile(models.Model):
+class UserProfile(BaseModel):
     """Model representing a user profile."""
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
@@ -255,6 +237,14 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return str(self.user)
+
+
+class Settings(BaseModel):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    dark_mode_enabled = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.user.username
 
 
 class Category(BaseModel):
@@ -301,7 +291,7 @@ class SupportTicket(BaseModel):
         LOW = "Low", _("Low")
         MEDIUM = "Medium", _("Medium")
         HIGH = "High", _("High")
-        
+
     ticket_number = models.PositiveIntegerField(
         verbose_name=_("ticket number"), unique=True, editable=False
     )
@@ -315,7 +305,10 @@ class SupportTicket(BaseModel):
         max_length=30, verbose_name=_("status"), choices=Status.choices
     )
     priority = models.CharField(
-        max_length=30, verbose_name=_("priority"), choices=Priority.choices, default=Priority.MEDIUM
+        max_length=30,
+        verbose_name=_("priority"),
+        choices=Priority.choices,
+        default=Priority.MEDIUM,
     )
     centre = models.ForeignKey(
         Centre,
@@ -408,11 +401,3 @@ class SupportTicket(BaseModel):
             hours, remainder = divmod(age.seconds, 3600)
             minutes, _ = divmod(remainder, 60)
             return f"{hours} hours {minutes} minutes"
-
-
-class Settings(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    dark_mode_enabled = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.user.username
