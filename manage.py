@@ -11,7 +11,7 @@ from termcolor import colored
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'techsupport_management.settings')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "techsupport_management.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -23,7 +23,7 @@ def main():
     execute_from_command_line(sys.argv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 
@@ -33,21 +33,30 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser):
-        parser.add_argument('subcommand', nargs='?', help='Subcommand to run.')
+        parser.add_argument("subcommand", nargs="?", help="Subcommand to run.")
 
     def handle(self, *args, **options):
-        subcommand = options.get('subcommand')
-        
-        if subcommand == 'generate_dummy_data':
-            from your_app.management.commands.generate_dummy_data import Command as GenerateDummyDataCommand
+        subcommand = options.get("subcommand")
+
+        if subcommand == "generate_dummy_data":
+            from techsupport.management.commands.generate_dummy_data import (
+                Command as GenerateDummyDataCommand,
+            )
+
             GenerateDummyDataCommand().handle(*args, **options)
-        
-        elif subcommand == 'create_categories_subcategories':
-            from your_app.management.commands.create_categories_subcategories import Command as CreateCategoriesSubcategoriesCommand
+
+        elif subcommand == "create_categories_subcategories":
+            from techsupport.management.commands.create_categories_subcategories import (
+                Command as CreateCategoriesSubcategoriesCommand,
+            )
+
             CreateCategoriesSubcategoriesCommand().handle(*args, **options)
-        
-        elif subcommand == 'generate_users':
-            from your_app.management.commands.generate_users import Command as GenerateUsersCommand
+
+        elif subcommand == "generate_users":
+            from techsupport.management.commands.generate_users import (
+                Command as GenerateUsersCommand,
+            )
+
             GenerateUsersCommand().handle(*args, **options)
         else:
             self.stdout.write(self.help)
