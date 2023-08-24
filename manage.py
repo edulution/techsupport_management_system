@@ -1,12 +1,11 @@
+#!/usr/bin/env python
 from django.core.management import BaseCommand
 
-#!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
 from django.core.management import execute_from_command_line
 from django.core.management.base import BaseCommand
-from termcolor import colored
 
 
 def main():
