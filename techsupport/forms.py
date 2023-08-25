@@ -1,27 +1,40 @@
 from django import forms
-from .models import Country, Region, Centre, Category, SubCategory, SupportTicket, UserProfile, User
 from django.core.validators import ValidationError
 from django.shortcuts import get_object_or_404
+from .models import (
+    Country,
+    Region,
+    Centre,
+    Category,
+    SubCategory,
+    SupportTicket,
+    UserProfile,
+    User,
+)
 
-
-from django import forms
-from .models import SupportTicket
 
 class SupportTicketForm(forms.ModelForm):
     class Meta:
         model = SupportTicket
-        fields = ['title', 'description', 'centre', 'category', 'subcategory', 'priority']
-    
+        fields = [
+            "title",
+            "description",
+            "centre",
+            "category",
+            "subcategory",
+            "priority",
+        ]
+
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
+        user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
 
         if user.centres.count() == 1:
-            self.fields['centre'].queryset = user.centres.all()
-            self.fields['centre'].initial = user.centres.first()
+            self.fields["centre"].queryset = user.centres.all()
+            self.fields["centre"].initial = user.centres.first()
 
     def clean_title(self):
-        title = self.cleaned_data.get('title', None)
+        title = self.cleaned_data.get("title", None)
         if title is None or len(title.strip()) == 0:
             raise forms.ValidationError("Title is required.")
         elif len(title) > 20:
@@ -29,7 +42,7 @@ class SupportTicketForm(forms.ModelForm):
         return title
 
     def clean_description(self):
-        description = self.cleaned_data.get('description', None)
+        description = self.cleaned_data.get("description", None)
         if description is None or len(description.strip()) == 0:
             raise forms.ValidationError("Description is required.")
         elif len(description) > 100:
@@ -38,22 +51,25 @@ class SupportTicketForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        title = cleaned_data.get('title')
-        description = cleaned_data.get('description')
+        title = cleaned_data.get("title")
+        description = cleaned_data.get("description")
 
         if not title and not description:
             raise forms.ValidationError("Title and Description are required.")
         return cleaned_data
-    
+
     def save(self, commit=True):
         instance = super().save(commit=False)
-        instance.status = 'Open'
+        instance.status = "Open"
         if commit:
             instance.save()
         return instance
 
+
 class TicketAssignmentForm(forms.Form):
-    assigned_to = forms.ModelChoiceField(queryset=User.objects.filter(role='technician'))
+    assigned_to = forms.ModelChoiceField(
+        queryset=User.objects.filter(role="technician")
+    )
 
 
 # Form for updating the description of a support ticket
@@ -73,26 +89,29 @@ class SupportTicketUpdateForm(forms.ModelForm):
 
 class TicketResolutionForm(forms.ModelForm):
     STATUS_CHOICES = (
-        ('In Progress', 'In Progress'),
-        ('Resolved', 'Resolved'),
+        ("In Progress", "In Progress"),
+        ("Resolved", "Resolved"),
     )
     status = forms.ChoiceField(choices=STATUS_CHOICES)
 
     class Meta:
         model = SupportTicket
-        fields = ('status', 'resolution_notes',)
+        fields = (
+            "status",
+            "resolution_notes",
+        )
         widgets = {
-            'resolution_notes': forms.Textarea(attrs={'rows': 4}),
+            "resolution_notes": forms.Textarea(attrs={"rows": 4}),
         }
-
 
 
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['bio', 'avatar', 'date_of_birth']
-        
+        fields = ["bio", "avatar", "date_of_birth"]
+
+
 class UserForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['username', 'role', 'is_active', 'is_staff', 'centres']
+        fields = ["username", "role", "is_active", "is_staff", "centres"]
