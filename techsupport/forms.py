@@ -32,6 +32,11 @@ class SupportTicketForm(forms.ModelForm):
         if user.centres.count() == 1:
             self.fields["centre"].queryset = user.centres.all()
             self.fields["centre"].initial = user.centres.first()
+            
+        if user.role == ['technician','admin']:
+            self.fields["priority"].initial = "medium"
+        else:
+            self.fields["priority"].widget = forms.HiddenInput()
 
     def clean_title(self):
         title = self.cleaned_data.get("title", None)
