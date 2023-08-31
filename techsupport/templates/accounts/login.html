@@ -1,44 +1,66 @@
 {% load static %}
-{% block styles %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
-<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<link rel="icon" href="{% static 'images/edulution_map_only_green.png' %}">
-<title>Login</title>
-{% endblock %}
-{% block content %}
-<div class="login-details">
-    <div class="logo">
-        <img src="{% static 'images/edulution_map_only_green.png' %}" alt="Edulution logo">
-        <h2>Edulution Technical Support</h2>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Meta information -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/edulution_map_only_green.png' %}">
+    
+    <!-- Styles -->
+    {% block styles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+    <link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    {% endblock %}
+</head>
+
+<body>
+    <!-- Login Form Section -->
+    {% block content %}
+    <div class="login-details">
+        <div class="logo">
+            <img src="{% static 'images/edulution_map_only_green.png' %}" alt="Edulution logo">
+            <h2>Edulution Technical Support</h2>
+        </div>
+        <div>
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} text-center mx-auto fade-out" style="animation: fadeOut 3.5s forwards;" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+        
+        <!-- Login Form -->
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <input type="text" class="form-control" id="username" name="username" placeholder="Username/Email" required />
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required />
+            </div>
+            <div class="form-group">
+                <a href="#">Forgot password?</a>
+            </div>
+            <div class="submit-button">
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </div>
+        </form>
+        
+        <!-- Google Sign-in -->
+        <div class="google-icon">
+            <a href="#">
+                <img src="{% static 'images/google_icon.png' %}" alt="Sign in with Google">
+            </a>
+        </div>
     </div>
-    <div>
-        {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} mx-auto" role="alert">
-            {{ message }}
-        </div>
-        {% endfor %}
-        {% endif %}
-    </div>
-    <form method="post" action="{% url 'login' %}">
-        {% csrf_token %}
-        <div class="form-group">
-            <input type="text" class="form-control" id="username" name="username" placeholder="Username/Email" required />
-        </div>
-        <div class="form-group">
-            <input type="password" class="form-control" id="password" name="password" placeholder="Password" required />
-        </div>
-        <div class="form-group">
-            <a href="#">Forgot password?</a>
-        </div>
-        <div class="submit-button">
-            <button type="submit" class="btn btn-primary">Sign In</button>
-        </div>
-    </form>
-    <div class="google-icon">
-        <a href="#">
-            <img src="{% static 'images/google_icon.png' %}" alt="Sign in with Google">
-        </a>
-    </div>
-</div>
-{% endblock %}
+    {% endblock %}
+</body>
+
+</html>

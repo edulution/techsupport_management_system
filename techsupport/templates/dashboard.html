@@ -26,7 +26,7 @@
       </div>
     </div>
     <div class="col-lg-3 col-md-6">
-      <!-- Widget 2 -->
+      <!-- Widget 2: Open Tickets -->
       <div class="card bg-light">
         <div class="card-body d-flex justify-content-between align-items-center">
           <div class="text-secondary">
@@ -46,7 +46,7 @@
       </div>
     </div>
     <div class="col-lg-3 col-md-6">
-      <!-- Widget 3 -->
+      <!-- Widget 3: In Progress Tickets -->
       <div class="card bg-light">
         <div class="card-body d-flex justify-content-between align-items-center">
           <div class="text-warning">
@@ -66,7 +66,7 @@
       </div>
     </div>
     <div class="col-lg-3 col-md-6">
-      <!-- Widget 4 -->
+      <!-- Widget 4: Resolved Tickets -->
       <div class="card bg-light">
         <div class="card-body d-flex justify-content-between align-items-center">
           <div class="text-success">
@@ -85,38 +85,38 @@
         </div>
       </div>
     </div>
-  </div>
+</div>
   
 <!-- Insights -->
-    <div class="container">
-      {% if user_role == 'technician_or_above' %}
-      <div class="card-body>
-        <div class="card-header border-bottom border-success">
-        </div>
+<div class="container">
+  {% if user_role == 'technician_or_above' %}
+    <div class="card-body>
+      <div class="card-header border-bottom border-success">
         <div class="card-body">
           {% for trend in ticket_insights.common_ticket_trends %}
           <div class="row align-items-center mb-4">
             <div class="col">
-                <div class="progress-wrapper">
-                    <div class="progress mb-0">
-                        <div class="progress-bar bg-{{ forloop.counter0|cycle_color }}" role="progressbar"
+              <div class="progress-wrapper">
+                <div class="progress mb-0">
+                    <div class="progress-bar bg-{{ forloop.counter0|cycle_color }}" role="progressbar"
                             aria-valuenow="{{ trend.ticket_count }}" aria-valuemin="0" aria-valuemax="100"
                             style="width: {{ trend.ticket_count }}%;"></div>
                     </div>
                     <div class="progress-info">
                         <div class="h6 mb-0">{{ trend.category__name }}</div>
                     </div>
-                </div>
+              </div>
             </div>
         </div>
         {% endfor %}
-        </div>
       </div>
+    </div>
     
-      <div class="col text-end">
-        <a href="{% url 'export_tickets_csv' %}" class="btn"><i class="bi bi-download me-2"></i>Export</a>
-      </div>
-      {% endif %}
+  <div class="col text-end">
+    <a href="{% url 'export_tickets_csv' %}" class="btn"><i class="bi bi-download me-2"></i>Export</a>
+  </div>
+</div>
+  {% endif %}
 <!-- Submit Ticket Button and Search Filter -->
 <div class="d-flex justify-content-between align-items-center mb-4">
   <form action="{% url 'dashboard' %}" method="GET" class="input-group d-flex align-items-center">
@@ -172,24 +172,23 @@
       {% endif %}
   </form>
 </div>
-
-      
+     
       <div>
         <div class="table-responsive">
           <table class="table text-center">
             <thead>
               <tr>
-                  <th class="text-start">#</th>
-                  <th class="text-start">Title</th>
-                  <th class="text-start">Status</th>
-                  <th class="text-start">Priority</th>
-                  <th class="text-start">Ticket Age</th>
-                  {% if user_role == 'technician_or_above' %}
-                  <th class="text-start">Actions</th>
-                  {% endif %}
+                <th class="text-start">#</th>
+                <th class="text-start">Title</th>
+                <th class="text-start">Status</th>
+                <th class="text-start">Priority</th>
+                <th class="text-start">Ticket Age</th>
+                {% if user_role == 'technician_or_above' %}
+                <th class="text-start">Actions</th>
+                {% endif %}
               </tr>
-          </thead>
-          
+            </thead>
+      
             <tbody>
               {% if paginated_tickets %}
               {% for ticket in paginated_tickets %}
@@ -202,13 +201,13 @@
                 </td>
                 <td>
                   <div class="d-flex align-items-center justify-content-start">
-                  {% if ticket.status == 'Resolved' %}
-                  <i class="bi bi-check2 me-1"></i>{{ ticket.status }}
-                  {% elif ticket.status == 'In Progress' %}
-                  <i class="bi bi-hourglass me-1"></i>{{ ticket.status }}
-                  {% else %}
-                  <i class="bi bi-exclamation-diamond me-1"></i>Open
-                  {% endif %}
+                    {% if ticket.status == 'Resolved' %}
+                    <i class="bi bi-check2 me-1"></i>{{ ticket.status }}
+                    {% elif ticket.status == 'In Progress' %}
+                    <i class="bi bi-hourglass me-1"></i>{{ ticket.status }}
+                    {% else %}
+                    <i class="bi bi-exclamation-diamond me-1"></i>Open
+                    {% endif %}
                   </div>
                 </td>
                 <td>
@@ -232,11 +231,11 @@
                 {% if user_role == 'technician_or_above' %}
                 {% if ticket.status == 'In Progress' or ticket.status == 'Resolved' %}
                 <td>
-                <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-secondary d-grid">Details</a>
+                  <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-secondary d-grid">Details</a>
                 </td>
                 {% else %}
                 <td>
-                  <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-success d-grid">Take Ticket</a>
+                  <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-info d-grid">Take Ticket</a>
                 </td>
                 {% endif %}
                 {% endif %}
@@ -252,41 +251,41 @@
           <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center mt-3">
               {% if paginated_tickets.has_previous %}
-                <li class="page-item">
-                  <a class="page-link" href="?page=1" aria-label="First">
-                    <span aria-hidden="true">&laquo;</span>
-                  </a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="?page={{ paginated_tickets.previous_page_number }}" aria-label="Previous">
-                    <span aria-hidden="true">&lsaquo;</span>
-                  </a>
-                </li>
+              <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ paginated_tickets.previous_page_number }}" aria-label="Previous">
+                  <span aria-hidden="true">&lsaquo;</span>
+                </a>
+              </li>
               {% endif %}
       
               {% for i in paginated_tickets.paginator.page_range %}
-                {% if i == paginated_tickets.number %}
-                  <li class="page-item active" aria-current="page">
-                    <span class="page-link">{{ i }} <span class="visually-hidden">(current)</span></span>
-                  </li>
-                {% else %}
-                  <li class="page-item">
-                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
-                  </li>
-                {% endif %}
+              {% if i == paginated_tickets.number %}
+              <li class="page-item active" aria-current="page">
+                <span class="page-link">{{ i }} <span class="visually-hidden">(current)</span></span>
+              </li>
+              {% else %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+              </li>
+              {% endif %}
               {% endfor %}
       
               {% if paginated_tickets.has_next %}
-                <li class="page-item">
-                  <a class="page-link" href="?page={{ paginated_tickets.next_page_number }}" aria-label="Next">
-                    <span aria-hidden="true">&rsaquo;</span>
-                  </a>
-                </li>
-                <li class="page-item">
-                  <a class="page-link" href="?page={{ paginated_tickets.paginator.num_pages }}" aria-label="Last">
-                    <span aria-hidden="true">&raquo;</span>
-                  </a>
-                </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ paginated_tickets.next_page_number }}" aria-label="Next">
+                  <span aria-hidden="true">&rsaquo;</span>
+                </a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?page={{ paginated_tickets.paginator.num_pages }}" aria-label="Last">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
               {% endif %}
             </ul>
           </nav>

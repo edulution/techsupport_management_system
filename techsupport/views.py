@@ -217,6 +217,7 @@ def export_tickets_csv(request):
                     ticket.assigned_to.username if ticket.assigned_to else "",
                 ]
             )
+        messages.success(request, "Support Ticket Data extracted successfully!")
 
         return response
     else:

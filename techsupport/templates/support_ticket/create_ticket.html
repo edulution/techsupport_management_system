@@ -1,15 +1,19 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load custom_filters %}
+
 {% block content %}
+
 <div class="container-fluid mt-4 rounded-top">
     <div class="row justify-content-center">
         <div class="col-lg-6">
+            <!-- New Ticket Card -->
             <div class="card">
                 <div class="card-header bg-success text-white text-center">
                     <h6 class="mb-0"><strong><i class="bi bi-journal-text me-2"></i>Log a new Ticket</strong></h6>
                 </div>
                 <div class="card-body">
+                    <!-- Ticket Form -->
                     <form method="post" class="form">
                         {% csrf_token %}
                         <div class="mb-3">
@@ -22,7 +26,7 @@
                             {{ form.centre|add_placeholder:"Centre"|add_class:"form-control" }}
                         </div>
                         <div class="mb-3">
-                            <label for="title"><strong>What kind of issue it it?</strong></label>
+                            <label for="title"><strong>What kind of issue is it?</strong></label>
                             {{ form.category|add_placeholder:"Category"|add_class:"form-control" }}
                         </div>
                         <div class="mb-3">
@@ -44,6 +48,8 @@
     </div>
 </div>
 
+<!-- Submit Ticket JavaScript -->
 <script src="{% static 'js/submit_ticket.js' %}"></script>
 
 {% endblock %}
+

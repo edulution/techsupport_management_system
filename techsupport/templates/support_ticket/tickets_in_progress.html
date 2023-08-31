@@ -1,10 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Tickets in Progress</h1>
+  <!-- Page Header -->
+  <h1 class="mt-5">Tickets in Progress</h1>
 
-  <table class="table">
-    <thead>
+  <!-- Table of Tickets in Progress -->
+  <table class="table table-striped table-hover">
+    <thead class="thead-dark">
       <tr>
         <th>Ticket Number</th>
         <th>Title</th>
@@ -16,13 +18,19 @@
     <tbody>
       {% for ticket in tickets %}
         <tr>
+          <!-- Ticket Number (linked to details page) -->
           <td><a href="{% url 'ticket_details' ticket.id %}">{{ ticket.ticket_number }}</a></td>
+          <!-- Ticket Title -->
           <td>{{ ticket.title }}</td>
+          <!-- Ticket Status -->
           <td>{{ ticket.status }}</td>
+          <!-- Ticket Priority -->
           <td>{{ ticket.priority }}</td>
+          <!-- Ticket Age -->
           <td>{{ ticket.ticket_age }}</td>
         </tr>
       {% empty %}
+        <!-- No Tickets in Progress -->
         <tr>
           <td colspan="5">No tickets in progress.</td>
         </tr>
