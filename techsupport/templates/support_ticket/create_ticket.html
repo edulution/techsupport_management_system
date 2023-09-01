@@ -3,12 +3,11 @@
 {% load custom_filters %}
 
 {% block content %}
-
 <div class="container-fluid mt-4 rounded-top">
     <div class="row justify-content-center">
         <div class="col-lg-6">
             <!-- New Ticket Card -->
-            <div class="card">
+            <div>
                 <div class="card-header bg-success text-white text-center">
                     <h6 class="mb-0"><strong><i class="bi bi-journal-text me-2"></i>Log a new Ticket</strong></h6>
                 </div>
@@ -20,7 +19,6 @@
                             <label for="title"><strong>Give your Ticket a title:</strong></label>
                             {{ form.title|add_placeholder:"Enter title here"|add_class:"form-control" }}
                         </div>
-                        
                         <div class="mb-3">
                             <label for="title"><strong>Where was this issue observed?</strong></label>
                             {{ form.centre|add_placeholder:"Centre"|add_class:"form-control" }}
@@ -47,9 +45,7 @@
         </div>
     </div>
 </div>
-
 <!-- Submit Ticket JavaScript -->
 <script src="{% static 'js/submit_ticket.js' %}"></script>
-
 {% endblock %}
 

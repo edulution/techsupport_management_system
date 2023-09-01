@@ -234,6 +234,7 @@ class UserProfile(BaseModel):
     date_of_birth = models.DateField(
         verbose_name=_("date of birth"), null=True, blank=True
     )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return str(self.user)
