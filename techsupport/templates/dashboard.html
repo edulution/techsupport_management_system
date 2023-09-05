@@ -178,81 +178,87 @@
         </div>
       </div>
       
-    <!-- Table -->
-    <div class="table-responsive">
-      <table class="table text-center">
-        <thead>
-          <tr>
-            <th class="text-start">#</th>
-            <th class="text-start">Title</th>
-            <th class="text-start">Status</th>
-            <th class="text-start">Priority</th>
-            <th class="text-start">Ticket Age</th>
-            {% if user_role == 'technician_or_above' %}
-            <th class="text-start">Actions</th>
-            {% endif %}
-          </tr>
-        </thead>
-        <tbody>
-          {% if paginated_tickets %}
-          {% for ticket in paginated_tickets %}
-          <tr>
-            <td>{{ ticket.ticket_number }}</td>
-            <td>
-              <div class="d-flex align-items-center justify-content-start">
-                <a href="{% url 'ticket_details' ticket.id %}">{{ ticket.title }}</a>
-              </div>
-            </td>
-            <td>
-              <div class="d-flex align-items-center justify-content-start">
-                {% if ticket.status == 'Resolved' %}
-                <i class="bi bi-check2 me-1"></i>{{ ticket.status }}
-                {% elif ticket.status == 'In Progress' %}
-                <i class="bi bi-hourglass me-1"></i>{{ ticket.status }}
-                {% else %}
-                <i class="bi bi-exclamation-diamond me-1"></i>Open
-                {% endif %}
-              </div>
-            </td>
-            <td>
-              <div class="d-flex align-items-center justify-content-start">
-                {% if ticket.priority == 'High' %}
-                <i class="bi bi-exclamation-triangle text-danger me-1"></i>
-                {% elif ticket.priority == 'Medium' %}
-                <i class="bi bi-exclamation-triangle text-warning me-1"></i>
-                {% else %}
-                <i class="bi bi-exclamation-triangle text-success me-1"></i>
-                {% endif %}
-                {{ ticket.priority }}
-              </div>
-            </td>
-            <td>
-              <div class="d-flex align-items-center justify-content-start">
-                {{ ticket.ticket_age }}
-              </div>
-            </td>
-            <!-- Only visible to technician or above -->
-            {% if user_role == 'technician_or_above' %}
-            {% if ticket.status == 'In Progress' or ticket.status == 'Resolved' %}
-            <td>
-              <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-secondary d-grid">Details</a>
-            </td>
+      <div class="table-responsive">
+        <table class="table table-striped text-center">
+          <thead>
+            <tr>
+              <th class="text-start">#</th>
+              <th class="text-start">Title</th>
+              <th class="text-start">Status</th>
+              <th class="text-start">Priority</th>
+              <th class="text-start text-truncate">Ticket Age</th>
+              {% if user_role == 'technician_or_above' %}
+              <th class="text-start text-truncate">Actions</th>
+              {% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% if paginated_tickets %}
+            {% for ticket in paginated_tickets %}
+            <tr>
+              <td>{{ ticket.ticket_number }}</td>
+              <td class="text-start">
+                <div class="d-flex align-items-center justify-content-start">
+                  <a href="{% url 'ticket_details' ticket.id %}" class="text-truncate" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ ticket.title }}">{{ ticket.title }}</a>
+                </div>
+              </td>
+              <td class="text-start">
+                <div class="d-flex align-items-center justify-content-start">
+                  {% if ticket.status == 'Resolved' %}
+                  <i class="bi bi-check2 me-1"></i>{{ ticket.status }}
+                  {% elif ticket.status == 'In Progress' %}
+                  <i class="bi bi-hourglass me-1"></i>{{ ticket.status }}
+                  {% else %}
+                  <i class="bi bi-exclamation-diamond me-1"></i>Open
+                  {% endif %}
+                </div>
+              </td>
+              <td class="text-start">
+                <div class="d-flex align-items-center justify-content-start">
+                  {% if ticket.priority == 'High' %}
+                  <i class="bi bi-exclamation-triangle text-danger me-1"></i>
+                  {% elif ticket.priority == 'Medium' %}
+                  <i class="bi bi-exclamation-triangle text-warning me-1"></i>
+                  {% else %}
+                  <i class="bi bi-exclamation-triangle text-success me-1"></i>
+                  {% endif %}
+                  {{ ticket.priority }}
+                </div>
+              </td>
+              <td class="text-start">
+                <div class="d-flex align-items-center justify-content-start">
+                  {{ ticket.ticket_age }}
+                </div>
+              </td>
+              <!-- Only visible to technician or above -->
+              {% if user_role == 'technician_or_above' %}
+              {% if ticket.status == 'In Progress' or ticket.status == 'Resolved' %}
+              <td class="text-start">
+                <div class="d-grid">
+                  <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-secondary btn-block">Details</a>
+                </div>
+              </td>
+              {% else %}
+              <td class="text-start">
+                <div class="d-grid">
+                  <a href="{% url 'ticket_details' ticket.id %}" class="btn bg-success btn-block d-md-none text-white">Take</a>
+                  <a href="{% url 'ticket_details' ticket.id %}" class="btn bg-success btn-block d-none d-md-block text-white">Take Ticket</a>
+                </div>
+              </td>              
+              {% endif %}
+              {% endif %}
+            </tr>
+            {% endfor %}
             {% else %}
-            <td>
-              <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-success d-grid">Take Ticket</a>
-            </td>
+            <tr>
+              <td colspan="{% if user_role == 'technician_or_above' %}6{% else %}5{% endif %}" class="text-start">No tickets found.</td>
+            </tr>
             {% endif %}
-            {% endif %}
-          </tr>
-          {% endfor %}
-          {% else %}
-          <tr>
-            <td colspan="{% if user_role == 'technician_or_above' %}6{% else %}5{% endif %}">No tickets found.</td>
-          </tr>
-          {% endif %}
-        </tbody>
-      </table>
-    </div>
+          </tbody>
+        </table>
+      </div>
+      
+      
     <!-- Pagination -->
     <div class="table-responsive">
       <nav aria-label="Page navigation">
