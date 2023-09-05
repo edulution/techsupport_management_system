@@ -38,8 +38,6 @@ class Command(BaseCommand):
             {"name": "Western Region", "country": Country.objects.get(code="ZM")},
             {"name": "KwaZulu-Natal", "country": Country.objects.get(code="ZA")},
             {"name": "Mpumalanga", "country": Country.objects.get(code="ZA")},
-            {"name": "KwaZulu-Natal Hub", "country": Country.objects.get(code="ZA")},
-            {"name": "Mpumalanga Hub", "country": Country.objects.get(code="ZA")},
             {"name": "Zambia Hub", "country": Country.objects.get(code="ZM")},
         ]
         try:

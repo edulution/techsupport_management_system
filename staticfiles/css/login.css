@@ -6,7 +6,10 @@ body {
   align-items: center;
   min-height: 100vh;
   background-color: #e0e0e0;
+  background-repeat:no-repeat;
+  background-size:100%;
 }
+
 
 .login-details {
   text-align: center;

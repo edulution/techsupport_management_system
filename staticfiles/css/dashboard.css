@@ -11,6 +11,9 @@
   transition: box-shadow 0.3s ease;
 }
 
+.bg-success {
+  background-color: #87B926 !important;
+}
 
 /* Widget Icon Style */
 .widget-icon {
@@ -46,3 +49,4 @@
     max-width: 50%;
   }
 }
+

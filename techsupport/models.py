@@ -397,8 +397,14 @@ class SupportTicket(BaseModel):
             days = age.days
             hours, remainder = divmod(age.seconds, 3600)
             minutes, _ = divmod(remainder, 60)
-            return f"{days} days {hours} hours {minutes} minutes"
+            if hours > 0:
+                return f"{days} days ago"
+            else:
+                return f"{days} days ago"
         else:
             hours, remainder = divmod(age.seconds, 3600)
             minutes, _ = divmod(remainder, 60)
-            return f"{hours} hours {minutes} minutes"
+            if hours > 0:
+                return f"{hours} hrs ago"
+            else:
+                return f"{minutes} mins ago"

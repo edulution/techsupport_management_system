@@ -1,294 +1,304 @@
 {% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
 {% load custom_filters %}
 
 {% block content %}
-<div class="container py-4">
-  <div class="row mb-4">
-    <div class="col-lg-3 col-md-6">
+<body>
+  <div class="container-fluid">
+    <div class="container">
+      <div class="row justify-content-center mb-4">
+        <form action="{% url 'dashboard' %}" method="GET" class="input-group">
+          <div class="col-md-6">
+            <div class="d-flex justify-content-center"> <!-- Center the input field -->
+              <input type="text" name="search_query" class="form-control form-control-sm border-1" placeholder="Search..." value="{{ search_query }}">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <button type="submit" class="btn btn-secondary btn-sm btn-input-height mx-1">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="row">
       <!-- Widget 1 -->
-      <div class="card bg-light">
-        <div class="card-body d-flex justify-content-between align-items-center">
-          <div class="text-info">
-            <i class="bi bi-journal-text fs-1"></i>
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-light mb-3">
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="text-info">
+              <i class="bi bi-journal-text fs-2 fs-md-1"></i>
+            </div>
+            <div class="text-center">
+              <h2 class="mt-3 mb-3 fs-4 fs-md-3">{{ tickets.count }}</h2>
+              <p class="text-muted fs-6">{{ widget_description }}</p>
+              <h6 class="text-muted fw-normal fs-6" title="All Tickets">Total</h6>
+            </div>
+            <div class="progress-circle bg-info mx-2" data-progress="{{ tickets.count }}">
+              <div class="progress-circle-mask">
+                <div class="progress-circle-fill"></div>
+              </div>
+            </div>
           </div>
-          <div class="text-center">
-            <h2 class="mt-3 mb-3">{{ tickets.count }}</h2>
-            <p class="text-muted">{{ widget_description }}</p>
-            <h6 class="text-muted fw-normal" title="All Tickets">Total</h6>
+        </div>
+      </div>
+      <!-- Widget 2 -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-light mb-3">
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="text-secondary">
+              <i class="bi bi-exclamation-diamond fs-2 fs-md-1"></i>
+            </div>
+            <div class="text-center">
+              <h2 class="mt-3 mb-3 fs-4 fs-md-3">{{ open_tickets_count }}</h2>
+              <p class="text-muted fs-6">{{ widget_description }}</p>
+              <h6 class="text-muted fw-normal fs-6" title="Open">Open</h6>
+            </div>
+            <div class="progress-circle bg-secondary mx-2" data-progress="{{ open_tickets_count }}">
+              <div class="progress-circle-mask">
+                <div class="progress-circle-fill"></div>
+              </div>
+            </div>
           </div>
-          <div class="progress-circle bg-info mx-2" data-progress="{{ tickets.count }}">
-            <div class="progress-circle-mask">
-              <div class="progress-circle-fill"></div>
+        </div>
+      </div>
+      <!-- Widget 3 -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-light mb-3">
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="text-warning">
+              <i class="bi bi-hourglass fs-2 fs-md-1"></i>
+            </div>
+            <div class="text-center">
+              <h2 class="mt-3 mb-3 fs-4 fs-md-3">{{ in_progress_tickets_count }}</h2>
+              <p class="text-muted fs-6">{{ widget_description }}</p>
+              <h6 class="text-muted fw-normal fs-6" title="In Progress">Pending</h6>
+            </div>
+            <div class="progress-circle bg-warning mx-2" data-progress="{{ in_progress_tickets_count }}">
+              <div class="progress-circle-mask">
+                <div class="progress-circle-fill"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Widget 4 -->
+      <div class="col-lg-3 col-md-6">
+        <div class="card bg-light mb-3">
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <div class="text-success">
+              <i class="bi bi-check2 fs-2 fs-md-1"></i>
+            </div>
+            <div class="text-center">
+              <h2 class="mt-3 mb-3 fs-4 fs-md-3">{{ resolved_tickets_count }}</h2>
+              <p class="text-muted fs-6">{{ widget_description }}</p>
+              <h6 class="text-muted fw-normal fs-6" title="Resolved">Resolved</h6>
+            </div>
+            <div class="progress-circle bg-success mx-2" data-progress="{{ resolved_tickets_count }}">
+              <div class="progress-circle-mask">
+                <div class="progress-circle-fill"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-lg-3 col-md-6">
-      <!-- Widget 2: Open Tickets -->
-      <div class="card bg-light">
-        <div class="card-body d-flex justify-content-between align-items-center">
-          <div class="text-secondary">
-            <i class="bi bi-exclamation-diamond fs-1"></i>
-          </div>
-          <div class="text-center">
-            <h2 class="mt-3 mb-3">{{ open_tickets_count }}</h2>
-            <p class="text-muted">{{ widget_description }}</p>
-            <h6 class="text-muted fw-normal" title="Open">Open</h6>
-          </div>
-          <div class="progress-circle bg-secondary mx-2" data-progress="{{ open_tickets_count }}">
-            <div class="progress-circle-mask">
-              <div class="progress-circle-fill"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-3 col-md-6">
-      <!-- Widget 3: In Progress Tickets -->
-      <div class="card bg-light">
-        <div class="card-body d-flex justify-content-between align-items-center">
-          <div class="text-warning">
-            <i class="bi bi-hourglass fs-1"></i>
-          </div>
-          <div class="text-center">
-            <h2 class="mt-3 mb-3">{{ in_progress_tickets_count }}</h2>
-            <p class="text-muted">{{ widget_description }}</p>
-            <h6 class="text-muted fw-normal" title="In Progress">In Progress</h6>
-          </div>
-          <div class="progress-circle bg-warning mx-2" data-progress="{{ in_progress_tickets_count }}">
-            <div class="progress-circle-mask">
-              <div class="progress-circle-fill"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-3 col-md-6">
-      <!-- Widget 4: Resolved Tickets -->
-      <div class="card bg-light">
-        <div class="card-body d-flex justify-content-between align-items-center">
-          <div class="text-success">
-            <i class="bi bi-check2 fs-1"></i>
-          </div>
-          <div class="text-center">
-            <h2 class="mt-3 mb-3">{{ resolved_tickets_count }}</h2>
-            <p class="text-muted">{{ widget_description }}</p>
-            <h6 class="text-muted fw-normal" title="Resolved">Resolved</h6>
-          </div>
-          <div class="progress-circle bg-success mx-2" data-progress="{{ resolved_tickets_count }}">
-            <div class="progress-circle-mask">
-              <div class="progress-circle-fill"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-</div>
-  
-<!-- Insights -->
-<div class="container">
-  {% if user_role == 'technician_or_above' %}
-    <div class="card-body>
-      <div class="card-header border-bottom border-success">
-        <div class="card-body">
+    <!-- Insights -->
+      <div class="card-rounded">
           {% for trend in ticket_insights.common_ticket_trends %}
           <div class="row align-items-center mb-4">
             <div class="col">
               <div class="progress-wrapper">
                 <div class="progress mb-0">
-                    <div class="progress-bar bg-{{ forloop.counter0|cycle_color }}" role="progressbar"
-                            aria-valuenow="{{ trend.ticket_count }}" aria-valuemin="0" aria-valuemax="100"
-                            style="width: {{ trend.ticket_count }}%;"></div>
-                    </div>
-                    <div class="progress-info">
-                        <div class="h6 mb-0">{{ trend.category__name }}</div>
-                    </div>
-              </div>
+                  <div class="progress-bar {% if forloop.counter0|divisibleby:4 %}bg-primary{% elif forloop.counter0|divisibleby:3 %}bg-secondary{% elif forloop.counter0|divisibleby:2 %}bg-success{% else %}bg-danger{% endif %}" role="progressbar"
+                    aria-valuenow="{{ trend.ticket_count }}" aria-valuemin="0" aria-valuemax="100"
+                    style="width: {{ trend.ticket_count }}%;"></div>
+                </div>
+                <div class="progress-info">
+                  <div class="h6 mb-0 fs-6">{{ trend.category__name }}</div>
+                </div>
+              </div>            
             </div>
+          </div>
+          {% endfor %}
+      </div>
+      <div class="d-flex justify-content-between">
+        <!-- Submit Ticket Button -->
+        <div>
+          <a href="{% url 'create_ticket' %}" class="btn btn-primary btn-sm mb-2">
+            <i class="bi bi-journal-plus"></i> Log Ticket
+          </a>
         </div>
-        {% endfor %}
+        <!-- Filter -->
+        <div class="text-end">
+          <a href="{% url 'export_tickets_csv' %}" class="btn btn-sm">
+            <i class="bi bi-download me-2 fs-6"></i>Export
+          </a>
+        </div>
       </div>
-    </div>
-    
-  <div class="col text-end">
-    <a href="{% url 'export_tickets_csv' %}" class="btn"><i class="bi bi-download me-2"></i>Export</a>
-  </div>
-</div>
-  {% endif %}
-<!-- Submit Ticket Button and Search Filter -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <form action="{% url 'dashboard' %}" method="GET" class="input-group d-flex align-items-center">
-      <!-- Log Ticket Button -->
-      <a href="{% url 'create_ticket' %}" class="btn btn-primary me-2">
-          <i class="bi bi-journal-plus"></i> Log Ticket
-      </a>
-      
-      <!-- Search Input -->
-      <input type="text" name="search_query" class="form-control" placeholder="Search" value="{{ search_query }}">
-      
-      <!-- Search Button -->
-      <button type="submit" class="btn btn-secondary ms-2">
-          <i class="bi bi-search"></i>
-      </button>
-      
-      <!-- Ticket Status Dropdown -->
-      <select name="status" class="form-control ms-2">
-          <option value="">All</option>
-          <option value="Open">Open</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Resolved">Resolved</option>
-      </select>
-      
-      <!-- Filter Button -->
-      <button type="submit" class="btn btn-secondary ms-2">
-          <i class="bi bi-filter"></i>
-      </button>
-      
-      <!-- Additional options for technicians and managers -->
-      {% if user_role == 'technician_or_above' or user_role == 'manager' %}
-      <div class="d-flex align-items-center ms-2">
-          <select name="region" id="region" class="form-control me-2">
-              <option value="" {% if not selected_region %}selected{% endif %}>All Regions</option>
-              {% if regions %}
-                  {% for region in regions %}
-                      <option value="{{ region.name }}" {% if selected_region == region.name %}selected{% endif %}>{{ region.name }}</option>
-                  {% endfor %}
+      <div class="container d-none d-md-block">
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <form action="{% url 'dashboard' %}" method="GET" class="input-group">
+              {% if user_role == 'technician_or_above' or user_role == 'manager' %}
+              <div class="input-group">
+                <select name="region" id="region" class="form-control form-control-sm btn-sm mx-1">
+                  <option value="" {% if not selected_region %}selected{% endif %}>Regions</option>
+                  {% if regions %}
+                    {% for region in regions %}
+                      <option value="{{ region.name }}" {% if selected_region == region.name|stringformat:"s" %}selected{% endif %}>{{ region.name }}</option>
+                    {% endfor %}
+                  {% endif %}
+                </select>
+                <select name="centre" id="centre" class="form-control form-control-sm btn-sm">
+                  <option value="" {% if not selected_centre %}selected{% endif %}>Centres</option>
+                  {% if centres %}
+                    {% for centre in centres %}
+                      <option value="{{ centre.name }}" {% if selected_centre == centre.name|stringformat:"s" %}selected{% endif %}>{{ centre.name }}</option>
+                    {% endfor %}
+                  {% endif %}
+                </select>
+                <button type="submit" class="btn btn-secondary btn-sm mx-2"><i class="bi bi-check mx-1"></i></button>
+                <select name="status" class="form-control form-control-sm" style="float: left;">
+                  <option value="">All</option>
+                  <option value="Open">Open</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Resolved">Resolved</option>
+                </select>
+                <button type="submit" class="btn btn-secondary btn-sm mx-1 text-end" style="float: left;">
+                  <i class="bi bi-filter"></i>
+                </button>
+              </div>
               {% endif %}
-          </select>
-          
-          <select name="centre" id="centre" class="form-control me-2">
-              <option value="" {% if not selected_centre %}selected{% endif %}>All Centres</option>
-              {% if centres %}
-                  {% for centre in centres %}
-                      <option value="{{ centre.name }}" {% if selected_centre == centre.name %}selected{% endif %}>{{ centre.name }}</option>
-                  {% endfor %}
-              {% endif %}
-          </select>
-          
-          <button type="submit" class="btn btn-secondary">Apply</button>
+            </form>
+          </div>
+        </div>
       </div>
-      {% endif %}
-  </form>
-</div>
-     
-      <div>
-        <div class="table-responsive">
-          <table class="table text-center">
-            <thead>
-              <tr>
-                <th class="text-start">#</th>
-                <th class="text-start">Title</th>
-                <th class="text-start">Status</th>
-                <th class="text-start">Priority</th>
-                <th class="text-start">Ticket Age</th>
-                {% if user_role == 'technician_or_above' %}
-                <th class="text-start">Actions</th>
-                {% endif %}
-              </tr>
-            </thead>
       
-            <tbody>
-              {% if paginated_tickets %}
-              {% for ticket in paginated_tickets %}
-              <tr>
-                <td>{{ ticket.ticket_number }}</td>
-                <td>
-                  <div class="d-flex align-items-center justify-content-start">
-                    <a href="{% url 'ticket_details' ticket.id %}">{{ ticket.title }}</a>
-                  </div>
-                </td>
-                <td>
-                  <div class="d-flex align-items-center justify-content-start">
-                    {% if ticket.status == 'Resolved' %}
-                    <i class="bi bi-check2 me-1"></i>{{ ticket.status }}
-                    {% elif ticket.status == 'In Progress' %}
-                    <i class="bi bi-hourglass me-1"></i>{{ ticket.status }}
-                    {% else %}
-                    <i class="bi bi-exclamation-diamond me-1"></i>Open
-                    {% endif %}
-                  </div>
-                </td>
-                <td>
-                  <div class="d-flex align-items-center justify-content-start">
-                    {% if ticket.priority == 'High' %}
-                    <i class="bi bi-exclamation-triangle text-danger me-1"></i>
-                    {% elif ticket.priority == 'Medium' %}
-                    <i class="bi bi-exclamation-triangle text-warning me-1"></i>
-                    {% else %}
-                    <i class="bi bi-exclamation-triangle text-success me-1"></i>
-                    {% endif %}
-                    {{ ticket.priority }}
-                  </div>
-                </td>
-                <td>
-                  <div class="d-flex align-items-center justify-content-start">
-                    {{ ticket.ticket_age }}
-                  </div>
-                </td>
-                <!-- Only visible to technician or above -->
-                {% if user_role == 'technician_or_above' %}
-                {% if ticket.status == 'In Progress' or ticket.status == 'Resolved' %}
-                <td>
-                  <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-secondary d-grid">Details</a>
-                </td>
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table text-center">
+        <thead>
+          <tr>
+            <th class="text-start">#</th>
+            <th class="text-start">Title</th>
+            <th class="text-start">Status</th>
+            <th class="text-start">Priority</th>
+            <th class="text-start">Ticket Age</th>
+            {% if user_role == 'technician_or_above' %}
+            <th class="text-start">Actions</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% if paginated_tickets %}
+          {% for ticket in paginated_tickets %}
+          <tr>
+            <td>{{ ticket.ticket_number }}</td>
+            <td>
+              <div class="d-flex align-items-center justify-content-start">
+                <a href="{% url 'ticket_details' ticket.id %}">{{ ticket.title }}</a>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center justify-content-start">
+                {% if ticket.status == 'Resolved' %}
+                <i class="bi bi-check2 me-1"></i>{{ ticket.status }}
+                {% elif ticket.status == 'In Progress' %}
+                <i class="bi bi-hourglass me-1"></i>{{ ticket.status }}
                 {% else %}
-                <td>
-                  <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-success d-grid">Take Ticket</a>
-                </td>
+                <i class="bi bi-exclamation-diamond me-1"></i>Open
                 {% endif %}
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center justify-content-start">
+                {% if ticket.priority == 'High' %}
+                <i class="bi bi-exclamation-triangle text-danger me-1"></i>
+                {% elif ticket.priority == 'Medium' %}
+                <i class="bi bi-exclamation-triangle text-warning me-1"></i>
+                {% else %}
+                <i class="bi bi-exclamation-triangle text-success me-1"></i>
                 {% endif %}
-              </tr>
-              {% endfor %}
-              {% else %}
-              <tr>
-                <td colspan="{% if user_role == 'technician_or_above' %}6{% else %}5{% endif %}">No tickets found.</td>
-              </tr>
-              {% endif %}
-            </tbody>
-          </table>
-          <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center mt-3">
-              {% if paginated_tickets.has_previous %}
-              <li class="page-item">
-                <a class="page-link" href="?page=1" aria-label="First">
-                  <span aria-hidden="true">&laquo;</span>
-                </a>
-              </li>
-              <li class="page-item">
-                <a class="page-link" href="?page={{ paginated_tickets.previous_page_number }}" aria-label="Previous">
-                  <span aria-hidden="true">&lsaquo;</span>
-                </a>
-              </li>
-              {% endif %}
-      
-              {% for i in paginated_tickets.paginator.page_range %}
-              {% if i == paginated_tickets.number %}
-              <li class="page-item active" aria-current="page">
-                <span class="page-link">{{ i }} <span class="visually-hidden">(current)</span></span>
-              </li>
-              {% else %}
-              <li class="page-item">
-                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
-              </li>
-              {% endif %}
-              {% endfor %}
-      
-              {% if paginated_tickets.has_next %}
-              <li class="page-item">
-                <a class="page-link" href="?page={{ paginated_tickets.next_page_number }}" aria-label="Next">
-                  <span aria-hidden="true">&rsaquo;</span>
-                </a>
-              </li>
-              <li class="page-item">
-                <a class="page-link" href="?page={{ paginated_tickets.paginator.num_pages }}" aria-label="Last">
-                  <span aria-hidden="true">&raquo;</span>
-                </a>
-              </li>
-              {% endif %}
-            </ul>
-          </nav>
-        </div>
-      </div>
-      {% endblock %}
+                {{ ticket.priority }}
+              </div>
+            </td>
+            <td>
+              <div class="d-flex align-items-center justify-content-start">
+                {{ ticket.ticket_age }}
+              </div>
+            </td>
+            <!-- Only visible to technician or above -->
+            {% if user_role == 'technician_or_above' %}
+            {% if ticket.status == 'In Progress' or ticket.status == 'Resolved' %}
+            <td>
+              <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-secondary d-grid">Details</a>
+            </td>
+            {% else %}
+            <td>
+              <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-success d-grid">Take Ticket</a>
+            </td>
+            {% endif %}
+            {% endif %}
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="{% if user_role == 'technician_or_above' %}6{% else %}5{% endif %}">No tickets found.</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+    <!-- Pagination -->
+    <div class="table-responsive">
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center mt-3">
+          {% if paginated_tickets.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page=1" aria-label="First">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ paginated_tickets.previous_page_number }}" aria-label="Previous">
+              <span aria-hidden="true">&lsaquo;</span>
+            </a>
+          </li>
+          {% endif %}
+
+          {% for i in paginated_tickets.paginator.page_range %}
+          {% if i == paginated_tickets.number %}
+          <li class="page-item active" aria-current="page">
+            <span class="page-link">{{ i }} <span class="visually-hidden">(current)</span></span>
+          </li>
+          {% else %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+          </li>
+          {% endif %}
+          {% endfor %}
+
+          {% if paginated_tickets.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ paginated_tickets.next_page_number }}" aria-label="Next">
+              <span aria-hidden="true">&rsaquo;</span>
+            </a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ paginated_tickets.paginator.num_pages }}" aria-label="Last">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+  </div>
+</body>
+
+</html>
+{% endblock %}
