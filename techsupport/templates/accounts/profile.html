@@ -5,16 +5,15 @@
 <div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-8 col-lg-6">
-
-      <div class="card bg-success text-white text-center">
-        <div class="card-body">
+      <!-- User Profile Card -->
+      <div class="card shadow">
+        <!-- Card Header -->
+        <div class="card-header bg-success text-white text-center">
           <h6 class="card-title">
             <i class="bi bi-person me-2"></i>
             <strong>Profile</strong>
           </h6>
         </div>
-      </div>
-      <div class="card mt-3">
         <div class="card-body">
           <div class="mb-3">
             <strong>Name:</strong> {{ user.profile.user.get_full_name }}

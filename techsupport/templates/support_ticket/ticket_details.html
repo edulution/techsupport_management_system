@@ -1,74 +1,82 @@
 {% extends '../base.html' %}
 
 {% block content %}
-<div class="container-fluid mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <!-- Ticket Details Card -->
-            <div>
-                <!-- Card Header -->
-                <div class="card-header bg-success text-white text-center">
-                    <h6 class="card-title"><i class="bi bi-journal-text me-2"></i> <strong>Ticket Details</strong></h6>
-                </div>
-                <div class="card-body">
-                    <!-- Ticket Update Form -->
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="description"><strong>Description:</strong></label>
-                            <textarea class="form-control" id="description" name="description" rows="4" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}readonly{% endif %}>{{ ticket.description }}</textarea>
-                        </div>
-                        {% if user_role == 'technician_or_above' %}
-                        <div class="mb-3">
-                            <label for="status"><strong>Status:</strong></label>
-                            <select class="form-control" id="status" name="status" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
-                                <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open</option>
-                                <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress</option>
-                                <option value="Resolved" {% if ticket.status == 'Resolved' %}selected{% endif %}>Resolved</option>
-                                <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary mb-3" {% if ticket.status == 'Resolved' %}disabled{% endif %}><i class="bi bi-caret-up"></i> Update</button>
-                        {% else %}
-                        <button type="submit" class="btn btn-primary mb-3" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}disabled{% endif %}><i class="bi bi-caret-up"></i> Update Description</button>
-                        {% endif %}
-                    </form>
-                    <!-- Assign Technician Form -->
-                    {% if user_role == 'technician_or_above' %}
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="assigned_to"><strong>Assign to:</strong></label>
-                            <select class="form-control" id="assigned_to" name="assigned_to" required>
-                                {% for technician in technicians %}
-                                <option value="{{ technician.id }}">{{ technician.username }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-primary"><i class="bi bi-hand-index-thumb me-2"></i>Assign</button>
-                    </form>
-                    {% endif %}
-                </div>
-            </div>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <!-- Ticket Details Card -->
+      <div class="card border-0 shadow rounded-top">
+        <!-- Card Header -->
+        <div class="card-header bg-success text-white text-center rounded-top">
+          <h6 class="card-title">
+            <i class="bi bi-journal-plus me-2"></i>
+            <strong>Ticket Details</strong>
+          </h6>
         </div>
+        <div class="card-body">
+          <!-- Ticket Update Form -->
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="description"><strong>Description:</strong></label>
+              <textarea class="form-control" id="description" name="description" rows="4" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}readonly{% endif %}>{{ ticket.description }}</textarea>
+            </div>
+            {% if user_role == 'technician_or_above' %}
+            <div class="mb-3">
+              <label for="status"><strong>Status:</strong></label>
+              <select class="form-select" id="status" name="status" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open</option>
+                <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                <option value="Resolved" {% if ticket.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
+              </select>
+            </div>
+            <button type="submit" class="btn bg-primary btn-block text-white mb-3" {% if ticket.status == 'Resolved' %}disabled{% endif %}><i class="bi bi-caret-up"></i> Update</button>
+            {% else %}
+            <button type="submit" class="btn bg-primary btn-block text-white mb-3" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}disabled{% endif %}><i class="bi bi-caret-up"></i> Update Description</button>
+            {% endif %}
+          </form>
+          <!-- Assign Technician Form -->
+          {% if user_role == 'technician_or_above' %}
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="assigned_to"><strong>Assign to:</strong></label>
+              <select class="form-select" id="assigned_to" name="assigned_to" required>
+                {% for technician in technicians %}
+                <option value="{{ technician.id }}">{{ technician.username }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="submit" class="btn bg-primary btn-block text-white"><i class="bi bi-hand-index-thumb me-2"></i>Assign</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Ticket Information Card -->
-    <div class="row justify-content-center mt-3">
-        <div class="col-md-8">
-            <div class="rounded">
-                <!-- Card Footer -->
-                <div class="card-footer">
-                    <h5 class="card-title"><i class="bi bi-hashtag"></i> Ticket Number: {{ ticket.ticket_number }}</h5>
-                    <p class="card-text"><strong><i class="bi bi-person"></i> Submitted by:</strong> {{ ticket.submitted_by.username }}</p>
-                    <p class="card-text"><strong><i class="bi bi-info-circle"></i> Status:</strong> {{ ticket.get_status_display }}</p>
-                    <p class="card-text"><strong><i class="bi bi-exclamation-triangle"></i> Priority:</strong> {{ ticket.get_priority_display }}</p>
-                    <p class="card-text"><strong><i class="bi bi-building"></i> Centre:</strong> {{ ticket.centre }}</p>
-                    <p class="card-text"><strong><i class="bi bi-tags"></i> Category:</strong> {{ ticket.category }}</p>
-                    <p class="card-text"><strong><i class="bi bi-tag"></i> Subcategory:</strong> {{ ticket.subcategory }}</p>
-                </div>
-            </div>
+  <!-- Ticket Information Card -->
+  <div class="row justify-content-center mt-3">
+    <div class="col-md-8">
+      <div class="card border-0 shadow">
+        <!-- Card Footer -->
+        <div class="card-footer rounded-bottom">
+          <p class="card-text"><i class="bi bi-hash"></i>{{ ticket.ticket_number }}</p>
+          <p class="card-text"><strong><i class="bi bi-person"></i> Submitted by:</strong> {{ ticket.submitted_by.username }}</p>
+          <p class="card-text"><strong><i class="bi bi-info-circle"></i> Status:</strong> {{ ticket.get_status_display }}</p>
+          <p class="card-text"><strong><i class="bi bi-exclamation-triangle"></i> Priority:</strong> {{ ticket.get_priority_display }}</p>
+          <p class="card-text"><strong><i class="bi bi-building"></i> Centre:</strong> {{ ticket.centre }}</p>
+          <p class="card-text"><strong><i class="bi bi-tags"></i> Category:</strong> {{ ticket.category }}</p>
+          <p class="card-text"><strong><i class="bi bi-tag"></i> Subcategory:</strong> {{ ticket.subcategory }}</p>
         </div>
+      </div>
     </div>
+  </div>
 </div>
+<style>
+    .bg-primary {
+  background-color: #5A97D0 !important;
+  }
+  </style>
 {% endblock %}

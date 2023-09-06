@@ -5,11 +5,14 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #e0e0e0;
+  background-color: #bdbcbc;
   background-repeat:no-repeat;
   background-size:100%;
 }
 
+.bg-primary {
+  background-color: #5A97D0 !important;
+  }
 
 .login-details {
   text-align: center;

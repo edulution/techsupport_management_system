@@ -15,6 +15,9 @@
   background-color: #87B926 !important;
 }
 
+.bg-primary {
+  background-color: #5A97D0 !important;
+}
 /* Widget Icon Style */
 .widget-icon {
   width: 50px;
