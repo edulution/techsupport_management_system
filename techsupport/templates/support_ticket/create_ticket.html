@@ -1,44 +1,61 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load custom_filters %}
+
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Log Ticket</h4>
+        <div class="col-md-8 col-lg-6">
+            <!-- Ticket Form Card -->
+            <div class="card shadow">
+                <!-- Card Header -->
+                <div class="card-header bg-success text-white text-center">
+                    <h6 class="card-title">
+                        <i class="bi bi-journal-plus me-2"></i>
+                        <strong>Log a New Ticket</strong>
+                    </h6>
                 </div>
                 <div class="card-body">
+                    <!-- Ticket Form -->
                     <form method="post" class="form">
                         {% csrf_token %}
                         <div class="mb-3">
+                            <label for="title"><strong>Give your ticket a title:</strong></label>
                             {{ form.title|add_placeholder:"Enter title here"|add_class:"form-control" }}
                         </div>
                         <div class="mb-3">
-                            {{ form.description|add_placeholder:"Enter your description here"|add_class:"form-control" }}
-                        </div>
-                        <div class="mb-3">
+                            <label for="centre"><strong>Where was this issue observed?</strong></label>
                             {{ form.centre|add_placeholder:"Centre"|add_class:"form-control" }}
                         </div>
                         <div class="mb-3">
+                            <label for="category"><strong>What kind of issue is it?</strong></label>
                             {{ form.category|add_placeholder:"Category"|add_class:"form-control" }}
                         </div>
                         <div class="mb-3">
+                            <label for="subcategory"><strong>What is the specific problem?</strong></label>
                             {{ form.subcategory|add_placeholder:"Subcategory"|add_class:"form-control" }}
                         </div>
                         <div class="mb-3">
-                            {{ form.priority|add_placeholder:"Priority"|add_class:"form-control" }}
+                            <label for="description"><strong>Please write a short description of the issue</strong></label>
+                            {{ form.description|add_placeholder:"Enter your description here"|add_class:"form-control" }}
                         </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <div class="mb-3">
+                            {{ form.priority|add_placeholder:"Priority"|add_class:"form-select" }}
+                        </div>
+                        <button type="submit" class="btn bg-primary btn-block text-white">
+                            <i class="bi bi-check me-2"></i>Submit
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    .bg-primary {
+  background-color: #5A97D0 !important;
+}
+</style>
+<!-- Submit Ticket JavaScript -->
 <script src="{% static 'js/submit_ticket.js' %}"></script>
-
 {% endblock %}

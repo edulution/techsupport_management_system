@@ -1,31 +1,43 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Extract Data</h5>
-                    </div>
-                    <div class="card-body">
-                        <form method="post">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label for="start_date" class="form-label">Start Date:</label>
-                                <input type="date" id="start_date" name="start_date" class="form-control">
-                            </div>
-                            <div class="mb-3">
-                                <label for="end_date" class="form-label">End Date:</label>
-                                <input type="date" id="end_date" name="end_date" class="form-control">
-                            </div>
-                            <button type="submit" class="btn btn-primary">Extract</button>
-                        </form>
-                    </div>
+<!-- Data Extraction Form -->
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <!-- Ticket Form Card -->
+            <div class="card shadow">
+                <!-- Card Header -->
+                <div class="card-header bg-success text-white text-center">
+                    <h6 class="card-title">
+                        <strong>Extract Data</strong>
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!-- Data Extraction Form -->
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="start_date" class="form-label">Start Date:</label>
+                            <input type="date" id="start_date" name="start_date" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="end_date" class="form-label">End Date:</label>
+                            <input type="date" id="end_date" name="end_date" class="form-control">
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn bg-primary text-white"><i class="bi bi-download me-2"></i>Extract</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+</div>
+<style>
+    .bg-primary {
+  background-color: #5A97D0 !important;
+}
+</style>
 {% endblock %}

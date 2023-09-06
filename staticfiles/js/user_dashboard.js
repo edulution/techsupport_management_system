@@ -24,7 +24,6 @@
           console.log('Error: ' + errorThrown);
         },
         complete: function() {
-          // Hide loading indicator or perform any necessary cleanup
         }
       });
     }

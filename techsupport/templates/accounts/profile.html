@@ -4,10 +4,17 @@
 <!-- User Profile -->
 <div class="container mt-5">
   <div class="row justify-content-center">
-    <div class="col-lg-6">
-      <div class="card shadow-sm">
+    <div class="col-md-8 col-lg-6">
+      <!-- User Profile Card -->
+      <div class="card shadow">
+        <!-- Card Header -->
+        <div class="card-header bg-success text-white text-center">
+          <h6 class="card-title">
+            <i class="bi bi-person me-2"></i>
+            <strong>Profile</strong>
+          </h6>
+        </div>
         <div class="card-body">
-          <h4 class="card-title mb-4">Profile</h4>
           <div class="mb-3">
             <strong>Name:</strong> {{ user.profile.user.get_full_name }}
           </div>
@@ -24,7 +31,7 @@
             <strong>Date of Birth:</strong> {{ user.profile.date_of_birth }}
           </div>
           {% if avatar %}
-            <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="img-fluid rounded-circle mb-3">
+          <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="img-fluid rounded-circle mb-3">
           {% endif %}
         </div>
       </div>

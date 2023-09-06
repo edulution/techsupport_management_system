@@ -1,39 +1,35 @@
-document.addEventListener("DOMContentLoaded", function (event) {
-    const showNavbar = (toggleId, navId, bodyId, headerId) => {
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleNavbar = (toggleId, navId, bodyId, headerId) => {
         const toggle = document.getElementById(toggleId);
         const nav = document.getElementById(navId);
         const bodypd = document.getElementById(bodyId);
         const headerpd = document.getElementById(headerId);
 
-        // Validate that all variables exist
+        // Check if all elements exist
         if (toggle && nav && bodypd && headerpd) {
             toggle.addEventListener('click', () => {
-                // show navbar
+                // Toggle navbar visibility
                 nav.classList.toggle('show');
-                // change icon
-                toggle.classList.toggle('bx-x');
-                // add padding to body
+                // Toggle icon
+                toggle.classList.toggle('bi-bi');
+                // Toggle padding for body and header
                 bodypd.classList.toggle('body-pd');
-                // add padding to header
                 headerpd.classList.toggle('body-pd');
             });
         }
     };
 
+    toggleNavbar('header-toggle', 'nav-bar', 'body-pd', 'header');
 
-    showNavbar('header-toggle', 'nav-bar', 'body-pd', 'header');
+    // Activate links
+    const navLinks = document.querySelectorAll('.nav_link');
 
-    /*===== LINK ACTIVE =====*/
-    const linkColor = document.querySelectorAll('.nav_link');
-
-    function colorLink() {
-        if (linkColor) {
-            linkColor.forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
-        }
+    function activateLink() {
+        // Remove the "active" class from all links
+        navLinks.forEach(link => link.classList.remove('active'));
+        // Add the "active" class to the clicked link
+        this.classList.add('active');
     }
 
-
-    linkColor.forEach(l => l.addEventListener('click', colorLink));
-
+    navLinks.forEach(link => link.addEventListener('click', activateLink));
 });

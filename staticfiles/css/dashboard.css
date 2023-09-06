@@ -8,15 +8,16 @@
 /* Widget Card Style */
 .card {
   border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
 }
 
-/* Widget Card Hover Effect */
-.card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+.bg-success {
+  background-color: #87B926 !important;
 }
 
+.bg-primary {
+  background-color: #5A97D0 !important;
+}
 /* Widget Icon Style */
 .widget-icon {
   width: 50px;
@@ -51,3 +52,4 @@
     max-width: 50%;
   }
 }
+
