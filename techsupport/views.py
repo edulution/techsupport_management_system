@@ -247,7 +247,6 @@ def profile(request):
     }
     return render(request, "accounts/profile.html", context)
 
-
 @login_required
 def ticket_details(request, ticket_id):
     ticket = get_object_or_404(SupportTicket, id=ticket_id)
@@ -268,6 +267,10 @@ def ticket_details(request, ticket_id):
                 assigned_to = form_assignment.cleaned_data["assigned_to"]
                 ticket.assigned_to = assigned_to
                 ticket.save()
+                
+                # Send the webhook message when a ticket is assigned
+                send_assignment_webhook(ticket.title, ticket.centre.name, assigned_to.username)
+                
                 messages.info(request, "Support ticket has been assigned.")
                 return redirect("dashboard")
 
@@ -276,12 +279,15 @@ def ticket_details(request, ticket_id):
             if form_resolution.is_valid():
                 ticket = form_resolution.save(commit=False)
                 status = form_resolution.cleaned_data.get("status")
-                if status == "In Progress":
-                    ticket.status = "In Progress"
-                elif status == "Resolved":
+                if status == "Resolved":
                     ticket.status = "Resolved"
                     ticket.resolved_by = request.user
+                    
+                    # Send the webhook message when the status changes to 'Resolved'
+                    send_resolution_webhook(ticket.title, ticket.centre.name, request.user.username)
+                
                 ticket.save()
+                
                 messages.info(request, "Support ticket status has been updated.")
                 return redirect("dashboard")
 
@@ -312,6 +318,51 @@ def ticket_details(request, ticket_id):
     }
 
     return render(request, "support_ticket/ticket_details.html", context)
+
+
+
+def send_assignment_webhook(ticket_title, ticket_centre, assigned_to):
+    webhook_url = settings.WEB_HOOK_URL
+    
+    message = {
+        'text': f'A Support Ticket *Title:* "{ticket_title}" at *{ticket_centre}* has been assigned to {assigned_to}.'
+    }
+
+    headers = {'Content-Type': 'application/json; charset=UTF-8'}
+
+    try:
+        response = requests.post(
+            url=webhook_url,
+            headers=headers,
+            data=json.dumps(message),
+        )
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+
+        logger = logging.getLogger(__name__)
+        logger.error(f"Failed to send webhook notification: {str(e)}")
+       
+
+def send_resolution_webhook(ticket_title, ticket_centre, resolved_by):
+    webhook_url = settings.WEB_HOOK_URL
+    
+    message = {
+        'text': f'Support Ticket *Title:* "{ticket_title}" at *{ticket_centre}* has been resolved by {resolved_by}.'
+    }
+
+    headers = {'Content-Type': 'application/json; charset=UTF-8'}
+
+    try:
+        response = requests.post(
+            url=webhook_url,
+            headers=headers,
+            data=json.dumps(message),
+        )
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+
+        logger = logging.getLogger(__name__)
+        logger.error(f"Failed to send webhook notification: {str(e)}")
 
 
 @login_required
