@@ -341,20 +341,19 @@ def create_ticket(request):
 def send_webhook_notification(support_ticket, user):
     webhook_url = settings.WEB_HOOK_URL
     app_message = {
-        'text': f'Support ticket created\n'
-                f'Title: {support_ticket.title}\n'
-                f'Category: {support_ticket.category}\n'
-                f'Subcategory: {support_ticket.subcategory}\n'
-                f'Priority: {support_ticket.priority}\n'
-                f'Centre: {support_ticket.centre}\n'
-                f'User: {user}'  # Use the 'user' parameter passed to the function
+        'text': f'A Support Ticket has been created at *{support_ticket.centre}*\n'
+                f'*Title:* {support_ticket.title}\n'
+                f'*Category:* {support_ticket.category}\n'
+                f'*Subcategory:* {support_ticket.subcategory}\n'
+                f'*Priority:* {support_ticket.priority}\n'
+                f'*by:* {user}'
     }
 
     message_headers = {'Content-Type': 'application/json; charset=UTF-8'}
     
     try:
         response = requests.post(
-            url=webhook_url,  # Provide the URL here
+            url=webhook_url,
             headers=message_headers,
             data=json.dumps(app_message),
         )
