@@ -8,6 +8,10 @@ from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.db.models import Q, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.conf import settings
+import json
+import requests
+import logging
 import csv
 import uuid
 from .forms import (
@@ -27,6 +31,7 @@ from .models import (
     User,
 )
 
+logger = logging.getLogger(__name__)
 
 def user_login(request):
     error_message = None
@@ -317,12 +322,45 @@ def create_ticket(request):
             support_ticket = form.save(commit=False)
             support_ticket.submitted_by = request.user
             support_ticket.save()
+
+            send_webhook_notification(support_ticket, request.user) 
+
             messages.success(request, "Support ticket created successfully.")
             return redirect("dashboard")
+        else:
+            form = SupportTicketForm(user=request.user)
+            # Render the form with errors to display validation messages to the user
+            context = {"form": form}
+            return render(request, "support_ticket/create_ticket.html", context)
     else:
         form = SupportTicketForm(user=request.user)
 
     return render(request, "support_ticket/create_ticket.html", {"form": form})
+
+
+def send_webhook_notification(support_ticket, user):
+    webhook_url = settings.WEB_HOOK_URL
+    app_message = {
+        'text': f'Support ticket created\n'
+                f'Title: {support_ticket.title}\n'
+                f'Category: {support_ticket.category}\n'
+                f'Subcategory: {support_ticket.subcategory}\n'
+                f'Priority: {support_ticket.priority}\n'
+                f'Centre: {support_ticket.centre}\n'
+                f'User: {user}'  # Use the 'user' parameter passed to the function
+    }
+
+    message_headers = {'Content-Type': 'application/json; charset=UTF-8'}
+    
+    try:
+        response = requests.post(
+            url=webhook_url,  # Provide the URL here
+            headers=message_headers,
+            data=json.dumps(app_message),
+        )
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to send webhook notification: {str(e)}")
 
 
 @login_required
