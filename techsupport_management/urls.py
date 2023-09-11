@@ -15,10 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from techsupport.views import user_login
+from techsupport.views import user_login, user_logout
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/login/", user_login, name="login"),
+    path("accounts/logout/", user_logout, name="logout"),  # Add this line for logout
     path("", include("techsupport.urls")),
+    path('chaining/', include('smart_selects.urls')),
 ]
