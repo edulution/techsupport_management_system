@@ -8,6 +8,10 @@ from django.contrib.auth.models import Group
 from django.utils import timezone
 from django.db.models import Q, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.conf import settings
+import json
+import requests
+import logging
 import csv
 import uuid
 from .forms import (
@@ -27,6 +31,7 @@ from .models import (
     User,
 )
 
+logger = logging.getLogger(__name__)
 
 def user_login(request):
     error_message = None
@@ -242,7 +247,6 @@ def profile(request):
     }
     return render(request, "accounts/profile.html", context)
 
-
 @login_required
 def ticket_details(request, ticket_id):
     ticket = get_object_or_404(SupportTicket, id=ticket_id)
@@ -263,6 +267,10 @@ def ticket_details(request, ticket_id):
                 assigned_to = form_assignment.cleaned_data["assigned_to"]
                 ticket.assigned_to = assigned_to
                 ticket.save()
+                
+                # Send the webhook message when a ticket is assigned
+                send_assignment_webhook(ticket.title, ticket.centre.name, assigned_to.username)
+                
                 messages.info(request, "Support ticket has been assigned.")
                 return redirect("dashboard")
 
@@ -271,12 +279,15 @@ def ticket_details(request, ticket_id):
             if form_resolution.is_valid():
                 ticket = form_resolution.save(commit=False)
                 status = form_resolution.cleaned_data.get("status")
-                if status == "In Progress":
-                    ticket.status = "In Progress"
-                elif status == "Resolved":
+                if status == "Resolved":
                     ticket.status = "Resolved"
                     ticket.resolved_by = request.user
+                    
+                    # Send the webhook message when the status changes to 'Resolved'
+                    send_resolution_webhook(ticket.title, ticket.centre.name, request.user.username)
+                
                 ticket.save()
+                
                 messages.info(request, "Support ticket status has been updated.")
                 return redirect("dashboard")
 
@@ -309,6 +320,51 @@ def ticket_details(request, ticket_id):
     return render(request, "support_ticket/ticket_details.html", context)
 
 
+
+def send_assignment_webhook(ticket_title, ticket_centre, assigned_to):
+    webhook_url = settings.WEB_HOOK_URL
+    
+    message = {
+        'text': f'A Support Ticket *Title:* "{ticket_title}" at *{ticket_centre}* has been assigned to {assigned_to}.'
+    }
+
+    headers = {'Content-Type': 'application/json; charset=UTF-8'}
+
+    try:
+        response = requests.post(
+            url=webhook_url,
+            headers=headers,
+            data=json.dumps(message),
+        )
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+
+        logger = logging.getLogger(__name__)
+        logger.error(f"Failed to send webhook notification: {str(e)}")
+       
+
+def send_resolution_webhook(ticket_title, ticket_centre, resolved_by):
+    webhook_url = settings.WEB_HOOK_URL
+    
+    message = {
+        'text': f'Support Ticket *Title:* "{ticket_title}" at *{ticket_centre}* has been resolved by {resolved_by}.'
+    }
+
+    headers = {'Content-Type': 'application/json; charset=UTF-8'}
+
+    try:
+        response = requests.post(
+            url=webhook_url,
+            headers=headers,
+            data=json.dumps(message),
+        )
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+
+        logger = logging.getLogger(__name__)
+        logger.error(f"Failed to send webhook notification: {str(e)}")
+
+
 @login_required
 def create_ticket(request):
     if request.method == "POST":
@@ -317,12 +373,44 @@ def create_ticket(request):
             support_ticket = form.save(commit=False)
             support_ticket.submitted_by = request.user
             support_ticket.save()
+
+            send_webhook_notification(support_ticket, request.user) 
+
             messages.success(request, "Support ticket created successfully.")
             return redirect("dashboard")
+        else:
+            form = SupportTicketForm(user=request.user)
+            # Render the form with errors to display validation messages to the user
+            context = {"form": form}
+            return render(request, "support_ticket/create_ticket.html", context)
     else:
         form = SupportTicketForm(user=request.user)
 
     return render(request, "support_ticket/create_ticket.html", {"form": form})
+
+
+def send_webhook_notification(support_ticket, user):
+    webhook_url = settings.WEB_HOOK_URL
+    app_message = {
+        'text': f'A Support Ticket has been created at *{support_ticket.centre}*\n'
+                f'*Title:* {support_ticket.title}\n'
+                f'*Category:* {support_ticket.category}\n'
+                f'*Subcategory:* {support_ticket.subcategory}\n'
+                f'*Priority:* {support_ticket.priority}\n'
+                f'*by:* {user}'
+    }
+
+    message_headers = {'Content-Type': 'application/json; charset=UTF-8'}
+    
+    try:
+        response = requests.post(
+            url=webhook_url,
+            headers=message_headers,
+            data=json.dumps(app_message),
+        )
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to send webhook notification: {str(e)}")
 
 
 @login_required

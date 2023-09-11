@@ -21,7 +21,6 @@
 // // Trigger subcategory update on page load and category change
 // document.addEventListener('DOMContentLoaded', handleSubcategoryUpdate);
 // document.getElementById('id_category').addEventListener('change', handleSubcategoryUpdate);
-
 const handleSubcategoryUpdate = () => {
   const categoryId = document.getElementById('id_category').value;
   fetch(`/get_subcategories/?category_id=${categoryId}`)
