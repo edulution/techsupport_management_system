@@ -1,198 +1,86 @@
+import csv
+import secrets
+import string
 from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from techsupport.models import Country, Region, Centre
 from django.contrib.auth.models import Group
+from techsupport.models import Country, Region, Centre, UserProfile
 
 User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = "Generate data for the application"
+    help = "Generate users for the application"
+
+    def add_arguments(self, parser):
+        parser.add_argument("csv_file", type=str, help="Path to the CSV file")
 
     def handle(self, *args, **options):
-        self.generate_dummy_data()
+        csv_file = options["csv_file"]
 
-    def generate_dummy_data(self):
-        self.generate_countries()
-        self.generate_regions()
-        self.generate_centres()
-        self.generate_users()
+        with open(csv_file, newline="") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                self.generate_user_from_csv(row)
 
-    def generate_countries(self):
-        countries = [
-            {"name": "Zambia", "code": "ZM"},
-            {"name": "South Africa", "code": "ZA"},
-        ]
-        try:
-            for country_data in countries:
-                country, _ = Country.objects.get_or_create(**country_data)
-            self.stdout.write(self.style.SUCCESS("Sucessfully generated Countries!"))
-        except Exception as e:
-            self.stderr.write(
-                self.style.ERROR(f"An error occurred in generating Countries: {e}")
-            )
+    def generate_user_from_csv(self, data):
+        user_data = {
+            "first_name": data["first_name"],
+            "last_name": data["last_name"],
+            "username": data["username"],
+            "email": data["email"],
+            "role": data["role"],
+        }
 
-    def generate_regions(self):
-        regions = [
-            {"name": "Eastern Region", "country": Country.objects.get(code="ZM")},
-            {"name": "Western Region", "country": Country.objects.get(code="ZM")},
-            {"name": "KwaZulu-Natal", "country": Country.objects.get(code="ZA")},
-            {"name": "Mpumalanga", "country": Country.objects.get(code="ZA")},
-            {"name": "Zambia Hub", "country": Country.objects.get(code="ZM")},
-        ]
-        try:
-            for region_data in regions:
-                Region.objects.create(**region_data)
-            self.stdout.write(self.style.SUCCESS("Sucessfully generated Regions!"))
-        except Exception as e:
-            self.stderr.write(self.style.ERROR(f"An error occurred Regions: {e}"))
+        user, created = User.objects.get_or_create(username=data["username"])
+        user.__dict__.update(**user_data)
 
-    def generate_centres(self):
-        centres = [
-            {
-                "name": "Lumezi Primary",
-                "acronym": "LDL",
-                "region": Region.objects.get(name="Eastern Region"),
-            },
-            {
-                "name": "Mayukwayukwa Secondary",
-                "acronym": "MYS",
-                "region": Region.objects.get(name="Western Region"),
-            },
-            {
-                "name": "Zambia Hub",
-                "acronym": "HUB",
-                "region": Region.objects.get(name="Zambia Hub"),
-            },
-        ]
-        try:
-            for centre_data in centres:
-                Centre.objects.create(**centre_data)
-            self.stdout.write(self.style.SUCCESS("Sucessfully generated Centres!"))
-        except Exception as e:
-            self.stderr.write(
-                self.style.ERROR(f"An error occurred in generating Centres: {e}")
-            )
+        # Adjust the password length as needed
+        password_length = 5
+        
+        # Generate a random password
+        password_characters = string.ascii_letters + string.digits + string.punctuation
+        password = ''.join(secrets.choice(password_characters) for i in range(password_length))
 
-    def generate_users(self):
-        users = [
-            {
-                "first_name": "Kapya",
-                "last_name": "Sakala",
-                "username": "superuser",
-                "role": "admin",
-                "password": "adminks10",
-                "groups": ["admin"],
-            },
-            {
-                "first_name": "Mulenga",
-                "last_name": "Mwamba",
-                "username": "mulenga",
-                "role": "manager",
-                "password": "manager1",
-                "groups": ["manager"],
-            },
-            {
-                "first_name": "Joseph",
-                "last_name": "Kumwenda",
-                "username": "joseph",
-                "role": "manager",
-                "password": "manager2",
-                "groups": ["manager"],
-            },
-            {
-                "first_name": "Levy",
-                "last_name": "Mbewe",
-                "username": "levy",
-                "role": "technician",
-                "password": "tech3",
-                "groups": ["technician"],
-            },
-            {
-                "first_name": "Sara",
-                "last_name": "Chiteta",
-                "username": "sara",
-                "role": "manager",
-                "password": "manager4",
-                "groups": ["manager"],
-            },
-            {
-                "first_name": "Newton",
-                "last_name": "Mwale",
-                "username": "newton",
-                "role": "manager",
-                "password": "manager5",
-                "groups": ["manager"],
-            },
-            {
-                "first_name": "Davies",
-                "last_name": "Kabo",
-                "username": "davies",
-                "role": "manager",
-                "password": "manager6",
-                "groups": ["manager"],
-            },
-            {
-                "first_name": "Dabwitso",
-                "last_name": "Mweemba",
-                "username": "dabwitso",
-                "role": "technician",
-                "password": "tech2",
-                "groups": ["technician"],
-            },
-            {
-                "first_name": "Ntipa",
-                "last_name": "Chola",
-                "username": "ntipa",
-                "role": "technician",
-                "password": "tech1",
-                "groups": ["technician"],
-            },
-            {
-                "first_name": "Zambian",
-                "last_name": "Manager",
-                "username": "zambia_mgr",
-                "role": "manager",
-                "password": "zambia_mgr",
-                "groups": ["manager"],
-                "country": Country.objects.get(code="ZM"),
-                "region": Region.objects.get(name="Zambia Hub"),
-            },
-        ]
 
-        try:
-            for user_data in users:
-                if "country" in user_data and "region" in user_data:
-                    country = user_data.pop("country")
-                    region = user_data.pop("region")
-                else:
-                    country = None
-                    region = None
+        user.set_password(password)
+        user.save()
 
-                password = user_data.pop("password")
-                groups = user_data.pop("groups", [])
-                centre_names = user_data.pop("centres", [])
+        # Create a user profile and link it to the user
+        profile, created = UserProfile.objects.get_or_create(user=user)
+        profile.bio = f"{user.first_name} {user.last_name}"
+        profile.save()
 
-                user_data["password"] = password
-                user = User.objects.create_user(**user_data)
+        groups = data["groups"].split(",")
+        for group_name in groups:
+            group, _ = Group.objects.get_or_create(name=group_name.strip())
+            user.groups.add(group)
 
-                for group_name in groups:
-                    group, _ = Group.objects.get_or_create(name=group_name)
-                    user.groups.add(group)
-
-                for centre_name in centre_names:
-                    centre = Centre.objects.get(name=centre_name)
-                    user.centres.add(centre)
-
-                # Assign the country and region to the manager user
-                if country and region:
+        if data['role'] in ['admin', 'technician']:
+            # Admin and technician roles have access to all countries and regions
+            user.is_superuser = True
+            user.save()
+            self.stdout.write(self.style.SUCCESS(f"Successfully created admin/technician user: {user.username}"))
+        elif data['role'] == 'manager':
+            # Managers have access to one country and its regions
+            if data['country_code'] and data['region_name'] and data['centre_name']:
+                try:
+                    country = Country.objects.get(code=data['country_code'])
+                    region = Region.objects.get(name=data['region_name'])
+                    centre = Centre.objects.get(name=data['centre_name'], region=region)
                     user.country = country
                     user.region = region
+                    user.centres.add(centre)
                     user.save()
-            self.stdout.write(self.style.SUCCESS("Sucessfully generated Users!"))
-        except Exception as e:
-            self.stderr.write(self.style.ERROR(f"An error occurred Users: {e}"))
+                    self.stdout.write(self.style.SUCCESS(f"Successfully created manager user: {user.username}"))
 
-
-if __name__ == "__main__":
-    Command().handle()
+                    # Create or update user profile
+                    profile, _ = UserProfile.objects.get_or_create(user=user)
+                    profile.save()
+                    self.stdout.write(self.style.SUCCESS(f"Successfully created user profile for: {user.username}"))
+                except (Country.DoesNotExist, Region.DoesNotExist, Centre.DoesNotExist):
+                    self.stderr.write(self.style.ERROR(f"Country, Region, or Centre not found for user: {user.username}"))
+            else:
+                self.stderr.write(self.style.ERROR(f"Invalid manager data for user: {user.username}"))
+        else:
+            self.stderr.write(self.style.ERROR(f"Invalid role for user: {user.username}"))
