@@ -56,5 +56,13 @@ class Command(BaseCommand):
             )
 
             GenerateUsersCommand().handle(*args, **options)
+            
+        elif subcommand == "generate_country_regions_centres":
+            from techsupport.management.commands.generate_country_regions_centres import (
+                Command as GenerateCountriesRegionsCentresCommand,
+            )
+
+            GenerateCountriesRegionsCentresCommand().handle(*args, **options)
         else:
             self.stdout.write(self.help)
+
