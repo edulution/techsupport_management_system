@@ -28,7 +28,7 @@ jobs:
 
     - name: Set up Environment Variables
       run: |
-        echo "SECRET_KEY=mydummysecretkey" >> $GITHUB_ENV
+        echo "TSUPPORT_SECRET_KEY=mydummysecretkey" >> $GITHUB_ENV
         echo "TSUPPORT_DATABASE_NAME=mydummydbname" >> $GITHUB_ENV
         echo "TSUPPORT_DATABASE_USER=mydummydbuser" >> $GITHUB_ENV
         echo "TSUPPORT_DATABASE_PASSWORD=mydummypassword" >> $GITHUB_ENV
