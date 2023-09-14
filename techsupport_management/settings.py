@@ -28,7 +28,7 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, "techsupport/templates")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("TSUPPORT_SECRET_KEY")
-WEB_HOOK_URL = env("GOOGLE_CHAT_WEB_HOOK_URL")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -158,6 +158,9 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
+
+# Webhook URL to post notifications on Google Chat
+WEB_HOOK_URL = env("GOOGLE_CHAT_WEB_HOOK_URL")
 
 # Email settings for Gmail
 EMAIL_BACKEND = env("EMAIL_BACKEND")
