@@ -29,11 +29,6 @@ jobs:
     - name: Set up Environment Variables
       run: |
         echo "TSUPPORT_SECRET_KEY=mydummysecretkey" >> $GITHUB_ENV
-        echo "TSUPPORT_DATABASE_NAME=mydummydbname" >> $GITHUB_ENV
-        echo "TSUPPORT_DATABASE_USER=mydummydbuser" >> $GITHUB_ENV
-        echo "TSUPPORT_DATABASE_PASSWORD=mydummypassword" >> $GITHUB_ENV
-        echo "TSUPPORT_DATABASE_HOST=mydummydbhost" >> $GITHUB_ENV
-        echo "TSUPPORT_DATABASE_PORT=mydummydbport" >> $GITHUB_ENV
         echo "TSUPPORT_SITE_ID=1" >> $GITHUB_ENV
         echo "DEBUG=True" >> $GITHUB_ENV
         echo "EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend" >> $GITHUB_ENV
