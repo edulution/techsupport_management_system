@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "crispy_forms",
-    "crispy_bootstrap4",
+    # "crispy_bootstrap4",
     "smart_selects",
     "bootstrap4",
     # "django.contrib.postgres",
@@ -118,6 +118,10 @@ if (
         "PASSWORD": env("TSUPPORT_DATABASE_PASSWORD"),
         "HOST": env("TSUPPORT_DATABASE_HOST"),
         "PORT": env("TSUPPORT_DATABASE_PORT"),
+        "OPTIONS": {
+            # Set the schema to use
+            "options": "-c search_path=public"
+        },
     }
 
 # Print the selected database backend
