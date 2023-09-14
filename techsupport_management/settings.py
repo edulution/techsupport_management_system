@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+from __future__ import print_function
 import os
 from pathlib import Path
 import environ
@@ -93,12 +94,35 @@ WSGI_APPLICATION = "techsupport_management.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# Set default database backend to sqlite3
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+# Check if the PostgreSQL environment variables are set
+if (
+    env("TSUPPORT_DATABASE_NAME")
+    and env("TSUPPORT_DATABASE_USER")
+    and env("TSUPPORT_DATABASE_PASSWORD")
+    and env("TSUPPORT_DATABASE_HOST")
+    and env("TSUPPORT_DATABASE_PORT")
+):
+    # If all PostgreSQL environment varibales are set, use PostgreSQL database back end
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": env("TSUPPORT_DATABASE_NAME"),
+        "USER": env("TSUPPORT_DATABASE_USER"),
+        "PASSWORD": env("TSUPPORT_DATABASE_PASSWORD"),
+        "HOST": env("TSUPPORT_DATABASE_HOST"),
+        "PORT": env("TSUPPORT_DATABASE_PORT"),
+    }
+
+# Print the selected database backend
+print(f"Using {DATABASES['default']['ENGINE']} database backend.")
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
