@@ -1,6 +1,12 @@
 from django.contrib import admin
-from allauth.account.adapter import get_adapter
-from allauth.account.admin import EmailAddressAdmin
-from allauth.account.models import EmailAddress
-from allauth.socialaccount.admin import SocialAccountAdmin
-from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
+from .models import User, UserProfile, Country, Centre, Category, SubCategory, SubCategory, Settings, Region, SupportTicket
+
+admin.site.register(User)
+admin.site.register(UserProfile)
+admin.site.register(Country)
+admin.site.register(Region)
+admin.site.register(Centre)
+admin.site.register(Category)
+admin.site.register(SubCategory)
+admin.site.register(Settings)
+admin.site.register(SupportTicket)

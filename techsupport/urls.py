@@ -1,46 +1,39 @@
 from django.urls import path
-from django.views.generic import TemplateView
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.views import LoginView
 from .views import (
-    UserHomePageView,
-    ManagerHomePageView,
-    TechnicianHomePageView,
-    AdminHomePageView,
-    CustomLoginView,
+    user_login,
+    user_logout,
+    dashboard,
     profile,
-    base,
+    ticket_details,
     create_ticket,
-    ticket_detail_user,
-    ticket_detail_technician,
-    manager_dashboard,
-    admin_dashboard,
-    ticket_list,
-    update_ticket,
-    edit_ticket,
-    # KnowledgeBaseListView,
+    all_tickets,
+    # settings_view,
+    assign_ticket,
+    open_tickets,
+    resolved_tickets,
+    tickets_in_progress,
+    get_subcategories,
+    export_tickets_csv,
 )
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
-    path("", LoginView.as_view(), name="account_login"),
-    path("home/user/", UserHomePageView.as_view(), name="home_user"),
-    path("home/manager/", ManagerHomePageView.as_view(), name="home_manager"),
-    path("home/technician/", TechnicianHomePageView.as_view(), name="home_technician"),
-    path("home/admin/", AdminHomePageView.as_view(), name="home_admin"),
-    path("login/", CustomLoginView.as_view(), name="account_login"),
+    path("login/", user_login, name="login"),
+    path("logout/", user_logout, name="logout"),
+    path("", dashboard, name="dashboard"),
     path("profile/", profile, name="profile"),
-    path("base/", base, name="base"),
-    path("create-ticket/", create_ticket, name="create_ticket"),
-    path("ticket/<int:ticket_id>/", ticket_detail_user, name="ticket_detail"),
-    path(
-        "ticket/<int:ticket_id>/technician/",
-        ticket_detail_technician,
-        name="ticket_detail_technician",
-    ),
-    path("manager-dashboard/", manager_dashboard, name="manager_dashboard"),
-    path("admin-dashboard/", admin_dashboard, name="admin_dashboard"),
-    path("ticket-list/", ticket_list, name="ticket_list"),
-    path("update-ticket/<int:ticket_id>/", update_ticket, name="update_ticket"),
-    path("edit-ticket/<int:ticket_id>/", edit_ticket, name="edit_ticket"),
-    # path("knowledge_base/", KnowledgeBaseListView.as_view(), name="knowledge_base"),
+    path("ticket_details/<uuid:ticket_id>/", ticket_details, name="ticket_details"),
+    path("create_ticket/", create_ticket, name="create_ticket"),
+    path("export_tickets_csv/", export_tickets_csv, name="export_tickets_csv"),
+    path("all_tickets/", all_tickets, name="all_tickets"),
+    # path("settings/", settings_view, name="settings"),
+    path("assign_ticket/", assign_ticket, name="assign_ticket"),
+    path("open_tickets/", open_tickets, name="open_tickets"),
+    path("resolved_tickets/", resolved_tickets, name="resolved_tickets"),
+    path("tickets_in_progress/", tickets_in_progress, name="tickets_in_progress"),
+    path("get_subcategories/", get_subcategories, name="get_subcategories"),
 ]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

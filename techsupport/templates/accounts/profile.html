@@ -1,10 +1,41 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Welcome, {{ user.username }}!</h1>
-  <p>Email: {{ user.email }}</p>
-  <p>First Name: {{ user.first_name }}</p>
-  <p>Last Name: {{ user.last_name }}</p>
-  <p>Phone Number: {{ user.profile.phone_number }}</p>
-  <p>Address: {{ user.profile.address }}</p>
+<!-- User Profile -->
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <!-- User Profile Card -->
+      <div class="card shadow">
+        <!-- Card Header -->
+        <div class="card-header bg-success text-white text-center">
+          <h6 class="card-title">
+            <i class="bi bi-person me-2"></i>
+            <strong>Profile</strong>
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <strong>Name:</strong> {{ user.profile.user.get_full_name }}
+          </div>
+          <div class="mb-3">
+            <strong>Role:</strong> {{ user.role }}
+          </div>
+          <div class="mb-3">
+            <strong>Email:</strong> {{ user.email }}
+          </div>
+          <div class="mb-3">
+            <strong>Bio:</strong> {{ user.profile.bio }}
+          </div>
+          <div class="mb-3">
+            <strong>Date of Birth:</strong> {{ user.profile.date_of_birth }}
+          </div>
+          {% if avatar %}
+          <img src="{{ user.profile.avatar.url }}" alt="Avatar" class="img-fluid rounded-circle mb-3">
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

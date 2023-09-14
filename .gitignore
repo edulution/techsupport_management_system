@@ -8,14 +8,20 @@ __pycache__/
 *.sqlite3
 *.pyc
 *.pyo
+pyvenv.cfg
 
 # Log files
 logs/
 *.log
 
+static/
+
 # Ignore Visual Studio Code settings
 .vscode/
+
 
 # virtual environment
 Lib
 Scripts
+
+# Ignore Static files

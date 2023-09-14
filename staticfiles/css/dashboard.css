@@ -1,0 +1,55 @@
+/* Widgets Container */
+.row.mb-4 {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+/* Widget Card Style */
+.card {
+  border-radius: 10px;
+  transition: box-shadow 0.3s ease;
+}
+
+.bg-success {
+  background-color: #87B926 !important;
+}
+
+.bg-primary {
+  background-color: #5A97D0 !important;
+}
+/* Widget Icon Style */
+.widget-icon {
+  width: 50px;
+  height: 50px;
+}
+
+/* Widget Text Alignment */
+.text-center {
+  text-align: center;
+}
+
+/* Widget Icon Alignment */
+.text-info, .text-secondary, .text-warning, .text-success {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Widget Responsive Styles */
+/* For Desktop Screens */
+@media (min-width: 992px) {
+  .col-lg-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+  }
+}
+
+/* For Mobile Screens */
+@media (max-width: 767px) {
+  .col-md-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+

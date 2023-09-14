@@ -1,38 +1,73 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
 
 {% block content %}
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card">
-        <div class="card-header">{{ form.title.label }}</div>
-        <div class="card-body">
-          <form method="POST">
-            {% csrf_token %}
-            <div class="form-group">
-              {{ form.category.label }} {{ form.category }}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <!-- Ticket Form Card -->
+            <div class="card shadow">
+                <!-- Card Header -->
+                <div class="card-header bg-success text-white text-center">
+                    <h6 class="card-title">
+                        <i class="bi bi-journal-plus me-2"></i>
+                        <strong>Log a New Ticket</strong>
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <!-- Ticket Form -->
+                    <form method="post" class="form">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="title"><strong>Give your ticket a title:</strong></label>
+                            {{ form.title|add_placeholder:"Enter title here"|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="centre"><strong>Where was this issue observed?</strong></label>
+                            {{ form.centre|add_placeholder:"Centre"|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="category"><strong>What kind of issue is it?</strong></label>
+                            {{ form.category|add_placeholder:"Category"|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="subcategory"><strong>What is the specific problem?</strong></label>
+                            {{ form.subcategory|add_placeholder:"Subcategory"|add_class:"form-control" }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="description"><strong>Please write a short description of the
+                                    issue</strong></label>
+                            {{ form.description|add_placeholder:"Enter your description here"|add_class:"form-control"}}
+                        </div>
+                        <div class="mb-3">
+                            {{ form.priority|add_placeholder:"Priority"|add_class:"form-select" }}
+                        </div>
+                        <button type="submit" class="btn bg-primary btn-block text-white">
+                            <i class="bi bi-check me-2"></i>Submit
+                        </button>
+                    </form>
+                    {% if form.errors %}
+                    <div class="error-message">
+                        <ul>
+                            {% for field, error_list in form.errors.items %}
+                            {% for error in error_list %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-            <div class="form-group">
-              {{ form.sub_category.label }} {{ form.sub_category }}
-            </div>
-            <div class="form-group">
-              {{ form.title.label }} {{ form.title }}
-            </div>
-            <div class="form-group">
-              {{ form.description.label }} {{ form.description }}
-            </div>
-            <div class="form-group">
-              {{ form.priority.label }} {{ form.priority }}
-            </div>
-            <div class="form-group">
-              {{ form.centre.label }} {{ form.centre }}
-            </div>
-            <div class="form-group">
-              {{ form.country.label }} {{ form.country }}
-            </div>
-            <button type="submit" class="btn btn-primary">Create Ticket</button>
-          </form>
         </div>
-      </div>
     </div>
-  </div>
+</div>
+<style>
+    .bg-primary {
+        background-color: #5A97D0 !important;
+    }
+</style>
+<!-- Submit Ticket JavaScript -->
+<script src="{% static 'js/submit_ticket.js' %}"></script>
 {% endblock %}
