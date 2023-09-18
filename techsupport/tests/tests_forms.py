@@ -82,11 +82,6 @@ class SupportTicketFormTestCase(TestCase):
         # Create a data dictionary with a title longer than 20 characters
         data = {
             "title": "This is a title longer than twenty characters.",
-            "description": "This is a valid description.",
-            "centre": self.centre.pk,
-            "category": self.category.pk,
-            "subcategory": self.subcategory.pk,
-            "priority": "Medium",
         }
 
         # Create a form with the data and pass the user
@@ -103,11 +98,6 @@ class SupportTicketFormTestCase(TestCase):
 
     def test_priority_hidden(self):
         data = {
-            "title": "Test Title.",
-            "description": "This is a valid description.",
-            "centre": self.centre.pk,
-            "category": self.category.pk,
-            "subcategory": self.subcategory.pk,
             "priority": "Medium",
         }
 
