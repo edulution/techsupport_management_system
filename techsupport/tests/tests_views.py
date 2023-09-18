@@ -19,14 +19,14 @@ class ViewsTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a test user
-        cls.user = User.objects.create_user(username="testuser", password="testpassword")
+        cls.user = User.objects.create_user(username="admin", password="admin123")
 
     def setUp(self):
         # Log in the test user for each test
-        self.client.login(username="testuser", password="testpassword")
+        self.client.login(username="admin", password="admin123")
 
     def test_user_login_view(self):
-        response = self.client.post(reverse("login"), {"username": "testuser", "password": "testpassword"})
+        response = self.client.post(reverse("login"), {"username": "admin", "password": "admin123"})
         self.assertRedirects(response, reverse("dashboard"))
 
     def test_user_logout_view(self):
