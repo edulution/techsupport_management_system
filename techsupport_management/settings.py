@@ -158,6 +158,13 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
+# TESTS configuration for test discovery
+TESTS = {
+    'default': {
+        'NAME': 'techsupport.tests',
+        'OPTIONS': {},
+    },
+}
 
 # Email settings for Gmail
 EMAIL_BACKEND = env("EMAIL_BACKEND")

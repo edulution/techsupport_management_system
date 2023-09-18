@@ -1,10 +1,13 @@
 #!/usr/bin/env python
+import os
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "techsupport_management.settings")
+import sys
+
+print(sys.path)
+from django.core.management import BaseCommand, execute_from_command_line
 
 """Django's command-line utility for administrative tasks."""
-
-from django.core.management import BaseCommand, execute_from_command_line
-import os
-import sys
 
 
 def main():
@@ -56,7 +59,7 @@ class Command(BaseCommand):
             )
 
             GenerateUsersCommand().handle(*args, **options)
-            
+
         elif subcommand == "generate_country_regions_centres":
             from techsupport.management.commands.generate_country_regions_centres import (
                 Command as GenerateCountriesRegionsCentresCommand,
@@ -65,4 +68,3 @@ class Command(BaseCommand):
             GenerateCountriesRegionsCentresCommand().handle(*args, **options)
         else:
             self.stdout.write(self.help)
-
