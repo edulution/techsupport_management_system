@@ -12,7 +12,7 @@
                 <div class="card-header bg-success text-white text-center">
                     <h6 class="card-title">
                         <i class="bi bi-journal-plus me-2"></i>
-                        <strong>Log a New Ticket</strong>
+                        <span class="mr-2"></span><strong>Log a New Ticket</strong>
                     </h6>
                 </div>
                 <div class="card-body">
@@ -44,7 +44,7 @@
                             {{ form.priority|add_placeholder:"Priority"|add_class:"form-select" }}
                         </div>
                         <button type="submit" class="btn bg-primary btn-block text-white">
-                            <i class="bi bi-check me-2"></i>Submit
+                            <i class="bi bi-check me-2"></i><span class="mr-2"></span>Submit
                         </button>
                     </form>
                     {% if form.errors %}
