@@ -53,6 +53,11 @@ def user_logout(request):
     logout(request)
     return render(request, "accounts/login.html")
 
+@login_required
+def password_reset_complete(request):
+    messages.success(request, "Your password has been reset successfully!")
+    return redirect('login')
+
 
 @login_required
 def dashboard(request):

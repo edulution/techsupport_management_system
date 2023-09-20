@@ -2,6 +2,7 @@ from django.urls import path
 from .views import (
     user_login,
     user_logout,
+    password_reset_complete,
     dashboard,
     profile,
     ticket_details,
@@ -22,6 +23,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("login/", user_login, name="login"),
     path("logout/", user_logout, name="logout"),
+    path('password_reset_complete/', password_reset_complete, name='password_reset_complete'),
     path("", dashboard, name="dashboard"),
     path("profile/", profile, name="profile"),
     path("ticket_details/<uuid:ticket_id>/", ticket_details, name="ticket_details"),
