@@ -158,6 +158,13 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
+# TESTS configuration for test discovery
+TESTS = {
+    'default': {
+        'NAME': 'techsupport.tests',
+        'OPTIONS': {},
+    },
+}
 
 # Webhook URL to post notifications on Google Chat
 WEB_HOOK_URL = env("GOOGLE_CHAT_WEB_HOOK_URL")
