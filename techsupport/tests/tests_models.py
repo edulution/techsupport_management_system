@@ -1,6 +1,17 @@
 from django.test import TestCase
 from django.contrib.auth.models import Permission
-from techsupport.models import Country, Region, Centre, User, UserProfile, Settings, Category, SubCategory, SupportTicket
+from techsupport.models import (
+    Country,
+    Region,
+    Centre,
+    User,
+    UserProfile,
+    Settings,
+    Category,
+    SubCategory,
+    SupportTicket,
+)
+
 
 class ModelsTestCase(TestCase):
     def setUp(self):
@@ -13,17 +24,26 @@ class ModelsTestCase(TestCase):
         self.region = Region.objects.create(name="Eastern Region", country=self.country)
 
         # Create a sample support center named 'Lumezi Primary' with acronym 'LDL' in the 'Eastern Region'
-        self.centre = Centre.objects.create(name="Lumezi Primary", acronym="LDL", region=self.region)
+        self.centre = Centre.objects.create(
+            name="Lumezi Primary", acronym="LDL", region=self.region
+        )
 
         # Create a sample user named 'testuser' with the role 'USER' in 'Zambia' and 'Eastern Region'
-        self.user = User.objects.create(username="testuser", role=User.RoleType.USER, country=self.country, region=self.region)
+        self.user = User.objects.create(
+            username="testuser",
+            role=User.RoleType.USER,
+            country=self.country,
+            region=self.region,
+        )
 
         # Set the password for the user
         self.user.set_password("testpassword")
         self.user.save()
 
         # Create a user profile for the 'testuser' with a bio
-        self.user_profile = UserProfile.objects.create(user=self.user, bio="Test User bio")
+        self.user_profile = UserProfile.objects.create(
+            user=self.user, bio="Test User bio"
+        )
 
         # Create settings for the 'testuser' with dark mode enabled
         self.settings = Settings.objects.create(user=self.user, dark_mode_enabled=True)
@@ -32,7 +52,9 @@ class ModelsTestCase(TestCase):
         self.category = Category.objects.create(name="Software", code="SW")
 
         # Create a sample subcategory named 'Kolibri Issue' with code 'TSC' under the 'Software' category
-        self.subcategory = SubCategory.objects.create(name="Kolibri Issue", code="TSC", category=self.category)
+        self.subcategory = SubCategory.objects.create(
+            name="Kolibri Issue", category=self.category
+        )
 
         # Create a sample support ticket with various attributes
         self.support_ticket = SupportTicket.objects.create(
@@ -46,7 +68,7 @@ class ModelsTestCase(TestCase):
             description="Test description",
             title="Test title",
             resolution_notes="Test resolution notes",
-            assigned_to=self.user
+            assigned_to=self.user,
         )
 
     # Test cases for models

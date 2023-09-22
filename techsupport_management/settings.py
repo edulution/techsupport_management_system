@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+from __future__ import print_function
 import os
 from pathlib import Path
 import environ
@@ -30,9 +31,9 @@ TEMPLATE_DIR = os.path.join(BASE_DIR, "techsupport/templates")
 SECRET_KEY = env("TSUPPORT_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -46,7 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "crispy_forms",
-    "crispy_bootstrap4",
+    # "crispy_bootstrap4",
     "smart_selects",
     "bootstrap4",
     # "django.contrib.postgres",
@@ -93,12 +94,39 @@ WSGI_APPLICATION = "techsupport_management.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# Set default database backend to sqlite3
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+# Check if the PostgreSQL environment variables are set
+if (
+    env("TSUPPORT_DATABASE_NAME")
+    and env("TSUPPORT_DATABASE_USER")
+    and env("TSUPPORT_DATABASE_PASSWORD")
+    and env("TSUPPORT_DATABASE_HOST")
+    and env("TSUPPORT_DATABASE_PORT")
+):
+    # If all PostgreSQL environment varibales are set, use PostgreSQL database back end
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": env("TSUPPORT_DATABASE_NAME"),
+        "USER": env("TSUPPORT_DATABASE_USER"),
+        "PASSWORD": env("TSUPPORT_DATABASE_PASSWORD"),
+        "HOST": env("TSUPPORT_DATABASE_HOST"),
+        "PORT": env("TSUPPORT_DATABASE_PORT"),
+        "OPTIONS": {
+            # Set the schema to use
+            "options": "-c search_path=public"
+        },
+    }
+
+# Print the selected database backend
+print(f"Using {DATABASES['default']['ENGINE']} database backend.")
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -158,13 +186,6 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]
 
-# TESTS configuration for test discovery
-TESTS = {
-    'default': {
-        'NAME': 'techsupport.tests',
-        'OPTIONS': {},
-    },
-}
 
 # Webhook URL to post notifications on Google Chat
 WEB_HOOK_URL = env("GOOGLE_CHAT_WEB_HOOK_URL")
