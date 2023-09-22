@@ -10,7 +10,7 @@
         <div class="card-header bg-success text-white text-center rounded-top">
           <h6 class="card-title">
             <i class="bi bi-journal-plus me-2"></i>
-            <strong>Ticket Details</strong>
+            <span class="mr-2"></span><strong>Ticket Details</strong>
           </h6>
         </div>
         <div class="card-body">
@@ -31,9 +31,9 @@
                 <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
               </select>
             </div>
-            <button type="submit" class="btn bg-primary btn-block text-white mb-3" {% if ticket.status == 'Resolved' %}disabled{% endif %}><i class="bi bi-caret-up"></i> Update</button>
+            <button type="submit" class="btn bg-primary btn-block text-white mb-3" {% if ticket.status == 'Resolved' %}disabled{% endif %}><i class="bi bi-caret-up"></i><span class="mr-2"></span>Update</button>
             {% else %}
-            <button type="submit" class="btn bg-primary btn-block text-white mb-3" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}disabled{% endif %}><i class="bi bi-caret-up"></i> Update Description</button>
+            <button type="submit" class="btn bg-primary btn-block text-white mb-3" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}disabled{% endif %}><i class="bi bi-caret-up"></i><span class="mr-2"></span>Update Description</button>
             {% endif %}
           </form>
           <!-- Assign Technician Form -->
@@ -48,7 +48,7 @@
                 {% endfor %}
               </select>
             </div>
-            <button type="submit" class="btn bg-primary btn-block text-white"><i class="bi bi-hand-index-thumb me-2"></i>Assign</button>
+            <button type="submit" class="btn bg-primary btn-block text-white"><i class="bi bi-hand-index-thumb me-2"></i><span class="mr-2"></span>Assign</button>
           </form>
           {% endif %}
         </div>
