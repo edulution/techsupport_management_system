@@ -130,7 +130,7 @@ class Centre(BaseModel):
     )
 
     def __str__(self):
-        return self.name
+        return self.acronym
 
     class Meta:
         verbose_name_plural = "centres"
