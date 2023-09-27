@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "crispy_forms",
-    # "crispy_bootstrap4",
+    "crispy_bootstrap4",
     "smart_selects",
     "bootstrap4",
     # "django.contrib.postgres",
@@ -144,7 +144,21 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
+    {
+        "NAME": "techsupport.password_validators.MinMaxCharactersValidator",
+        "OPTIONS": {
+            "min_length": 5,
+            "max_length": 8,
+        },
+    },
+    {
+        "NAME": "techsupport.password_validators.DisallowedCharactersValidator",
+        "OPTIONS": {
+        },
+    },
 ]
+
+
 
 
 # Internationalization
