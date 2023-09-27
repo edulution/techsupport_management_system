@@ -2,9 +2,9 @@ name: Django CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
   build:
@@ -29,6 +29,11 @@ jobs:
     - name: Set up Environment Variables
       run: |
         echo "TSUPPORT_SECRET_KEY=mydummysecretkey" >> $GITHUB_ENV
+        echo "TSUPPORT_DATABASE_NAME=" >> $GITHUB_ENV
+        echo "TSUPPORT_DATABASE_USER=" >> $GITHUB_ENV
+        echo "TSUPPORT_DATABASE_PASSWORD=" >> $GITHUB_ENV
+        echo "TSUPPORT_DATABASE_HOST=" >> $GITHUB_ENV
+        echo "TSUPPORT_DATABASE_PORT=" >> $GITHUB_ENV
         echo "TSUPPORT_SITE_ID=1" >> $GITHUB_ENV
         echo "DEBUG=True" >> $GITHUB_ENV
         echo "EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend" >> $GITHUB_ENV
