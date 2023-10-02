@@ -370,24 +370,21 @@ def send_resolution_webhook(ticket_title, ticket_centre, resolved_by):
 
 @login_required
 def create_ticket(request):
-    if request.method == "POST":
-        form = SupportTicketForm(request.POST, user=request.user)
-        if form.is_valid():
-            support_ticket = form.save(commit=False)
-            support_ticket.submitted_by = request.user
-            support_ticket.save()
+    form = SupportTicketForm(request.POST or None, user=request.user)
 
-            send_webhook_notification(support_ticket, request.user)
+    if request.method == "POST" and form.is_valid():
+        support_ticket = form.save(commit=False)
+        support_ticket.submitted_by = request.user
+        support_ticket.save()
 
-            messages.success(request, "Support ticket created successfully.")
-            return redirect("dashboard")
-        else:
-            form = SupportTicketForm(user=request.user)
-            # Render the form with errors to display validation messages to the user
-            context = {"form": form}
-            return render(request, "support_ticket/create_ticket.html", context)
+        send_webhook_notification(support_ticket, request.user)
+
+        messages.success(request, "Support ticket created successfully.")
+        return redirect("dashboard")
     else:
-        form = SupportTicketForm(user=request.user)
+        # Render the form with errors to display validation messages to the user
+        context = {"form": form}
+        return render(request, "support_ticket/create_ticket.html", context)
 
     return render(request, "support_ticket/create_ticket.html", {"form": form})
 

@@ -187,6 +187,7 @@
             <tr>
                 <th class="text-center">#</th>
                 <th class="text-center">Title</th>
+                <th class="text-center text-truncate">Centre</th>
                 <th class="text-center text-truncate">Status</th>
                 <th class="text-center">Priority</th>
                 <th class="text-center text-truncate">Ticket Age</th>
@@ -201,9 +202,12 @@
             <tr>
                 <td class="text-center">{{ ticket.ticket_number }}</td>
                 <td class="text-start">
-                    <div class="d-flex align-items-center justify-content-start">
+                    <div class="d-flex align-items-center justify-content-center text-truncate">
                         <a href="{% url 'ticket_details' ticket.id %}" class="text-truncate" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ ticket.title }}">{{ ticket.title }}</a>
                     </div>
+                </td>
+                <td class="text-center">
+                  <div class="d-flex align-items-center justify-content-center text-truncate">{{ ticket.centre }}</div>
                 </td>
                 <td class="text-center">
                     <div class="d-flex align-items-center justify-content-center text-truncate">

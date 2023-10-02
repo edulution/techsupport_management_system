@@ -20,25 +20,50 @@
                     <form method="post" class="form">
                         {% csrf_token %}
                         <div class="mb-3">
-                            <label for="title"><strong>Give your ticket a title:</strong></label>
+                            <label for="title" class="form-label"><strong>Give your ticket a title:</strong></label>
                             {{ form.title|add_placeholder:"Enter title here"|add_class:"form-control" }}
+                            {% if form.title.errors %}
+                            <div class="text-danger">
+                                {{ form.title.errors|join:", " }}
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="mb-3">
-                            <label for="centre"><strong>Where was this issue observed?</strong></label>
+                            <label for="centre" class="form-label"><strong>Where was this issue observed?</strong></label>
                             {{ form.centre|add_placeholder:"Centre"|add_class:"form-control" }}
+                            {% if form.centre.errors %}
+                            <div class="text-danger">
+                                {{ form.centre.errors|join:", " }}
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="mb-3">
-                            <label for="category"><strong>What kind of issue is it?</strong></label>
+                            <label for="category" class="form-label"><strong>What kind of issue is it?</strong></label>
                             {{ form.category|add_placeholder:"Category"|add_class:"form-control" }}
+                            {% if form.category.errors %}
+                            <div class="text-danger">
+                                {{ form.category.errors|join:", " }}
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="mb-3">
                             <label for="subcategory"><strong>What is the specific problem?</strong></label>
                             {{ form.subcategory|add_placeholder:"Subcategory"|add_class:"form-control" }}
+                            {% if form.subcategory.errors %}
+                            <div class="text-danger">
+                                {{ form.subcategory.errors|join:", " }}
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="mb-3">
                             <label for="description"><strong>Please write a short description of the
                                     issue</strong></label>
                             {{ form.description|add_placeholder:"Enter your description here"|add_class:"form-control"}}
+                            {% if form.description.errors %}
+                            <div class="text-danger">
+                                {{ form.description.errors|join:", " }}
+                            </div>
+                            {% endif %}
                         </div>
                         <div class="mb-3">
                             {{ form.priority|add_placeholder:"Priority"|add_class:"form-select" }}
@@ -47,17 +72,6 @@
                             <i class="bi bi-check me-2"></i><span class="mr-2"></span>Submit
                         </button>
                     </form>
-                    {% if form.errors %}
-                    <div class="error-message">
-                        <ul>
-                            {% for field, error_list in form.errors.items %}
-                            {% for error in error_list %}
-                            <li>{{ error }}</li>
-                            {% endfor %}
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
