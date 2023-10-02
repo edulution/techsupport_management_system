@@ -29,14 +29,9 @@
                             {% endif %}
                         </div>
                         <div class="mb-3">
-                            <label for="centre" class="form-label"><strong>Where was this issue observed?</strong></label>
-                            {{ form.centre|add_placeholder:"Centre"|add_class:"form-control" }}
-                            {% if form.centre.errors %}
-                            <div class="text-danger">
-                                {{ form.centre.errors|join:", " }}
-                            </div>
-                            {% endif %}
-                        </div>
+                            <label for="centre"><strong>Where was this issue observed?</strong></label>
+                            {{ form.centre|add_placeholder:"Centre"|add_class:"form-control select2"|add_placeholder:"Search" }}
+                        </div>                         
                         <div class="mb-3">
                             <label for="category" class="form-label"><strong>What kind of issue is it?</strong></label>
                             {{ form.category|add_placeholder:"Category"|add_class:"form-control" }}
@@ -82,6 +77,16 @@
         background-color: #5A97D0 !important;
     }
 </style>
-<!-- Submit Ticket JavaScript -->
 <script src="{% static 'js/submit_ticket.js' %}"></script>
+<script>
+$(document).ready(function () {
+    // Select all elements with the class 'select2' and store them in the 'select2Input' variable
+    var select2Input = $('.select2');
+
+    select2Input.attr('placeholder', 'Search');
+
+    select2Input.select2();
+});
+
+</script>
 {% endblock %}
