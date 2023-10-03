@@ -89,8 +89,8 @@ class BaseModel(models.Model):
 class Country(BaseModel):
     """Model representing a country."""
 
-    name = models.CharField(max_length=30, verbose_name=_("name"))
-    code = models.CharField(max_length=2, verbose_name=_("code"))
+    name = models.CharField(max_length=30, verbose_name=_("name"), unique=True)
+    code = models.CharField(max_length=2, verbose_name=_("code"), unique=True)
 
     def __str__(self):
         return f"{self.code}:{self.name}"
@@ -102,7 +102,7 @@ class Country(BaseModel):
 class Region(BaseModel):
     """Model representing a region within a country."""
 
-    name = models.CharField(max_length=30, verbose_name=_("name"))
+    name = models.CharField(max_length=30, verbose_name=_("name"), unique=True)
     country = models.ForeignKey(
         Country,
         on_delete=models.PROTECT,
@@ -120,8 +120,8 @@ class Region(BaseModel):
 class Centre(BaseModel):
     """Model representing a support centre within a region."""
 
-    name = models.CharField(max_length=30, verbose_name=_("name"))
-    acronym = models.CharField(max_length=5, verbose_name=_("acronym"))
+    name = models.CharField(max_length=30, verbose_name=_("name"), unique=True)
+    acronym = models.CharField(max_length=5, verbose_name=_("acronym"), unique=True)
     region = models.ForeignKey(
         Region,
         on_delete=models.PROTECT,
@@ -256,8 +256,8 @@ class Settings(BaseModel):
 class Category(BaseModel):
     """Model representing a category of support issues."""
 
-    name = models.CharField(max_length=30, verbose_name=_("name"))
-    code = models.CharField(max_length=5, verbose_name=_("code"))
+    name = models.CharField(max_length=30, verbose_name=_("name"), unique=True)
+    code = models.CharField(max_length=5, verbose_name=_("code"), unique=True)
 
     def __str__(self):
         return self.name
@@ -269,7 +269,7 @@ class Category(BaseModel):
 class SubCategory(BaseModel):
     """Model representing a subcategory of support issues within a category."""
 
-    name = models.CharField(max_length=30, verbose_name=_("name"))
+    name = models.CharField(max_length=30, verbose_name=_("name"), unique=True)
     category = models.ForeignKey(
         Category,
         on_delete=models.PROTECT,
