@@ -22,7 +22,7 @@ class Command(BaseCommand):
                 "Headphones Issues",
                 "Solar Kit Issues",
                 "General Power Issues",
-                "Other",
+                "Other Hardware Issue",
             ],
             "Software": [
                 "Google Drive Issues",
@@ -31,9 +31,9 @@ class Command(BaseCommand):
                 "Assign/Enroll Learners",
                 "Delete/Insert Learners",
                 "Classlist Issues",
-                "Other",
+                "Other Software Issue",
             ],
-            "Operations": ["Stock Sheet Issues", "Other"],
+            "Operations": ["Stock Sheet Issues", "Other Operational Issue"],
         }
 
         try:
