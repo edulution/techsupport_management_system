@@ -105,7 +105,7 @@
       </div>
     </div>
     <!-- Insights -->
-      {% if user_role == 'technician_or_above' or user_role == 'manager' %}
+    {% if user_role == 'super_admin' or user_role == 'admin' or user_role == 'technician' or user_role == 'manager' %}
       <div class="card-rounded">
           {% for trend in ticket_insights.common_ticket_trends %}
           <div class="row align-items-center mb-4">
@@ -134,7 +134,7 @@
           </a>
         </div>
         <!-- Export -->
-        {% if user_role == 'technician_or_above' or user_role == 'manager' %}
+        {% if user_role == 'super_admin' or user_role == 'admin' or user_role == 'technician' or user_role == 'manager' %}
         <div class="text-end">
           <a href="{% url 'export_tickets_csv' %}" class="btn btn-sm">
             <i class="bi bi-download me-2 fs-6"></i><span class="mr-2"></span>Export
@@ -146,7 +146,7 @@
         <div class="row justify-content-center">
           <div class="col-md-6">
             <form action="{% url 'dashboard' %}" method="GET" class="input-group">
-              {% if user_role == 'technician_or_above' or user_role == 'manager' %}
+              {% if user_role == 'super_admin' or user_role == 'admin' or user_role == 'technician' or user_role == 'manager' %}
               <div class="input-group">
                 <select name="region" id="region" class="form-control form-control-sm btn-sm mx-1">
                   <option value="" {% if not selected_region %}selected{% endif %}>Regions</option>
@@ -191,7 +191,7 @@
                 <th class="text-center text-truncate">Status</th>
                 <th class="text-center">Priority</th>
                 <th class="text-center text-truncate">Ticket Age</th>
-                {% if user_role == 'technician_or_above' %}
+                {% if user_role == 'super_admin' or user_role == 'admin' or user_role == 'technician'%}
                 <th class="text-center text-truncate">Actions</th>
                 {% endif %}
             </tr>
@@ -238,7 +238,7 @@
                     </div>
                 </td>
                 <!-- Only visible to technician or above -->
-                {% if user_role == 'technician_or_above' %}
+                {% if user_role == 'super_admin' or user_role == 'admin' or user_role == 'technician'%}
                 {% if ticket.status == 'In Progress' or ticket.status == 'Resolved' %}
                 <td class="text-center">
                     <div class="d-grid">

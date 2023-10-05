@@ -21,10 +21,8 @@ from .forms import (
     TicketAssignmentForm,
 )
 from .models import (
-    Country,
     Region,
     Centre,
-    Category,
     SubCategory,
     SupportTicket,
     UserProfile,
@@ -57,31 +55,51 @@ def user_logout(request):
 
 @login_required
 def dashboard(request):
+    # Retrieve all support tickets
     tickets = SupportTicket.objects.all().order_by("-date_submitted")
 
-    # Retrieve ticket trends data
-    ticket_trends = SupportTicket.objects.values("category__name").annotate(
-        ticket_count=Count("id")
-    )
-
+    # Retrieve user's role using custom user model
     user_role = None
-    if request.user.groups.filter(
-        name__in=["technician", "admin", "super_admin"]
-    ).exists():
-        user_role = "technician_or_above"
-
-    elif request.user.groups.filter(name="manager").exists():
+    user = User.objects.get(pk=request.user.pk)
+    if user.is_super_admin():
+        user_role = "super_admin"
+    elif user.is_admin():
+        user_role = "admin"
+    elif user.is_manager():
         user_role = "manager"
+    elif user.is_technician():
+        user_role = "technician"
+    elif user.is_user():
+        user_role = "user"
 
-    if user_role != "technician_or_above":
-        tickets = tickets.filter(submitted_by=request.user)
+    # Modify the tickets query based on the user's role
+    if user_role == "super_admin":
+        tickets = SupportTicket.objects.all()
+    elif user_role == "admin":
+        admin_country = request.user.country
+        admin_region = request.user.region
+        tickets = SupportTicket.objects.filter(
+            Q(centre__region__country=admin_country) |
+            Q(centre__region=admin_region)
+        )
+    elif user_role == "manager":
+        manager_country = request.user.country
+        manager_region = request.user.region
+        tickets = SupportTicket.objects.filter(
+            Q(centre__region__country=manager_country) |
+            Q(centre__region=manager_region)
+        )
+    elif user_role == "technician":
+        tickets = SupportTicket.objects.all()
+    elif user_role == "user":
+        user_centres = request.user.centres.all()
+        tickets = SupportTicket.objects.filter(centre__in=user_centres)
 
     # Retrieve search parameters from the request
     search_query = request.GET.get("search_query", "").strip()
     status = request.GET.get("status")
 
     if search_query:
-        # Use Q objects for searching across multiple fields with OR condition
         tickets = tickets.filter(
             Q(title__icontains=search_query)
             | Q(category__name__icontains=search_query)
@@ -93,6 +111,11 @@ def dashboard(request):
 
     if status:
         tickets = tickets.filter(status=status)
+    
+    # retrieve ticket trends data
+    ticket_trends = SupportTicket.objects.values("category__name").annotate(
+        ticket_count=Count("id")
+    )
 
     open_tickets_count = tickets.filter(status="Open").count()
     in_progress_tickets_count = tickets.filter(status="In Progress").count()
@@ -112,40 +135,29 @@ def dashboard(request):
         return {
             "common_ticket_trends": common_ticket_trends,
             "frequent_issues": frequent_issues,
-            # 'potential_solutions': potential_solutions,
         }
-
-        # Retrieve the number of tickets per page (you can adjust this as needed)
 
     tickets_per_page = 10
 
-    # Create a Paginator instance
     paginator = Paginator(tickets, tickets_per_page)
 
-    # Get the current page number from the request's GET parameters
     page = request.GET.get("page")
 
     try:
-        # Get the tickets for the requested page
         paginated_tickets = paginator.page(page)
     except PageNotAnInteger:
-        # If the page parameter is not an integer, show the first page
         paginated_tickets = paginator.page(1)
     except EmptyPage:
-        # If the page is out of range (e.g., 9999), show the last page
         paginated_tickets = paginator.page(paginator.num_pages)
 
-    if user_role == "technician_or_above":
-        # Fetch all regions and centres for technicians and admins
+    if user_role == "technician":
         regions = Region.objects.all()
         centres = Centre.objects.all()
     else:
-        # Retrieve the regions and centres for the manager filter
         manager_country = request.user.country
         regions = Region.objects.filter(country=manager_country)
         centres = Centre.objects.filter(region__country=manager_country)
 
-    # Retrieve the selected regions and centres from the request
     selected_regions = request.GET.getlist("region")
     selected_centres = request.GET.getlist("centre")
 
@@ -171,7 +183,6 @@ def dashboard(request):
     }
 
     return render(request, "dashboard.html", context)
-
 
 @login_required
 def export_tickets_csv(request):
@@ -252,17 +263,16 @@ def profile(request):
 @login_required
 def ticket_details(request, ticket_id):
     ticket = get_object_or_404(SupportTicket, id=ticket_id)
-    user_role = None
     form_resolution = None
     form_assignment = None
 
-    if request.user.groups.filter(
-        name__in=["technician", "admin", "super_admin"]
-    ).exists():
-        user_role = "technician_or_above"
-
+    if request.user.role in ["technician", "admin", "super_admin"]:
+        user_role = request.user.role
+    else:
+        user_role = None
+        
     if request.method == "POST":
-        if user_role == "technician_or_above":
+        if user_role in ["technician", "admin", "super_admin"]:
             # Check if the form for ticket assignment is submitted
             form_assignment = TicketAssignmentForm(request.POST)
             if form_assignment.is_valid():
@@ -305,7 +315,7 @@ def ticket_details(request, ticket_id):
                 messages.info(request, "Ticket description has been updated.")
                 return redirect("dashboard")
     else:
-        if user_role == "technician_or_above":
+        if user_role in ["technician", "admin", "super_admin"]:
             # Show both ticket resolution form and ticket assignment form to technicians
             form_resolution = TicketResolutionForm(instance=ticket)
             form_assignment = TicketAssignmentForm()
@@ -324,6 +334,7 @@ def ticket_details(request, ticket_id):
     }
 
     return render(request, "support_ticket/ticket_details.html", context)
+
 
 
 def send_assignment_webhook(ticket_title, ticket_centre, assigned_to):
@@ -431,32 +442,51 @@ def get_subcategories(request):
     )
     return JsonResponse({"subcategories": list(subcategories)})
 
-
 @login_required
 def all_tickets(request):
     user = request.user
-    tickets = SupportTicket.objects.all()
-    total_tickets_count = tickets.count()
-    open_tickets_count = tickets.filter(status="Open").count()
-    in_progress_tickets_count = tickets.filter(status="In Progress").count()
-    resolved_tickets_count = tickets.filter(status="Resolved").count()
+    context = {}
 
-    if user.is_technician():
-        # If the user is a technician, show tickets assigned to them
-        tickets = tickets.filter(assigned_to=user)
+    if user.is_user():
+        # If the user is a regular user, filter tickets based on their assigned center
+        user_tickets = user.submitted_issues.all()
+        center = user.centres.first()
+        
+        # Fetch all tickets at the user's center (including those submitted by others)
+        centre_tickets = SupportTicket.objects.filter(centre=center)
+        
+        # Combine the user's tickets and center tickets into a single queryset
+        user_and_centre_tickets = user_tickets | centre_tickets
+    elif user.is_technician():
+        # If the user is a technician, they should only see tickets assigned to them and submitted by them
+        user_and_centre_tickets = SupportTicket.objects.filter(assigned_to=user, submitted_by=user)
+    elif user.is_manager():
+        # If the user is a manager, they should only see tickets submitted by them
+        user_and_centre_tickets = SupportTicket.objects.filter(submitted_by=user)
+    elif user.is_admin():
+        # If the user is an admin, they should only see tickets submitted by them
+        user_and_centre_tickets = SupportTicket.objects.filter(submitted_by=user)
     else:
-        # If the user is not a technician, show their own submitted tickets
-        tickets = tickets.filter(submitted_by=user)
+        # Handle other roles as needed
+        user_and_centre_tickets = None
 
-    context = {
-        "tickets": tickets,
+    total_tickets_count = user_and_centre_tickets.count()
+    open_tickets_count = user_and_centre_tickets.filter(status="Open").count()
+    in_progress_tickets_count = user_and_centre_tickets.filter(status="In Progress").count()
+    resolved_tickets_count = user_and_centre_tickets.filter(status="Resolved").count()
+
+    context.update({
+        "user_and_centre_tickets": user_and_centre_tickets,
         "total_tickets_count": total_tickets_count,
         "open_tickets_count": open_tickets_count,
         "in_progress_tickets_count": in_progress_tickets_count,
         "resolved_tickets_count": resolved_tickets_count,
-    }
+    })
 
     return render(request, "support_ticket/all_tickets.html", context)
+
+
+
 
 
 # @login_required

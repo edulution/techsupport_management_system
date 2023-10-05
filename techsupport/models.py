@@ -319,6 +319,7 @@ class SupportTicket(BaseModel):
     centre = models.ForeignKey(
         Centre,
         on_delete=models.CASCADE,
+        related_name="support_tickets",
     )
     submitted_by = models.ForeignKey(
         User,

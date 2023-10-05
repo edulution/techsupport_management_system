@@ -21,7 +21,7 @@
               <label for="description"><strong>Description:</strong></label>
               <textarea class="form-control" id="description" name="description" rows="4" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}readonly{% endif %}>{{ ticket.description }}</textarea>
             </div>
-            {% if user_role == 'technician_or_above' %}
+            {% if user_role == 'technician' or user_role == 'admin' or user_role == 'super_admin' %}
             <div class="mb-3">
               <label for="status"><strong>Status:</strong></label>
               <select class="form-select" id="status" name="status" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
@@ -37,7 +37,7 @@
             {% endif %}
           </form>
           <!-- Assign Technician Form -->
-          {% if user_role == 'technician_or_above' %}
+          {% if user_role == 'technician' or user_role == 'admin' or user_role == 'super_admin' %}
           <form method="post">
             {% csrf_token %}
             <div class="mb-3">
@@ -78,5 +78,5 @@
     .bg-primary {
   background-color: #5A97D0 !important;
   }
-  </style>
+</style>
 {% endblock %}
