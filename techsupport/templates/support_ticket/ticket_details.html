@@ -42,13 +42,33 @@
             {% csrf_token %}
             <div class="mb-3">
               <label for="assigned_to"><strong>Assign to:</strong></label>
-              <select class="form-select" id="assigned_to" name="assigned_to" required>
+              <select class="form-select" id="assigned_to" name="assigned_to" required {% if ticket.status == 'Resolved' %}disabled{% endif %}>
                 {% for technician in technicians %}
                 <option value="{{ technician.id }}">{{ technician.username }}</option>
                 {% endfor %}
               </select>
             </div>
-            <button type="submit" class="btn bg-primary btn-block text-white"><i class="bi bi-hand-index-thumb me-2"></i><span class="mr-2"></span>Assign</button>
+            <button type="submit" class="btn bg-primary btn-block text-white" {% if ticket.status == 'Resolved' %}disabled{% endif %}><i class="bi bi-hand-index-thumb me-2"></i><span class="mr-2"></span>Assign</button>
+          </form>
+          {% endif %}
+
+          <!-- Ticket Priority Form -->
+          {% if user_role == 'admin' or user_role == 'super_admin' %}
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="priority"><strong>Priority:</strong></label>
+              {% if ticket.status == 'Resolved' %}
+              <select class="form-select" id="priority" name="priority" disabled>
+                <option value="{{ ticket.priority }}">{{ ticket.get_priority_display }}</option>
+              </select>
+              {% else %}
+              {{ form_priority.priority }}
+              {% endif %}
+            </div>
+            <button type="submit" class="btn bg-primary btn-block text-white" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+              <i class="bi bi-caret-up"></i><span class="mr-2"></span>Update
+            </button>
           </form>
           {% endif %}
         </div>
@@ -75,8 +95,8 @@
   </div>
 </div>
 <style>
-    .bg-primary {
-  background-color: #5A97D0 !important;
+  .bg-primary {
+    background-color: #5A97D0 !important;
   }
 </style>
 {% endblock %}

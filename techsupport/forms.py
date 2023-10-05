@@ -71,6 +71,13 @@ class SupportTicketForm(forms.ModelForm):
         return instance
 
 
+
+class TicketPriorityForm(forms.ModelForm):
+    class Meta:
+        model = SupportTicket
+        fields = ['priority']
+        
+
 class TicketAssignmentForm(forms.Form):
     assigned_to = forms.ModelChoiceField(
         queryset=User.objects.filter(role="technician")

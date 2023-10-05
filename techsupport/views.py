@@ -19,6 +19,7 @@ from .forms import (
     SupportTicketUpdateForm,
     TicketResolutionForm,
     TicketAssignmentForm,
+    TicketPriorityForm,
 )
 from .models import (
     Region,
@@ -150,7 +151,7 @@ def dashboard(request):
     except EmptyPage:
         paginated_tickets = paginator.page(paginator.num_pages)
 
-    if user_role == "technician":
+    if user_role == "technician" or "admin" or "super_admin":
         regions = Region.objects.all()
         centres = Centre.objects.all()
     else:
@@ -265,15 +266,15 @@ def ticket_details(request, ticket_id):
     ticket = get_object_or_404(SupportTicket, id=ticket_id)
     form_resolution = None
     form_assignment = None
+    form_priority = None
 
     if request.user.role in ["technician", "admin", "super_admin"]:
         user_role = request.user.role
     else:
         user_role = None
-        
+
     if request.method == "POST":
         if user_role in ["technician", "admin", "super_admin"]:
-            # Check if the form for ticket assignment is submitted
             form_assignment = TicketAssignmentForm(request.POST)
             if form_assignment.is_valid():
                 assigned_to = form_assignment.cleaned_data["assigned_to"]
@@ -288,7 +289,6 @@ def ticket_details(request, ticket_id):
                 messages.info(request, "Support ticket has been assigned.")
                 return redirect("dashboard")
 
-            # Check if the form for ticket resolution is submitted
             form_resolution = TicketResolutionForm(request.POST, instance=ticket)
             if form_resolution.is_valid():
                 ticket = form_resolution.save(commit=False)
@@ -303,12 +303,22 @@ def ticket_details(request, ticket_id):
                     )
 
                 ticket.save()
-
                 messages.info(request, "Support ticket status has been updated.")
                 return redirect("dashboard")
 
+            form_priority = TicketPriorityForm(request.POST, instance=ticket)
+            if form_priority.is_valid():
+                form_priority.save()
+
+                # Send the webhook message when ticket priority is changed
+                send_priority_webhook(
+                    ticket.title, ticket.centre.name, request.user.username
+                )
+
+                messages.info(request, "Support ticket priority has been updated.")
+                return redirect("dashboard")
+
         else:
-            # For other user roles, use the existing form
             form = SupportTicketUpdateForm(request.POST, instance=ticket)
             if form.is_valid():
                 form.save()
@@ -316,11 +326,10 @@ def ticket_details(request, ticket_id):
                 return redirect("dashboard")
     else:
         if user_role in ["technician", "admin", "super_admin"]:
-            # Show both ticket resolution form and ticket assignment form to technicians
             form_resolution = TicketResolutionForm(instance=ticket)
             form_assignment = TicketAssignmentForm()
+            form_priority = TicketPriorityForm(instance=ticket)
         else:
-            # For other user roles, use the existing form
             form = SupportTicketUpdateForm(instance=ticket)
 
     technicians = User.objects.filter(role="technician")
@@ -330,11 +339,11 @@ def ticket_details(request, ticket_id):
         "user_role": user_role,
         "form_resolution": form_resolution,
         "form_assignment": form_assignment,
+        "form_priority": form_priority,
         "technicians": technicians,
     }
 
     return render(request, "support_ticket/ticket_details.html", context)
-
 
 
 def send_assignment_webhook(ticket_title, ticket_centre, assigned_to):
@@ -377,6 +386,28 @@ def send_resolution_webhook(ticket_title, ticket_centre, resolved_by):
     except requests.exceptions.RequestException as e:
         logger = logging.getLogger(__name__)
         logger.error(f"Failed to send webhook notification: {str(e)}")
+        
+
+def send_priority_webhook(ticket_title, ticket_centre, changed_by):
+    webhook_url = settings.WEB_HOOK_URL
+
+    message = {
+        "text": f'Support Ticket *Title:* "{ticket_title}" at *{ticket_centre}* priority has been changed by {changed_by}.'
+    }
+
+    headers = {"Content-Type": "application/json; charset=UTF-8"}
+
+    try:
+        response = requests.post(
+            url=webhook_url,
+            headers=headers,
+            data=json.dumps(message),
+        )
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        logger = logging.getLogger(__name__)
+        logger.error(f"Failed to send webhook notification: {str(e)}")
+
 
 
 @login_required
@@ -396,8 +427,6 @@ def create_ticket(request):
         # Render the form with errors to display validation messages to the user
         context = {"form": form}
         return render(request, "support_ticket/create_ticket.html", context)
-
-    return render(request, "support_ticket/create_ticket.html", {"form": form})
 
 
 def send_webhook_notification(support_ticket, user):
