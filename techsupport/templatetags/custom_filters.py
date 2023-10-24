@@ -19,3 +19,7 @@ def add_class(field, class_name):
     else:
         field.field.widget.attrs['class'] = class_name
     return field
+
+@register.filter
+def filter_not_archived(tickets):
+    return tickets.filter(archived=False)

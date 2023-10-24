@@ -1,4 +1,5 @@
 from django.urls import path
+from uuid import UUID
 from .views import (
     user_login,
     user_logout,
@@ -14,6 +15,9 @@ from .views import (
     tickets_in_progress,
     get_subcategories,
     export_tickets_csv,
+    archive,
+    archive_ticket,
+    unarchive_ticket,
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -34,6 +38,11 @@ urlpatterns = [
     path("resolved_tickets/", resolved_tickets, name="resolved_tickets"),
     path("tickets_in_progress/", tickets_in_progress, name="tickets_in_progress"),
     path("get_subcategories/", get_subcategories, name="get_subcategories"),
+    path("archive/", archive, name="archive"),
+    path('archive_ticket/<uuid:ticket_id>/', archive_ticket, name='archive_ticket'),
+    path('unarchive_ticket/<uuid:ticket_id>/', unarchive_ticket, name='unarchive_ticket'),
+
+
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

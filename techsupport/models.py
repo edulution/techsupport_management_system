@@ -363,6 +363,7 @@ class SupportTicket(BaseModel):
         blank=True,
     )
     resolution_notes = models.TextField(blank=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     assigned_to = models.ForeignKey(
         User,
@@ -372,7 +373,18 @@ class SupportTicket(BaseModel):
         blank=True,
         related_name="assigned_tickets",
     )
-
+    archived = models.BooleanField(default=False, verbose_name=_("archived"))
+    date_archived = models.DateTimeField(
+        null=True, blank=True, verbose_name=_("date archived")
+    )
+    previous_status = models.CharField(
+        max_length=30,
+        verbose_name=_("previous status"),
+        choices=Status.choices,
+        null=True,
+        blank=True,
+    )
+    
     def save(self, *args, **kwargs):
         """
         Override the save method to set the ticket number and support description.
@@ -414,3 +426,17 @@ class SupportTicket(BaseModel):
                 return f"{hours} hrs ago"
             else:
                 return f"{minutes} mins ago"
+
+class ArchivedSupportTicket(BaseModel):
+    support_ticket = models.OneToOneField(
+        SupportTicket,
+        on_delete=models.CASCADE,
+        related_name="archived_ticket",
+        verbose_name=_("support ticket"),
+    )
+
+    def unarchive(self):
+        self.support_ticket.status = SupportTicket.Status.OPEN
+        self.support_ticket.date_resolved = None
+        self.support_ticket.save()
+        self.delete()
