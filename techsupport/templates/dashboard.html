@@ -245,7 +245,7 @@
                                       <a href="{% url 'ticket_details' ticket.id %}" class="btn btn-secondary mr-1">
                                           <i class="bi bi-info-circle"></i> 
                                       </a>
-                                      {% if user.is_admin or user.is_superuser %}
+                                      {% if user_role == 'super_admin' or user_role == 'admin' %}
                                           <a href="{% url 'archive_ticket' ticket.id %}" class="btn btn-danger ml-1">
                                               <i class="bi bi-archive"></i> 
                                           </a>
@@ -258,7 +258,7 @@
                                       <a href="{% url 'ticket_details' ticket.id %}" class="btn bg-success text-white mr-1">
                                         <i class="bi bi-check"></i> 
                                       </a>
-                                      {% if user.is_admin or user.is_superuser %}
+                                      {% if user_role == 'super_admin' or user_role == 'admin' %}
                                           <a href="{% url 'archive_ticket' ticket.id %}" class="btn btn-danger ml-1">
                                               <i class="bi bi-archive"></i>
                                           </a>

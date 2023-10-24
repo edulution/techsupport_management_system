@@ -64,12 +64,12 @@
                         <i class='bi bi-person-square nav_icon'></i>
                         <span class="profile">Profile</span>
                     </a>
-                    {% if user.is_admin or user.is_superuser %}
+                    {% if user.is_superuser or user.is_admin %}
                     <a href="{% url 'archive' %}" class="nav_link">
-                        <i class='bi bi-archive nav_icon'></i>
-                        <span class="archive">Archive</span>
+                      <i class='bi bi-archive nav_icon'></i>
+                      <span class="archive">Archive</span>
                     </a>
-                    {% endif %}
+                  {% endif %}
                 </div>
             </div>
             
@@ -87,11 +87,18 @@
         <div class="col-md-8">
             {% if messages %}
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} text-center fade-out" role="alert" style="animation: fadeOut 4.5s forwards;">
-                {{ message }}
-            </div>
+              {% if message.tags == 'error' %}
+                <div class="alert alert-danger text-center fade-out" role="alert" style="animation: fadeOut 4.5s forwards;">
+                  <i class="bi bi-exclamation-circle"></i> {{ message }}
+                </div>
+              {% else %}
+                <div class="alert alert-{{ message.tags }} text-center fade-out" role="alert" style="animation: fadeOut 4.5s forwards;">
+                  <i class="bi bi-check-circle"></i> {{ message }}
+                </div>
+              {% endif %}
             {% endfor %}
-            {% endif %}
+          {% endif %}
+          
         </div>
     </div>
 </div> 

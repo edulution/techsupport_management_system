@@ -648,12 +648,14 @@ def unarchive_ticket(request, ticket_id):
 
 @login_required
 def archive(request):
-    user = request.user
-    if user.role in ["admin", "super_admin"]:
-        archived_tickets = SupportTicket.objects.filter(archived=True).order_by("-date_archived")
-        context = {
-            'archived_tickets': archived_tickets,
-        }
-        return render(request, 'support_ticket/archive.html', context)
-    else:
-        return redirect("dashboard")
+  user = request.user
+  if user.role not in ["admin", "super_admin"]:
+    messages.error(request, "Sorry, you don't have access to this page!.")
+    return redirect("dashboard")
+
+  archived_tickets = SupportTicket.objects.filter(archived=True).order_by("-date_archived")
+  context = {
+    'archived_tickets': archived_tickets,
+  }
+  return render(request, 'support_ticket/archive.html', context)
+
