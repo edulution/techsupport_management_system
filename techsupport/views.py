@@ -273,6 +273,7 @@ def ticket_details(request, ticket_id):
     form_resolution = None
     form_assignment = None
     form_priority = None
+    from_email = settings.EMAIL_HOST_USER
 
     if request.user.role in ["technician", "admin", "super_admin"]:
         user_role = request.user.role
@@ -286,6 +287,31 @@ def ticket_details(request, ticket_id):
                 assigned_to = form_assignment.cleaned_data["assigned_to"]
                 ticket.assigned_to = assigned_to
                 ticket.save()
+
+                # Send an email when the ticket is assigned to a technician
+                subject = f"Support Ticket #{ticket.ticket_number} Assigned"
+                message = f"""
+                    Dear {ticket.submitted_by.get_full_name()},
+
+                    Your support ticket number: #{ticket.ticket_number} has been assigned to {assigned_to}. 
+                    
+                    - Centre: {ticket.centre}
+                    - Title: {ticket.title}
+                    - Category: {ticket.category}
+                    - Subcategory: {ticket.subcategory}
+                                                
+                    You will be notified once it is resolved.
+
+                    Sincerely,
+
+                    Edulution
+                    Technical Support Team
+                    techsupport@edulution.org
+                    +260 96 9929538 / +260 96 1255558
+                """
+                recipient_list = [ticket.submitted_by.email]
+
+                send_mail(subject, message, from_email, recipient_list, fail_silently=True)
 
                 # Send the webhook message when a ticket is assigned
                 send_assignment_webhook(
@@ -302,6 +328,31 @@ def ticket_details(request, ticket_id):
                 if status == "Resolved":
                     ticket.status = "Resolved"
                     ticket.resolved_by = request.user
+
+                    # Send an email when the ticket is resolved
+                    subject = f"Support Ticket #{ticket.ticket_number} Resolved"
+                    message = f"""
+                        Dear {ticket.submitted_by.get_full_name()},
+
+                        Your support ticket number: #{ticket.ticket_number} has been resolved by {request.user}.
+                        
+                        - Centre: {ticket.centre}
+                        - Title: {ticket.title}
+                        - Category: {ticket.category}
+                        - Subcategory: {ticket.subcategory}
+
+                        Thank you for your patience during this process.
+
+                        Sincerely,
+
+                        Edulution
+                        Technical Support Team
+                        techsupport@edulution.org
+                        +260 96 9929538 / +260 96 1255558
+                    """
+                    recipient_list = [ticket.submitted_by.email]
+
+                    send_mail(subject, message, from_email, recipient_list, fail_silently=True)
 
                     # Send the webhook message when the status changes to 'Resolved'
                     send_resolution_webhook(
