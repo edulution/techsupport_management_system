@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.db.models import Q, Count
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
+from django.db import IntegrityError
 import json
 import requests
 import logging
@@ -56,8 +57,9 @@ def user_logout(request):
 
 @login_required
 def dashboard(request):
-    # Retrieve all support tickets
-    tickets = SupportTicket.objects.all().order_by("-date_submitted")
+    # Retrieve all non-archived support tickets
+    tickets = SupportTicket.objects.filter(archived=False).order_by("-date_submitted")
+
 
     # Retrieve user's role using custom user model
     user_role = None
@@ -75,26 +77,26 @@ def dashboard(request):
 
     # Modify the tickets query based on the user's role
     if user_role == "super_admin":
-        tickets = SupportTicket.objects.all()
+        tickets = tickets
     elif user_role == "admin":
         admin_country = request.user.country
         admin_region = request.user.region
-        tickets = SupportTicket.objects.filter(
+        tickets = tickets.filter(
             Q(centre__region__country=admin_country) |
             Q(centre__region=admin_region)
         )
     elif user_role == "manager":
         manager_country = request.user.country
         manager_region = request.user.region
-        tickets = SupportTicket.objects.filter(
+        tickets = tickets.filter(
             Q(centre__region__country=manager_country) |
             Q(centre__region=manager_region)
         )
     elif user_role == "technician":
-        tickets = SupportTicket.objects.all()
+        tickets = tickets
     elif user_role == "user":
         user_centres = request.user.centres.all()
-        tickets = SupportTicket.objects.filter(centre__in=user_centres)
+        tickets = tickets.filter(centre__in=user_centres)
 
     # Retrieve search parameters from the request
     search_query = request.GET.get("search_query", "").strip()
@@ -184,6 +186,8 @@ def dashboard(request):
     }
 
     return render(request, "dashboard.html", context)
+
+
 
 @login_required
 def export_tickets_csv(request):
@@ -471,11 +475,13 @@ def get_subcategories(request):
     )
     return JsonResponse({"subcategories": list(subcategories)})
 
+
 @login_required
 def all_tickets(request):
     user = request.user
     context = {}
 
+    # Define the queryset based on the user's role
     if user.is_user():
         # If the user is a regular user, filter tickets based on their assigned center
         user_tickets = user.submitted_issues.all()
@@ -499,6 +505,9 @@ def all_tickets(request):
         # Handle other roles as needed
         user_and_centre_tickets = None
 
+    # Filter out archived tickets
+    user_and_centre_tickets = user_and_centre_tickets.filter(archived=False)
+
     total_tickets_count = user_and_centre_tickets.count()
     open_tickets_count = user_and_centre_tickets.filter(status="Open").count()
     in_progress_tickets_count = user_and_centre_tickets.filter(status="In Progress").count()
@@ -513,9 +522,6 @@ def all_tickets(request):
     })
 
     return render(request, "support_ticket/all_tickets.html", context)
-
-
-
 
 
 # @login_required
@@ -575,3 +581,78 @@ def tickets_in_progress(request):
     return render(
         request, "support_ticket/tickets_in_progress.html", {"tickets": tickets}
     )
+
+@login_required
+def archive_ticket(request, ticket_id):
+    user = request.user
+    if user.role in ["admin", "super_admin"]:
+        # Retrieve the support ticket to archive
+        ticket = get_object_or_404(SupportTicket, id=ticket_id)
+
+        # Check if the support ticket's status is "Resolved" before archiving
+        if ticket.status == SupportTicket.Status.RESOLVED:
+            # Change the support ticket status to "Closed"
+            ticket.status = SupportTicket.Status.CLOSED
+            ticket.save()
+
+            ticket.archived = True
+            ticket.date_archived = timezone.now()
+            ticket.save()
+
+            # Add a success message
+            messages.success(request, 'The support ticket has been archived.')
+
+            # Redirect to the dashboard or any other page you prefer
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'This support ticket cannot be archived')
+
+        return redirect('dashboard')
+    else:
+        return redirect('dashboard')
+
+
+
+@login_required
+def unarchive_ticket(request, ticket_id):
+    user = request.user
+    if user.role in ["admin", "super_admin"]:
+        # Retrieve the support ticket to unarchive
+        ticket = get_object_or_404(SupportTicket, id=ticket_id)
+
+        # Check if the support ticket is archived
+        if not ticket.archived:
+            messages.error(request, 'The support ticket is not archived.')
+            return redirect('dashboard')
+
+        # Restore the open status to unarchived ticket
+        ticket.status = SupportTicket.Status.OPEN
+        
+        # Set the archived flag to False
+        ticket.archived = False
+
+        # Save the support ticket
+        ticket.save()
+
+        # Add a success message
+        messages.success(request, 'The support ticket has been Restored.')
+
+        # Redirect to the dashboard or any other page you prefer
+        return redirect('dashboard')
+    else:
+        return redirect('dashboard')
+
+
+@login_required
+def archive(request):
+  user = request.user
+  if user.role not in ["admin", "super_admin"]:
+    messages.error(request, "You do not have access to this page!.")
+    return redirect("dashboard")
+
+  archived_tickets = SupportTicket.objects.filter(archived=True).order_by("-date_archived")
+  context = {
+    'archived_tickets': archived_tickets,
+  }
+  return render(request, 'support_ticket/archive.html', context)
+
