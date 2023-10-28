@@ -27,7 +27,6 @@ from .models import (
     Centre,
     SubCategory,
     SupportTicket,
-    ArchivedSupportTicket,
     UserProfile,
     User,
 )
@@ -590,24 +589,28 @@ def archive_ticket(request, ticket_id):
         # Retrieve the support ticket to archive
         ticket = get_object_or_404(SupportTicket, id=ticket_id)
 
-        # Store the previous status
-        ticket.previous_status = ticket.status
+        # Check if the support ticket's status is "Resolved" before archiving
+        if ticket.status == SupportTicket.Status.RESOLVED:
+            # Change the support ticket status to "Closed"
+            ticket.status = SupportTicket.Status.CLOSED
+            ticket.save()
 
-        # Change the support ticket status to "Closed"
-        ticket.status = SupportTicket.Status.CLOSED
-        ticket.save()
+            ticket.archived = True
+            ticket.date_archived = timezone.now()
+            ticket.save()
 
-        ticket.archived = True
-        ticket.date_archived = timezone.now()
-        ticket.save()
+            # Add a success message
+            messages.success(request, 'The support ticket has been archived.')
 
-        # Add a success message
-        messages.success(request, 'The support ticket has been archived.')
+            # Redirect to the dashboard or any other page you prefer
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'This support ticket cannot be archived')
 
-        # Redirect to the dashboard or any other page you prefer
         return redirect('dashboard')
     else:
         return redirect('dashboard')
+
 
 
 @login_required
@@ -622,15 +625,9 @@ def unarchive_ticket(request, ticket_id):
             messages.error(request, 'The support ticket is not archived.')
             return redirect('dashboard')
 
-        # Check if the previous status is null
-        if not ticket.previous_status:
-            messages.error(request, 'The support ticket does not have a previous status.')
-            return redirect('dashboard')
-
-        # Restore the previous status
-        ticket.status = ticket.previous_status
-        ticket.previous_status = None
-
+        # Restore the open status to unarchived ticket
+        ticket.status = SupportTicket.Status.OPEN
+        
         # Set the archived flag to False
         ticket.archived = False
 
@@ -650,7 +647,7 @@ def unarchive_ticket(request, ticket_id):
 def archive(request):
   user = request.user
   if user.role not in ["admin", "super_admin"]:
-    messages.error(request, "Sorry, you don't have access to this page!.")
+    messages.error(request, "You do not have access to this page!.")
     return redirect("dashboard")
 
   archived_tickets = SupportTicket.objects.filter(archived=True).order_by("-date_archived")

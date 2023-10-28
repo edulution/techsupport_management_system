@@ -284,9 +284,7 @@ class SubCategory(BaseModel):
         verbose_name_plural = "subcategories"
 
 
-class SupportTicket(BaseModel):
-    """Model representing a support ticket submitted by a coach."""
-
+class SupportTicket(models.Model):
     class Status(models.TextChoices):
         OPEN = "Open", _("Open")
         IN_PROGRESS = "In Progress", _("In Progress")
@@ -302,7 +300,7 @@ class SupportTicket(BaseModel):
         verbose_name=_("ticket number"), unique=True, editable=False
     )
     date_submitted = models.DateTimeField(
-        verbose_name=_("date submitted"), default=now, editable=False
+        verbose_name=_("date submitted"), default=timezone.now, editable=False
     )
     date_resolved = models.DateTimeField(
         verbose_name=_("date resolved"), null=True, blank=True
@@ -377,22 +375,8 @@ class SupportTicket(BaseModel):
     date_archived = models.DateTimeField(
         null=True, blank=True, verbose_name=_("date archived")
     )
-    previous_status = models.CharField(
-        max_length=30,
-        verbose_name=_("previous status"),
-        choices=Status.choices,
-        null=True,
-        blank=True,
-    )
     
     def save(self, *args, **kwargs):
-        """
-        Override the save method to set the ticket number and support description.
-
-        Args:
-            *args: Arguments passed to the superclass method.
-            **kwargs: Keyword arguments passed to the superclass method.
-        """
         if not self.ticket_number:
             max_ticket_number = SupportTicket.objects.aggregate(
                 max_ticket_number=models.Max("ticket_number")
@@ -404,10 +388,6 @@ class SupportTicket(BaseModel):
         super().save(*args, **kwargs)
 
     def ticket_age(self):
-        """
-        Method that returns the difference between the current time and the time
-        the support ticket was submitted.
-        """
         now = timezone.now()
         age = now - self.date_submitted
 
@@ -427,16 +407,22 @@ class SupportTicket(BaseModel):
             else:
                 return f"{minutes} mins ago"
 
-class ArchivedSupportTicket(BaseModel):
-    support_ticket = models.OneToOneField(
-        SupportTicket,
-        on_delete=models.CASCADE,
-        related_name="archived_ticket",
-        verbose_name=_("support ticket"),
-    )
+    def archive(self):
+        if self.status == SupportTicket.Status.RESOLVED:
+            self.status = SupportTicket.Status.CLOSED
+            self.save()
+            return True
+        return False
 
     def unarchive(self):
-        self.support_ticket.status = SupportTicket.Status.OPEN
-        self.support_ticket.date_resolved = None
-        self.support_ticket.save()
-        self.delete()
+        if self.status == SupportTicket.Status.CLOSED:
+            self.status = SupportTicket.Status.RESOLVED
+            self.save()
+            return True
+        return False
+
+    def can_be_archived(self):
+        return self.status == SupportTicket.Status.RESOLVED
+
+    def can_be_unarchived(self):
+        return self.status == SupportTicket.Status.CLOSED
