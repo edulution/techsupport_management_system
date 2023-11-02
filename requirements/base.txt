@@ -9,7 +9,7 @@ cffi==1.15.1
 charset-normalizer==2.0.12
 cryptography==39.0.1
 defusedxml==0.7.1
-Django==3.2.18
+Django==3.2.20
 django-admin==2.0.2
 django-allauth==0.52.0
 django-bootstrap4>=21.1
