@@ -285,6 +285,7 @@ class SubCategory(BaseModel):
 
 
 class SupportTicket(models.Model):
+    """Model representing a support ticket."""
     class Status(models.TextChoices):
         OPEN = "Open", _("Open")
         IN_PROGRESS = "In Progress", _("In Progress")
@@ -377,6 +378,9 @@ class SupportTicket(models.Model):
     )
     
     def save(self, *args, **kwargs):
+        """
+        Override the save method to auto-generate ticket number and title if not provided.
+        """
         if not self.ticket_number:
             max_ticket_number = SupportTicket.objects.aggregate(
                 max_ticket_number=models.Max("ticket_number")
@@ -388,6 +392,9 @@ class SupportTicket(models.Model):
         super().save(*args, **kwargs)
 
     def ticket_age(self):
+        """
+        Calculate the age of the ticket based on submission time.
+        """
         now = timezone.now()
         age = now - self.date_submitted
 
@@ -408,6 +415,9 @@ class SupportTicket(models.Model):
                 return f"{minutes} mins ago"
 
     def archive(self):
+        """ 
+        Archive the ticket if it is resolved
+        """
         if self.status == SupportTicket.Status.RESOLVED:
             self.status = SupportTicket.Status.CLOSED
             self.save()
@@ -415,6 +425,9 @@ class SupportTicket(models.Model):
         return False
 
     def unarchive(self):
+        """
+        Unarchive the ticket if it is closed
+        """
         if self.status == SupportTicket.Status.CLOSED:
             self.status = SupportTicket.Status.RESOLVED
             self.save()
@@ -422,7 +435,13 @@ class SupportTicket(models.Model):
         return False
 
     def can_be_archived(self):
+        """
+        Check if the ticket can be archived
+        """
         return self.status == SupportTicket.Status.RESOLVED
 
     def can_be_unarchived(self):
+        """
+        Check if the ticket can be unarchived
+        """
         return self.status == SupportTicket.Status.CLOSED

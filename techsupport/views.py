@@ -589,28 +589,20 @@ def archive_ticket(request, ticket_id):
         # Retrieve the support ticket to archive
         ticket = get_object_or_404(SupportTicket, id=ticket_id)
 
-        # Check if the support ticket's status is "Resolved" before archiving
-        if ticket.status == SupportTicket.Status.RESOLVED:
-            # Change the support ticket status to "Closed"
-            ticket.status = SupportTicket.Status.CLOSED
-            ticket.save()
-
-            ticket.archived = True
-            ticket.date_archived = timezone.now()
-            ticket.save()
-
-            # Add a success message
-            messages.success(request, 'The support ticket has been archived.')
-
-            # Redirect to the dashboard or any other page you prefer
-            return redirect('dashboard')
+        # Use the can_be_archived method to check if the ticket can be archived
+        if ticket.can_be_archived():
+            # Use the archive method to handle the archiving logic
+            if ticket.archive():
+                # Add a success message
+                messages.success(request, 'The support ticket has been archived.')
+            else:
+                messages.error(request, 'Error archiving the support ticket.')
         else:
             messages.error(request, 'This support ticket cannot be archived')
 
         return redirect('dashboard')
     else:
         return redirect('dashboard')
-
 
 
 @login_required
@@ -620,27 +612,21 @@ def unarchive_ticket(request, ticket_id):
         # Retrieve the support ticket to unarchive
         ticket = get_object_or_404(SupportTicket, id=ticket_id)
 
-        # Check if the support ticket is archived
-        if not ticket.archived:
-            messages.error(request, 'The support ticket is not archived.')
-            return redirect('dashboard')
+        # Use the can_be_unarchived method to check if the ticket can be unarchived
+        if ticket.can_be_unarchived():
+            # Use the unarchive method to handle the unarchiving logic
+            if ticket.unarchive():
+                # Add a success message
+                messages.success(request, 'The support ticket has been Restored.')
+            else:
+                messages.error(request, 'Error restoring the support ticket.')
+        else:
+            messages.error(request, 'The support ticket is not eligible for restoration.')
 
-        # Restore the open status to unarchived ticket
-        ticket.status = SupportTicket.Status.OPEN
-        
-        # Set the archived flag to False
-        ticket.archived = False
-
-        # Save the support ticket
-        ticket.save()
-
-        # Add a success message
-        messages.success(request, 'The support ticket has been Restored.')
-
-        # Redirect to the dashboard or any other page you prefer
         return redirect('dashboard')
     else:
         return redirect('dashboard')
+
 
 
 @login_required
