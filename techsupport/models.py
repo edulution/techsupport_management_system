@@ -415,21 +415,23 @@ class SupportTicket(models.Model):
                 return f"{minutes} mins ago"
 
     def archive(self):
-        """ 
-        Archive the ticket if it is resolved
-        """
+        """Archive the ticket if it is resolved."""
         if self.status == SupportTicket.Status.RESOLVED:
             self.status = SupportTicket.Status.CLOSED
+            self.archived = True
+            self.date_archived = timezone.now()
             self.save()
             return True
         return False
 
     def unarchive(self):
         """
-        Unarchive the ticket if it is closed
+        Unarchive the ticket if it is closed or resolved
         """
-        if self.status == SupportTicket.Status.CLOSED:
-            self.status = SupportTicket.Status.RESOLVED
+        if self.can_be_unarchived():
+            self.status = SupportTicket.Status.OPEN  # Set the status to 'OPEN' when unarchiving
+            self.archived = False
+            self.date_archived = None
             self.save()
             return True
         return False
@@ -444,4 +446,5 @@ class SupportTicket(models.Model):
         """
         Check if the ticket can be unarchived
         """
-        return self.status == SupportTicket.Status.CLOSED
+        return self.status in [SupportTicket.Status.CLOSED, SupportTicket.Status.RESOLVED]
+

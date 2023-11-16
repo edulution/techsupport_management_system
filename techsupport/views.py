@@ -609,24 +609,19 @@ def archive_ticket(request, ticket_id):
 def unarchive_ticket(request, ticket_id):
     user = request.user
     if user.role in ["admin", "super_admin"]:
-        # Retrieve the support ticket to unarchive
         ticket = get_object_or_404(SupportTicket, id=ticket_id)
 
-        # Use the can_be_unarchived method to check if the ticket can be unarchived
         if ticket.can_be_unarchived():
-            # Use the unarchive method to handle the unarchiving logic
             if ticket.unarchive():
-                # Add a success message
                 messages.success(request, 'The support ticket has been Restored.')
             else:
                 messages.error(request, 'Error restoring the support ticket.')
         else:
             messages.error(request, 'The support ticket is not eligible for restoration.')
 
-        return redirect('dashboard')
+        return redirect('dashboard')  
     else:
         return redirect('dashboard')
-
 
 
 @login_required
