@@ -32,10 +32,10 @@ from .models import (
     Centre,
     SubCategory,
     SupportTicket,
+    Notification,
     UserProfile,
     User,
 )
-
 logger = logging.getLogger(__name__)
 
 
@@ -289,34 +289,10 @@ def ticket_details(request, ticket_id):
                 ticket.save()
 
                 # Send an email when the ticket is assigned to a technician
-                subject = f"Support Ticket #{ticket.ticket_number} Assigned"
-                message = f"""
-                    Dear {ticket.submitted_by.get_full_name()},
-
-                    Your support ticket number: #{ticket.ticket_number} has been assigned to {assigned_to}. 
-                    
-                    - Centre: {ticket.centre}
-                    - Title: {ticket.title}
-                    - Category: {ticket.category}
-                    - Subcategory: {ticket.subcategory}
-                                                
-                    You will be notified once it is resolved.
-
-                    Sincerely,
-
-                    Edulution
-                    Technical Support Team
-                    techsupport@edulution.org
-                    +260 96 9929538 / +260 96 1255558
-                """
-                recipient_list = [ticket.submitted_by.email]
-
-                send_mail(subject, message, from_email, recipient_list, fail_silently=True)
+                Notification.send_email_notification(ticket, Notification.MessageType.ASSIGNMENT)
 
                 # Send the webhook message when a ticket is assigned
-                send_assignment_webhook(
-                    ticket.title, ticket.centre.name, assigned_to.username
-                )
+                Notification.send_webhook_notification(ticket, Notification.MessageType.ASSIGNMENT, request.user)
 
                 messages.info(request, "Support ticket has been assigned.")
                 return redirect("dashboard")
@@ -330,34 +306,10 @@ def ticket_details(request, ticket_id):
                     ticket.resolved_by = request.user
 
                     # Send an email when the ticket is resolved
-                    subject = f"Support Ticket #{ticket.ticket_number} Resolved"
-                    message = f"""
-                        Dear {ticket.submitted_by.get_full_name()},
-
-                        Your support ticket number: #{ticket.ticket_number} has been resolved by {request.user}.
-                        
-                        - Centre: {ticket.centre}
-                        - Title: {ticket.title}
-                        - Category: {ticket.category}
-                        - Subcategory: {ticket.subcategory}
-
-                        Thank you for your patience during this process.
-
-                        Sincerely,
-
-                        Edulution
-                        Technical Support Team
-                        techsupport@edulution.org
-                        +260 96 9929538 / +260 96 1255558
-                    """
-                    recipient_list = [ticket.submitted_by.email]
-
-                    send_mail(subject, message, from_email, recipient_list, fail_silently=True)
+                    Notification.send_email_notification(ticket, Notification.MessageType.RESOLUTION)
 
                     # Send the webhook message when the status changes to 'Resolved'
-                    send_resolution_webhook(
-                        ticket.title, ticket.centre.name, request.user.username
-                    )
+                    Notification.send_webhook_notification(ticket, Notification.MessageType.RESOLUTION, request.user)
 
                 ticket.save()
                 messages.info(request, "Support ticket status has been updated.")
@@ -368,9 +320,7 @@ def ticket_details(request, ticket_id):
                 form_priority.save()
 
                 # Send the webhook message when ticket priority is changed
-                send_priority_webhook(
-                    ticket.title, ticket.centre.name, request.user.username
-                )
+                Notification.send_webhook_notification(ticket, Notification.MessageType.STATUS_CHANGE, request.user)
 
                 messages.info(request, "Support ticket priority has been updated.")
                 return redirect("dashboard")
@@ -403,69 +353,6 @@ def ticket_details(request, ticket_id):
     return render(request, "support_ticket/ticket_details.html", context)
 
 
-def send_assignment_webhook(ticket_title, ticket_centre, assigned_to):
-    webhook_url = settings.WEB_HOOK_URL
-
-    message = {
-        "text": f'A Support Ticket *Title:* "{ticket_title}" at *{ticket_centre}* has been assigned to {assigned_to}.'
-    }
-
-    headers = {"Content-Type": "application/json; charset=UTF-8"}
-
-    try:
-        response = requests.post(
-            url=webhook_url,
-            headers=headers,
-            data=json.dumps(message),
-        )
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        logger = logging.getLogger(__name__)
-        logger.error(f"Failed to send webhook notification: {str(e)}")
-
-
-def send_resolution_webhook(ticket_title, ticket_centre, resolved_by):
-    webhook_url = settings.WEB_HOOK_URL
-
-    message = {
-        "text": f'Support Ticket *Title:* "{ticket_title}" at *{ticket_centre}* has been resolved by {resolved_by}.'
-    }
-
-    headers = {"Content-Type": "application/json; charset=UTF-8"}
-
-    try:
-        response = requests.post(
-            url=webhook_url,
-            headers=headers,
-            data=json.dumps(message),
-        )
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        logger = logging.getLogger(__name__)
-        logger.error(f"Failed to send webhook notification: {str(e)}")
-        
-
-def send_priority_webhook(ticket_title, ticket_centre, changed_by):
-    webhook_url = settings.WEB_HOOK_URL
-
-    message = {
-        "text": f'Support Ticket *Title:* "{ticket_title}" at *{ticket_centre}* priority has been changed by {changed_by}.'
-    }
-
-    headers = {"Content-Type": "application/json; charset=UTF-8"}
-
-    try:
-        response = requests.post(
-            url=webhook_url,
-            headers=headers,
-            data=json.dumps(message),
-        )
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        logger = logging.getLogger(__name__)
-        logger.error(f"Failed to send webhook notification: {str(e)}")
-
-
 @login_required
 def create_ticket(request):
     form = SupportTicketForm(request.POST or None, user=request.user)
@@ -475,12 +362,11 @@ def create_ticket(request):
         support_ticket.submitted_by = request.user
         support_ticket.save()
 
-        # Only send an email to the user if the user has an email address
-        if request.user.email:
-            send_email(support_ticket)
+        # Send email notification
+        Notification.send_email_notification(support_ticket, Notification.MessageType.TICKET_CREATION)
 
-        # Send a webhook notification to the technical support team
-        send_webhook_notification(support_ticket, request.user)
+        # Send webhook notification
+        Notification.send_webhook_notification(support_ticket, Notification.MessageType.TICKET_CREATION, request.user)
 
         messages.success(request, "Support ticket created successfully.")
         return redirect("dashboard")
@@ -488,100 +374,6 @@ def create_ticket(request):
         # Render the form with errors to display validation messages to the user
         context = {"form": form}
         return render(request, "support_ticket/create_ticket.html", context)
-
-def send_email(support_ticket):
-    """Sends a support ticket confirmation email to the user."""
-
-    # Email configuration
-    smtp_server = os.environ.get("EMAIL_HOST")
-    smtp_port = os.environ.get("EMAIL_PORT")
-    smtp_username = os.environ.get("EMAIL_HOST_USER")
-    smtp_password = os.environ.get("EMAIL_HOST_PASSWORD")
-
-    # Check if SMTP_PORT is set and valid
-    if smtp_port is not None and smtp_port.isdigit():
-        smtp_port = int(smtp_port)
-    else:
-        # Handle the case where SMTP_PORT is missing or invalid
-        print("EMAIL_PORT is missing or invalid.")
-        return
-
-    # Check if any of the required environment variables are missing
-    if None in (smtp_server, smtp_username, smtp_password):
-        # case where one or more required environment variables are missing
-        print("One or more required environment variables are missing.")
-        return
-
-    # Create an SMTP connection with a specific TLS
-    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-    with smtplib.SMTP(smtp_server, smtp_port) as server:
-        server.starttls(context=context)
-        server.login(smtp_username, smtp_password)
-
-        # Email content
-        subject = "Support Ticket Received"
-        message = MIMEMultipart()
-        message["From"] = smtp_username
-        message["To"] = support_ticket.submitted_by.email
-        message["Subject"] = subject
-
-        # Email body
-        user_name = support_ticket.submitted_by.get_full_name()
-        support_ticket_number = support_ticket.ticket_number
-
-        body = f"""
-            Dear {user_name},
-
-            We are pleased to confirm that we have received your Support Ticket:
-            Support Ticket Number: {support_ticket_number}
-            
-            - Centre: {support_ticket.centre}
-            - Title: {support_ticket.title}
-            - Category: {support_ticket.category}
-            - Subcategory: {support_ticket.subcategory}
-
-
-            We will promptly review your request and assign it to the appropriate technician.
-
-            You will receive further communication once a technician is assigned to your case.
-
-            Thank you for your patience during this process.
-
-            Sincerely,
-            
-            Edulution
-            Technical Support Team
-            techsupport@edulution.org
-            +260 96 9929538 / +260 96 1255558
-        """
-
-        message.attach(MIMEText(body, "plain"))
-
-        # Send the email
-        server.sendmail(smtp_username, support_ticket.submitted_by.email, message.as_string())
-
-def send_webhook_notification(support_ticket, user):
-    webhook_url = settings.WEB_HOOK_URL
-    app_message = {
-        "text": f"A Support Ticket has been created at *{support_ticket.centre}*\n"
-        f"*Title:* {support_ticket.title}\n"
-        f"*Category:* {support_ticket.category}\n"
-        f"*Subcategory:* {support_ticket.subcategory}\n"
-        f"*Priority:* {support_ticket.priority}\n"
-        f"*by:* {user}"
-    }
-
-    message_headers = {"Content-Type": "application/json; charset=UTF-8"}
-
-    try:
-        response = requests.post(
-            url=webhook_url,
-            headers=message_headers,
-            data=json.dumps(app_message),
-        )
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to send webhook notification: {str(e)}")
 
 
 @login_required
@@ -601,6 +393,7 @@ def get_subcategories(request):
         "id", "name"
     )
     return JsonResponse({"subcategories": list(subcategories)})
+
 
 @login_required
 def all_tickets(request):
