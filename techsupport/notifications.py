@@ -103,6 +103,7 @@ WEBHOOK_MESSAGES = {
                 "*Category:* {category}\n"
                 "*Subcategory:* {subcategory}\n"
                 "*Priority:* {priority}\n"
+                "*Ticket Number:* {ticket_number}\n"
                 "*by:* {user}"
     },
     'Status Change': {

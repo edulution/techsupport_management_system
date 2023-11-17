@@ -501,7 +501,7 @@ class Notification(models.Model):
             )
             return subject, body
         else:
-            print(f"Invalid message_type: {message_type}")
+            print(f"Invalid message_type: {message_type}")  
             print(f"Valid message_types: {', '.join(EMAIL_MESSAGES.keys())}")
         return '', ''
 
@@ -514,6 +514,8 @@ class Notification(models.Model):
         category = getattr(support_ticket, 'category', '')
         subcategory = getattr(support_ticket, 'subcategory', '')
         priority = getattr(support_ticket, 'priority', '')
+        ticket_number = getattr(support_ticket, 'ticket_number', '')
+        status = getattr(support_ticket, 'status', '')
 
         message = WEBHOOK_MESSAGES.get(message_type)
         if message:
@@ -524,6 +526,8 @@ class Notification(models.Model):
                     category=category,
                     subcategory=subcategory,
                     priority=priority,
+                    ticket_number=ticket_number,
+                    status=status,
                     user=user,
                 )
             }
