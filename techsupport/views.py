@@ -319,9 +319,6 @@ def ticket_details(request, ticket_id):
             if form_priority.is_valid():
                 form_priority.save()
 
-                # Send the webhook message when ticket priority is changed
-                Notification.send_webhook_notification(ticket, Notification.MessageType.STATUS_CHANGE, request.user)
-
                 messages.info(request, "Support ticket priority has been updated.")
                 return redirect("dashboard")
 
@@ -437,8 +434,6 @@ def all_tickets(request):
     })
 
     return render(request, "support_ticket/all_tickets.html", context)
-
-
 
 
 

@@ -32,7 +32,7 @@ EMAIL_MESSAGES = {
         "message": """
             Dear {user_name},
 
-            The status of your Support Ticket #{ticket_number} has been changed to {status}.
+            The status of your Support Ticket #{ticket_number} is now {status}.
             
             - Centre: {centre}
             - Title: {title}
