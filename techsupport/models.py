@@ -502,10 +502,6 @@ class Notification(models.Model):
         subject = message.get("subject", "")
         body = message.get("message", "")
 
-        if "{assigned_to}" in body and not hasattr(support_ticket, "assigned_to"):
-            raise ValueError(
-            )
-
         variables = {
             "user_name": support_ticket.submitted_by.get_full_name(),
             "ticket_number": support_ticket.ticket_number,
@@ -513,9 +509,7 @@ class Notification(models.Model):
             "title": support_ticket.title,
             "category": support_ticket.category,
             "subcategory": support_ticket.subcategory,
-            "assigned_to": support_ticket.assigned_to.username
-            if hasattr(support_ticket, "assigned_to")
-            else "",
+            "assigned_to": support_ticket.assigned_to.username if support_ticket.assigned_to else "",
         }
 
         subject = subject.format(**variables)
