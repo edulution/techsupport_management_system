@@ -422,33 +422,38 @@ class SupportTicket(BaseModel):
             else:
                 return f"{minutes} mins ago"
 
+
 class Notification(models.Model):
     """Model to represent notifications sent via email and webhook."""
 
     # Notification details
     notification_type = models.TextField()
     recipient = models.TextField()
-    notification_status = models.CharField(max_length=20, choices=[('Successful', 'Successful'), ('Failed', 'Failed')])
+    notification_status = models.CharField(
+        max_length=20, choices=[("Successful", "Successful"), ("Failed", "Failed")]
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     # Enum for notification types
     class MessageType(models.TextChoices):
-        TICKET_CREATION = 'Ticket Creation'
-        STATUS_CHANGE = 'Status Change'
-        RESOLUTION = 'Resolution'
-        ASSIGNMENT = 'Assignment'
+        TICKET_CREATION = "Ticket Creation"
+        STATUS_CHANGE = "Status Change"
+        RESOLUTION = "Resolution"
+        ASSIGNMENT = "Assignment"
 
     # Foreign keys for related entities
-    ticket = models.ForeignKey('SupportTicket', on_delete=models.CASCADE, null=True, blank=True)
-    user = models.ForeignKey('User', on_delete=models.CASCADE, null=True, blank=True)
+    ticket = models.ForeignKey(
+        "SupportTicket", on_delete=models.CASCADE, null=True, blank=True
+    )
+    user = models.ForeignKey("User", on_delete=models.CASCADE, null=True, blank=True)
 
     @classmethod
     def send_email_notification(cls, support_ticket, message_type):
         notification = cls.objects.create(
             notification_type=message_type,
             recipient=support_ticket.submitted_by.email,
-            notification_status='Successful',
-            ticket=support_ticket  # Add this line to associate the notification with the ticket
+            notification_status="Successful",
+            ticket=support_ticket,  # Add this line to associate the notification with the ticket
         )
 
         subject, message = cls._get_email_content(support_ticket, message_type)
@@ -456,15 +461,20 @@ class Notification(models.Model):
         # Replace {ticket_number} with the actual ticket number in the subject
         subject = subject.format(ticket_number=support_ticket.ticket_number)
 
-        send_mail(subject, message, settings.EMAIL_HOST_USER, [notification.recipient], fail_silently=True)
-
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,
+            [notification.recipient],
+            fail_silently=True,
+        )
 
     @classmethod
     def send_webhook_notification(cls, support_ticket, message_type, user):
         notification = cls.objects.create(
             notification_type=message_type,
             recipient=settings.WEB_HOOK_URL,
-            notification_status='Successful'
+            notification_status="Successful",
         )
 
         webhook_message = cls._get_webhook_content(support_ticket, message_type, user)
@@ -479,7 +489,7 @@ class Notification(models.Model):
             )
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
-            notification.notification_status = 'Failed'
+            notification.notification_status = "Failed"
             notification.save()
             logger = logging.getLogger(__name__)
             logger.error(f"Failed to send webhook notification: {str(e)}")
@@ -488,39 +498,51 @@ class Notification(models.Model):
     @staticmethod
     def _get_email_content(support_ticket, message_type):
         """Get email content based on message type."""
-        message = EMAIL_MESSAGES.get(message_type)
-        if message:
-            subject = message['subject']
-            body = message['message'].format(
-                user_name=support_ticket.submitted_by.get_full_name(),
-                ticket_number=support_ticket.ticket_number,
-                centre=support_ticket.centre,
-                title=support_ticket.title,
-                category=support_ticket.category,
-                subcategory=support_ticket.subcategory,
+        message = EMAIL_MESSAGES.get(message_type, {})
+        subject = message.get("subject", "")
+        body = message.get("message", "")
+
+        if "{assigned_to}" in body and not hasattr(support_ticket, "assigned_to"):
+            raise ValueError(
             )
-            return subject, body
-        else:
-            print(f"Invalid message_type: {message_type}")  
-            print(f"Valid message_types: {', '.join(EMAIL_MESSAGES.keys())}")
-        return '', ''
+
+        variables = {
+            "user_name": support_ticket.submitted_by.get_full_name(),
+            "ticket_number": support_ticket.ticket_number,
+            "centre": support_ticket.centre,
+            "title": support_ticket.title,
+            "category": support_ticket.category,
+            "subcategory": support_ticket.subcategory,
+            "assigned_to": support_ticket.assigned_to.username
+            if hasattr(support_ticket, "assigned_to")
+            else "",
+        }
+
+        subject = subject.format(**variables)
+        body = body.format(**variables)
+
+        return subject, body
+
 
     @staticmethod
     def _get_webhook_content(support_ticket, message_type, user):
         """Get webhook content based on message type."""
-        # Ensure that required attributes are present in the support_ticket object
-        centre = getattr(support_ticket, 'centre', '')
-        title = getattr(support_ticket, 'title', '')
-        category = getattr(support_ticket, 'category', '')
-        subcategory = getattr(support_ticket, 'subcategory', '')
-        priority = getattr(support_ticket, 'priority', '')
-        ticket_number = getattr(support_ticket, 'ticket_number', '')
-        status = getattr(support_ticket, 'status', '')
+        centre = getattr(support_ticket, "centre", "")
+        title = getattr(support_ticket, "title", "")
+        category = getattr(support_ticket, "category", "")
+        subcategory = getattr(support_ticket, "subcategory", "")
+        priority = getattr(support_ticket, "priority", "")
+        ticket_number = getattr(support_ticket, "ticket_number", "")
+        status = getattr(support_ticket, "status", "")
+
+        assigned_to = ""
+        if hasattr(support_ticket, "assigned_to") and support_ticket.assigned_to:
+            assigned_to = support_ticket.assigned_to.username
 
         message = WEBHOOK_MESSAGES.get(message_type)
         if message:
             webhook_message = {
-                'text': message['text'].format(
+                "text": message["text"].format(
                     centre=centre,
                     title=title,
                     category=category,
@@ -528,6 +550,7 @@ class Notification(models.Model):
                     priority=priority,
                     ticket_number=ticket_number,
                     status=status,
+                    assigned_to=assigned_to,
                     user=user,
                 )
             }
