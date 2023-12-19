@@ -51,7 +51,20 @@ INSTALLED_APPS = [
     "smart_selects",
     "bootstrap4",
     # "django.contrib.postgres",
+    'rest_framework',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
 ]
+
+REST_FRAMEWORK = {
+    # 'DEFAULT_AUTHENTICATION_CLASSES': [
+    #     'dj_rest_auth.authentication.AllAuthJWTAuthentication',
+    # ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
