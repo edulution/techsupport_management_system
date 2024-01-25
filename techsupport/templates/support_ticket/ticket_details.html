@@ -8,10 +8,11 @@
       <strong>Ticket Details</strong>
     </h6>
   </div>
+
   <div class="card-body">
 
     <div class="row">
-      <div class="col-md-4">
+      <div class="col-md-5 offset-md-1">
         <div class="card">
           <div class="card-body">
             <!-- First card content goes here -->
@@ -22,101 +23,114 @@
               <button type="submit" class="btn bg-primary text-white mb-3" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}disabled{% endif %}>
                 <span class="ms-2"></span>Save
               </button>
-            </form>
-            
-            {% if user_role == 'admin' or user_role == 'super_admin' %}
-              <div class="dropdown show">
-                <a class="btn bg-primary text-white dropdown-toggle" href="#" role="button" id="priorityDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  {% if ticket.status == 'Resolved' %}
-                    {{ ticket.get_priority_display }}
-                  {% else %}
-                    Priority
-                  {% endif %}
-                </a>
 
-                <div class="dropdown-menu" aria-labelledby="priorityDropdown">
-                  <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="priority" value="{{ ticket.priority }}">
-                    <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="Low" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
-                      Low
-                    </button>
-                    <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="Medium" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
-                      Medium
-                    </button>
-                    <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="High" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
-                      High
-                    </button>
-
-                  </form>
+              <div class="d-sm-flex justify-content-between">
+                <div class="dropdown mb-2 mb-sm-0{% if ticket.status == 'Resolved' %} disabled{% endif %}">
+                  <a class="btn bg-primary text-white dropdown-toggle" id="statusDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Change Status
+                  </a>
+                  <div class="dropdown-menu" aria-labelledby="statusDropdown">
+                    <form method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="status" value="{{ ticket.status }}">
+                      <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="status" value="Resolved" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                        Resolved
+                      </button>
+                      <button class="dropdown-item{% if ticket.status == 'In Progress' %} disabled{% endif %}" type="submit" name="status" value="In Progress" {% if ticket.status == 'In Progress' or ticket.status == 'Resolved' %}disabled{% endif %}>
+                        In Progress
+                      </button>
+                      <button class="dropdown-item{% if ticket.status == 'Open' %} disabled{% endif %}" type="submit" name="status" value="Open" {% if ticket.status == 'Open' or ticket.status == 'Resolved' %}disabled{% endif %}>
+                        Open
+                      </button>
+                    </form>
+                  </div>
                 </div>
+              
+                {% if user_role == 'admin' or user_role == 'super_admin' %}
+                  <div class="dropdown show mb-2 mb-sm-0">
+                    <a class="btn bg-primary text-white dropdown-toggle" href="#" role="button" id="priorityDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Change Priority
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="priorityDropdown">
+                      <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="priority" value="{{ ticket.priority }}">
+                        <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="Low" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                          Low
+                        </button>
+                        <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="Medium" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                          Medium
+                        </button>
+                        <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="High" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                          High
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                {% endif %}
+              
+                {% if user_role == 'technician' or user_role == 'admin' or user_role == 'super_admin' %}
+                  <div class="dropdown show">
+                    <a class="btn bg-primary text-white dropdown-toggle" href="#" role="button" id="assignDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Assign Technician
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="assignDropdown">
+                      <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="assigned_to" value="{{ ticket.assigned_to }}">
+                        {% for technician in technicians %}
+                          <button class="dropdown-item" type="submit" name="assigned_to" value="{{ technician.id }}" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                            {{ technician.username }}
+                          </button>
+                        {% endfor %}
+                      </form>
+                    </div>
+                  </div>
+                {% endif %}
               </div>
-            {% endif %}
-
-
-            {% if user_role == 'technician' or user_role == 'admin' or user_role == 'super_admin' %}
-            <div class="dropdown show">
-              <a class="btn bg-primary text-white dropdown-toggle" href="#" role="button" id="assignDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Assign to
-              </a>
-          
-              <div class="dropdown-menu" aria-labelledby="assignDropdown">
-                <form method="post">
-                  {% csrf_token %}
-                  <input type="hidden" name="assigned_to" value="{{ ticket.assigned_to }}">
-                  {% for technician in technicians %}
-                    <button class="dropdown-item" type="submit" name="assigned_to" value="{{ technician.id }}" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
-                      {{ technician.username }}
-                    </button>
-                  {% endfor %}
-                </form>
-              </div>
-            </div>
-          {% endif %}
-          
-
-
-            <div class="dropdown{% if ticket.status == 'Resolved' %} disabled{% endif %}">
-              <a class="btn bg-primary text-white dropdown-toggle" id="statusDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {{ ticket.get_status_display }}
-              </a>
-            
-              <div class="dropdown-menu" aria-labelledby="statusDropdown">
-                <form method="post">
-                  {% csrf_token %}
-                  <input type="hidden" name="status" value="{{ ticket.status }}">
-            
-                  <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="status" value="Resolved" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
-                    Resolved
-                  </button>
-            
-                  <button class="dropdown-item{% if ticket.status == 'In Progress' %} disabled{% endif %}" type="submit" name="status" value="In Progress" {% if ticket.status == 'In Progress' or ticket.status == 'Resolved' %}disabled{% endif %}>
-                    In Progress
-                  </button>
-            
-                  <button class="dropdown-item{% if ticket.status == 'Open' %} disabled{% endif %}" type="submit" name="status" value="Open" {% if ticket.status == 'Open' or ticket.status == 'Resolved' %}disabled{% endif %}>
-                    Open
-                  </button>
-                </form>
-              </div>
-            </div>
-            
+            </form>
+                      
           </div>
         </div>
       </div>
-      <div class="col-md-4">
-        <div class="card">
+
+      <!-- Second card content goes here -->
+      <div class="col-md-4 offset-md-1 ">
+        <div class="card bg-light">
           <div class="card-body">
-            <div class="grid-item"><i class="bi bi-hash"></i>{{ ticket.ticket_number }}</div>
-            <div class="grid-item"><strong><i class="bi bi-person"></i> Submitted by:</strong> {{ ticket.submitted_by.username }}</div>
-            <div class="grid-item"><strong><i class="bi bi-info-circle"></i> Status:</strong> {{ ticket.get_status_display }}</div>
-            <div class="grid-item"><strong><i class="bi bi-exclamation-triangle"></i> Priority:</strong> {{ ticket.get_priority_display }}</div>
-            <div class="grid-item"><strong><i class="bi bi-building"></i> Centre:</strong> {{ ticket.centre }}</div>
-            <div class="grid-item"><strong><i class="bi bi-tags"></i> Category:</strong> {{ ticket.category }}</div>
-            <div class="grid-item"><strong><i class="bi bi-tag"></i> Subcategory:</strong> {{ ticket.subcategory }}</div>
+            <div class="grid-item mb-3">
+              <i class="bi bi-hash text-primary"></i>
+              <span class="ml-2">{{ ticket.ticket_number }}</span>
+            </div>
+            <div class="grid-item mb-3">
+              <strong><i class="bi bi-person text-primary"></i> Submitted by:</strong>
+              <span class="ml-2">{{ ticket.submitted_by.username }}</span>
+            </div>
+            <div class="grid-item mb-3">
+              <strong><i class="bi bi-info-circle text-primary"></i> Status:</strong>
+              <span class="ml-2">{{ ticket.get_status_display }}</span>
+            </div>
+            <div class="grid-item mb-3">
+              <strong><i class="bi bi-exclamation-triangle text-primary"></i> Priority:</strong>
+              <span class="ml-2">{{ ticket.get_priority_display }}</span>
+            </div>
+            <div class="grid-item mb-3">
+              <strong><i class="bi bi-building text-primary"></i> Centre:</strong>
+              <span class="ml-2">{{ ticket.centre }}</span>
+            </div>
+            <div class="grid-item mb-3">
+              <strong><i class="bi bi-tags text-primary"></i> Category:</strong>
+              <span class="ml-2">{{ ticket.category }}</span>
+            </div>
+            <div class="grid-item">
+              <strong><i class="bi bi-tag text-primary"></i> Subcategory:</strong>
+              <span class="ml-2">{{ ticket.subcategory }}</span>
+            </div>
           </div>
         </div>
       </div>
+      
+      
     </div>
 
   </div>
