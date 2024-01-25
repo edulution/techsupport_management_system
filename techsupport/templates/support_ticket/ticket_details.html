@@ -15,7 +15,7 @@
       <div class="col-md-5 offset-md-1">
         <div class="card">
           <div class="card-body">
-            <!-- First card content goes here -->
+            <!-- First card content -->
             <form method="post">
               {% csrf_token %}
                 <label for="description" class="form-label"><strong>Description:</strong></label>
@@ -25,20 +25,28 @@
               </button>
 
               <div class="d-sm-flex justify-content-between">
+                <!-- Dropdown for changing ticket status -->
                 <div class="dropdown mb-2 mb-sm-0{% if ticket.status == 'Resolved' %} disabled{% endif %}">
+                  <!-- Button to trigger the status dropdown -->
                   <a class="btn bg-primary text-white dropdown-toggle" id="statusDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Change Status
                   </a>
+                  <!-- Dropdown menu containing options for changing status -->
                   <div class="dropdown-menu" aria-labelledby="statusDropdown">
+                    <!-- Form to submit the selected status -->
                     <form method="post">
                       {% csrf_token %}
+                      <!-- Hidden input field to store the current ticket status -->
                       <input type="hidden" name="status" value="{{ ticket.status }}">
+                      <!-- Button for selecting Resolved status -->
                       <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="status" value="Resolved" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
                         Resolved
                       </button>
+                      <!-- Button for selecting In Progress status -->
                       <button class="dropdown-item{% if ticket.status == 'In Progress' %} disabled{% endif %}" type="submit" name="status" value="In Progress" {% if ticket.status == 'In Progress' or ticket.status == 'Resolved' %}disabled{% endif %}>
                         In Progress
                       </button>
+                      <!-- Button for selecting Open status -->
                       <button class="dropdown-item{% if ticket.status == 'Open' %} disabled{% endif %}" type="submit" name="status" value="Open" {% if ticket.status == 'Open' or ticket.status == 'Resolved' %}disabled{% endif %}>
                         Open
                       </button>
@@ -46,47 +54,64 @@
                   </div>
                 </div>
               
+                
                 {% if user_role == 'admin' or user_role == 'super_admin' %}
-                  <div class="dropdown show mb-2 mb-sm-0">
-                    <a class="btn bg-primary text-white dropdown-toggle" href="#" role="button" id="priorityDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Change Priority
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="priorityDropdown">
-                      <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="priority" value="{{ ticket.priority }}">
-                        <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="Low" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
-                          Low
-                        </button>
-                        <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="Medium" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
-                          Medium
-                        </button>
-                        <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="High" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
-                          High
-                        </button>
-                      </form>
-                    </div>
+                <!-- Dropdown for changing ticket priority, visible only to admin and super admin -->
+                <div class="dropdown show mb-2 mb-sm-0">
+                  <!-- Button to trigger the priority dropdown -->
+                  <a class="btn bg-primary text-white dropdown-toggle" href="#" role="button" id="priorityDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Change Priority
+                  </a>
+                  <!-- Dropdown menu containing options for changing priority -->
+                  <div class="dropdown-menu" aria-labelledby="priorityDropdown">
+                    <!-- Form to submit the selected priority -->
+                    <form method="post">
+                      {% csrf_token %}
+                      <!-- Hidden input field to store the current ticket priority -->
+                      <input type="hidden" name="priority" value="{{ ticket.priority }}">
+                      <!-- Button for selecting Low priority -->
+                      <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="Low" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                        Low
+                      </button>
+                      <!-- Button for selecting Medium priority -->
+                      <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="Medium" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                        Medium
+                      </button>
+                      <!-- Button for selecting High priority -->
+                      <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="High" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                        High
+                      </button>
+                    </form>
                   </div>
-                {% endif %}
+                </div>
+              {% endif %}
+              
               
                 {% if user_role == 'technician' or user_role == 'admin' or user_role == 'super_admin' %}
-                  <div class="dropdown show">
-                    <a class="btn bg-primary text-white dropdown-toggle" href="#" role="button" id="assignDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Assign Technician
-                    </a>
-                    <div class="dropdown-menu" aria-labelledby="assignDropdown">
-                      <form method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="assigned_to" value="{{ ticket.assigned_to }}">
-                        {% for technician in technicians %}
-                          <button class="dropdown-item" type="submit" name="assigned_to" value="{{ technician.id }}" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
-                            {{ technician.username }}
-                          </button>
-                        {% endfor %}
-                      </form>
-                    </div>
+                <!-- Dropdown for assigning a technician -->
+                <div class="dropdown show">
+                  <!-- Button to trigger the dropdown -->
+                  <a class="btn bg-primary text-white dropdown-toggle" href="#" role="button" id="assignDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Assign Technician
+                  </a>
+                  <!-- Dropdown menu containing the list of technicians -->
+                  <div class="dropdown-menu" aria-labelledby="assignDropdown">
+                    <!-- Form to submit the assigned technician -->
+                    <form method="post">
+                      {% csrf_token %}
+                      <!-- Hidden input field to store the current assigned technician -->
+                      <input type="hidden" name="assigned_to" value="{{ ticket.assigned_to }}">
+                      <!-- Loop through the list of technicians and create a button for each -->
+                      {% for technician in technicians %}
+                        <button class="dropdown-item" type="submit" name="assigned_to" value="{{ technician.id }}" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                          {{ technician.username }}
+                        </button>
+                      {% endfor %}
+                    </form>
                   </div>
-                {% endif %}
+                </div>
+              {% endif %}
+              
               </div>
             </form>
                       
@@ -94,7 +119,7 @@
         </div>
       </div>
 
-      <!-- Second card content goes here -->
+      <!-- Unedited card content -->
       <div class="col-md-4 offset-md-1 ">
         <div class="card bg-light">
           <div class="card-body">
