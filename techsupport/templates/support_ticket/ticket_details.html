@@ -1,102 +1,124 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <!-- Ticket Details Card -->
-      <div class="card border-0 shadow rounded-top">
-        <!-- Card Header -->
-        <div class="card-header bg-success text-white text-center rounded-top">
-          <h6 class="card-title">
-            <i class="bi bi-journal-plus me-2"></i>
-            <span class="mr-2"></span><strong>Ticket Details</strong>
-          </h6>
-        </div>
-        <div class="card-body">
-          <!-- Ticket Update Form -->
-          <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-              <label for="description"><strong>Description:</strong></label>
-              <textarea class="form-control" id="description" name="description" rows="4" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}readonly{% endif %}>{{ ticket.description }}</textarea>
-            </div>
-            {% if user_role == 'technician' or user_role == 'admin' or user_role == 'super_admin' %}
-            <div class="mb-3">
-              <label for="status"><strong>Status:</strong></label>
-              <select class="form-select" id="status" name="status" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
-                <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open</option>
-                <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress</option>
-                <option value="Resolved" {% if ticket.status == 'Resolved' %}selected{% endif %}>Resolved</option>
-                <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
-              </select>
-            </div>
-            <button type="submit" class="btn bg-primary btn-block text-white mb-3" {% if ticket.status == 'Resolved' %}disabled{% endif %}><i class="bi bi-caret-up"></i><span class="mr-2"></span>Update</button>
-            {% else %}
-            <button type="submit" class="btn bg-primary btn-block text-white mb-3" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}disabled{% endif %}><i class="bi bi-caret-up"></i><span class="mr-2"></span>Update Description</button>
-            {% endif %}
-          </form>
-          <!-- Assign Technician Form -->
-          {% if user_role == 'technician' or user_role == 'admin' or user_role == 'super_admin' %}
-          <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-              <label for="assigned_to"><strong>Assign to:</strong></label>
-              <select class="form-select" id="assigned_to" name="assigned_to" required {% if ticket.status == 'Resolved' %}disabled{% endif %}>
-                {% for technician in technicians %}
-                <option value="{{ technician.id }}">{{ technician.username }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <button type="submit" class="btn bg-primary btn-block text-white" {% if ticket.status == 'Resolved' %}disabled{% endif %}><i class="bi bi-hand-index-thumb me-2"></i><span class="mr-2"></span>Assign</button>
-          </form>
-          {% endif %}
-
-          <!-- Ticket Priority Form -->
-          {% if user_role == 'admin' or user_role == 'super_admin' %}
-          <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-              <label for="priority"><strong>Priority:</strong></label>
-              {% if ticket.status == 'Resolved' %}
-              <select class="form-select" id="priority" name="priority" disabled>
-                <option value="{{ ticket.priority }}">{{ ticket.get_priority_display }}</option>
-              </select>
-              {% else %}
-              {{ form_priority.priority }}
-              {% endif %}
-            </div>
-            <button type="submit" class="btn bg-primary btn-block text-white" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
-              <i class="bi bi-caret-up"></i><span class="mr-2"></span>Update
-            </button>
-          </form>
-          {% endif %}
-        </div>
-      </div>
-    </div>
+<div class="container-fluid mt-5">
+  <div class="card-header bg-success text-white text-center rounded-top">
+    <h6 class="card-title">
+      <i class="bi bi-journal-plus me-2"></i>
+      <strong>Ticket Details</strong>
+    </h6>
   </div>
+  <div class="card-body">
 
-  <!-- Ticket Information Card -->
-  <div class="row justify-content-center mt-3">
-    <div class="col-md-8">
-      <div class="card border-0 shadow">
-        <!-- Card Footer -->
-        <div class="card-footer rounded-bottom">
-          <p class="card-text"><i class="bi bi-hash"></i>{{ ticket.ticket_number }}</p>
-          <p class="card-text"><strong><i class="bi bi-person"></i> Submitted by:</strong> {{ ticket.submitted_by.username }}</p>
-          <p class="card-text"><strong><i class="bi bi-info-circle"></i> Status:</strong> {{ ticket.get_status_display }}</p>
-          <p class="card-text"><strong><i class="bi bi-exclamation-triangle"></i> Priority:</strong> {{ ticket.get_priority_display }}</p>
-          <p class="card-text"><strong><i class="bi bi-building"></i> Centre:</strong> {{ ticket.centre }}</p>
-          <p class="card-text"><strong><i class="bi bi-tags"></i> Category:</strong> {{ ticket.category }}</p>
-          <p class="card-text"><strong><i class="bi bi-tag"></i> Subcategory:</strong> {{ ticket.subcategory }}</p>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <!-- First card content goes here -->
+            <form method="post">
+              {% csrf_token %}
+                <label for="description" class="form-label"><strong>Description:</strong></label>
+                <textarea class="form-control text-area-1" id="description" name="description" rows="4" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}readonly{% endif %}>{{ ticket.description }}</textarea> <br>
+              <button type="submit" class="btn bg-primary text-white mb-3" {% if ticket.status == 'Resolved' or ticket.status == 'In Progress' %}disabled{% endif %}>
+                <span class="ms-2"></span>Save
+              </button>
+            </form>
+            
+            {% if user_role == 'admin' or user_role == 'super_admin' %}
+              <div class="dropdown show">
+                <a class="btn bg-primary text-white dropdown-toggle" href="#" role="button" id="priorityDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  {% if ticket.status == 'Resolved' %}
+                    {{ ticket.get_priority_display }}
+                  {% else %}
+                    Priority
+                  {% endif %}
+                </a>
+
+                <div class="dropdown-menu" aria-labelledby="priorityDropdown">
+                  <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="priority" value="{{ ticket.priority }}">
+                    <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="Low" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                      Low
+                    </button>
+                    <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="Medium" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                      Medium
+                    </button>
+                    <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="priority" value="High" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                      High
+                    </button>
+
+                  </form>
+                </div>
+              </div>
+            {% endif %}
+
+
+            {% if user_role == 'technician' or user_role == 'admin' or user_role == 'super_admin' %}
+            <div class="dropdown show">
+              <a class="btn bg-primary text-white dropdown-toggle" href="#" role="button" id="assignDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Assign to
+              </a>
+          
+              <div class="dropdown-menu" aria-labelledby="assignDropdown">
+                <form method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="assigned_to" value="{{ ticket.assigned_to }}">
+                  {% for technician in technicians %}
+                    <button class="dropdown-item" type="submit" name="assigned_to" value="{{ technician.id }}" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                      {{ technician.username }}
+                    </button>
+                  {% endfor %}
+                </form>
+              </div>
+            </div>
+          {% endif %}
+          
+
+
+            <div class="dropdown{% if ticket.status == 'Resolved' %} disabled{% endif %}">
+              <a class="btn bg-primary text-white dropdown-toggle" id="statusDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{ ticket.get_status_display }}
+              </a>
+            
+              <div class="dropdown-menu" aria-labelledby="statusDropdown">
+                <form method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="status" value="{{ ticket.status }}">
+            
+                  <button class="dropdown-item{% if ticket.status == 'Resolved' %} disabled{% endif %}" type="submit" name="status" value="Resolved" {% if ticket.status == 'Resolved' %}disabled{% endif %}>
+                    Resolved
+                  </button>
+            
+                  <button class="dropdown-item{% if ticket.status == 'In Progress' %} disabled{% endif %}" type="submit" name="status" value="In Progress" {% if ticket.status == 'In Progress' or ticket.status == 'Resolved' %}disabled{% endif %}>
+                    In Progress
+                  </button>
+            
+                  <button class="dropdown-item{% if ticket.status == 'Open' %} disabled{% endif %}" type="submit" name="status" value="Open" {% if ticket.status == 'Open' or ticket.status == 'Resolved' %}disabled{% endif %}>
+                    Open
+                  </button>
+                </form>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card">
+          <div class="card-body">
+            <div class="grid-item"><i class="bi bi-hash"></i>{{ ticket.ticket_number }}</div>
+            <div class="grid-item"><strong><i class="bi bi-person"></i> Submitted by:</strong> {{ ticket.submitted_by.username }}</div>
+            <div class="grid-item"><strong><i class="bi bi-info-circle"></i> Status:</strong> {{ ticket.get_status_display }}</div>
+            <div class="grid-item"><strong><i class="bi bi-exclamation-triangle"></i> Priority:</strong> {{ ticket.get_priority_display }}</div>
+            <div class="grid-item"><strong><i class="bi bi-building"></i> Centre:</strong> {{ ticket.centre }}</div>
+            <div class="grid-item"><strong><i class="bi bi-tags"></i> Category:</strong> {{ ticket.category }}</div>
+            <div class="grid-item"><strong><i class="bi bi-tag"></i> Subcategory:</strong> {{ ticket.subcategory }}</div>
+          </div>
         </div>
       </div>
     </div>
+
   </div>
 </div>
-<style>
-  .bg-primary {
-    background-color: #5A97D0 !important;
-  }
-</style>
 {% endblock %}
