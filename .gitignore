@@ -14,6 +14,7 @@ pyvenv.cfg
 logs/
 *.log
 
+# Ignore Static files
 static/
 
 # Ignore Visual Studio Code settings
@@ -24,4 +25,5 @@ static/
 Lib
 Scripts
 
-# Ignore Static files
+# ignore migrations except initial
+techsupport/migrations/00*.py
