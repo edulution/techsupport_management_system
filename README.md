@@ -48,6 +48,7 @@ GOOGLE_CLIENT_SECRET=<your-value>
 ### 3. Run migrations and start the server
 Inside the root directory of the project, run database migrartions and start the server:
 ```Shell
+$ python manage.py makemigrations
 $ python manage.py migrate
 $ python manage.py runserver
 ``` 
