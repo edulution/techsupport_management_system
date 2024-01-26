@@ -25,3 +25,5 @@ static/
 Lib
 Scripts
 
+# ignore migrations except initial
+techsupport/migrations/00*.py
