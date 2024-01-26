@@ -47,6 +47,9 @@ jobs:
         echo "GOOGLE_API_KEY=mydummyapikey" >> $GITHUB_ENV
         echo "GOOGLE_CHAT_WEB_HOOK_URL=mydummywebhookurl" >> $GITHUB_ENV
 
+    - name: Create migrations
+      run: |
+        python manage.py makemigrations
     - name: Run Tests
       run: |
         python manage.py test
