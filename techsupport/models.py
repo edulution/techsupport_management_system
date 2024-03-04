@@ -373,6 +373,14 @@ class SupportTicket(BaseModel):
         related_name="assigned_tickets",
     )
 
+    # Setting ticket due date
+    due_date = models.DateTimeField(
+        # 
+        verbose_name=_("due date"),
+        null=True,
+        blank=True
+    )
+
     def save(self, *args, **kwargs):
         """
         Override the save method to set the ticket number and support description.
